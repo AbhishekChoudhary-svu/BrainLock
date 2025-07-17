@@ -17,7 +17,7 @@ export default function Home() {
                   <h1
               className="text-7xl font-[900] text-start bg-[url('/thumd.jpg')] bg-cover bg-center text-transparent bg-clip-text"
             >
-              WELCOME TO BRAIN-LOCK
+              WELCOME TO BRAIN-LOCK.
             </h1>
 
         <p className="max-w-6xl text-lg font-[500] text-white">
