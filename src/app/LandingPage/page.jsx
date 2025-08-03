@@ -16,11 +16,18 @@ import {
   Twitter,
   Linkedin,
   Mail,
+  LayoutGrid,
+  BarChart2,
 } from "lucide-react"
+import { useContext } from "react"
+import MyContext from "@/context/ThemeProvider"
+import Link from "next/link"
 
 export default function LandingPage() {
+
+ 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen  bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Navigation */}
       <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,8 +39,12 @@ export default function LandingPage() {
             <div className="flex items-center space-x-4">
               <Button variant="ghost">About</Button>
               <Button variant="ghost">Contact</Button>
+              <Link href={"/LoginPage"}>
               <Button variant="outline">Login</Button>
-              <Button>Get Started</Button>
+              </Link>
+              <Link href={"/Dashboard/StudentDashboard"}>
+              <Button>Get Started!</Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -68,125 +79,129 @@ export default function LandingPage() {
       </section>
 
       {/* Feature Highlights Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Powerful Features for Modern Learning</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Experience the future of education with our comprehensive suite of AI-driven tools
-            </p>
-          </div>
+     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-200 dark:bg-zinc-900">
+  <div className="max-w-7xl mx-auto">
+    <div className="text-center mb-16">
+      <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        Smart Tools for Better Learning & Teaching
+      </h2>
+      <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        Unlock your potential with AI-driven learning paths, progress tracking, and real-time performance insights.
+      </p>
+    </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <Brain className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <CardTitle>AI-Generated Course Challenges</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Personalized challenges created by AI to match your learning pace and style
-                </CardDescription>
-              </CardContent>
-            </Card>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {/* AI Challenge Generator */}
+      <Card className="text-center hover:shadow-lg transition-shadow">
+        <CardHeader>
+          <Brain className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+          <CardTitle>AI-Generated Daily Challenges</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CardDescription>
+            Stay consistent with smart daily tasks tailored to your pace and course structure.
+          </CardDescription>
+        </CardContent>
+      </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <Users className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <CardTitle>Role-Based Access</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Tailored experiences for Admins, Teachers, and Students with appropriate permissions
-                </CardDescription>
-              </CardContent>
-            </Card>
+      {/* Leaderboard */}
+      <Card className="text-center hover:shadow-lg transition-shadow">
+        <CardHeader>
+          <Trophy className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
+          <CardTitle>Leaderboards & Streaks</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CardDescription>
+            Compete with classmates and track your learning streaks to stay motivated every day.
+          </CardDescription>
+        </CardContent>
+      </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <Trophy className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
-                <CardTitle>Real-Time Leaderboards & Streaks</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>Stay motivated with competitive leaderboards and streak tracking</CardDescription>
-              </CardContent>
-            </Card>
+      {/* AI Chat Assistant */}
+      <Card className="text-center hover:shadow-lg transition-shadow">
+        <CardHeader>
+          <MessageCircle className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+          <CardTitle>Course-Specific AI Assistant</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CardDescription>
+            Get instant answers and learning support with smart AI chatbots trained on your course content.
+          </CardDescription>
+        </CardContent>
+      </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <MessageCircle className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                <CardTitle>Course-Specific AI Chat</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>Get instant help with intelligent AI assistants for each course</CardDescription>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      {/* Performance Tools for Teachers */}
+      <Card className="text-center hover:shadow-lg transition-shadow">
+        <CardHeader>
+          <BarChart2 className="h-12 w-12 text-green-600 mx-auto mb-4" />
+          <CardTitle>Student Performance Insights</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CardDescription>
+            Teachers can monitor scores, view trends, and personalize support with real-time performance graphs.
+          </CardDescription>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+     </section>
+
 
       {/* User Roles Overview Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Built for Every Learning Role</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Whether you're managing, teaching, or learning, Brain Lock adapts to your needs
-            </p>
-          </div>
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-100 dark:bg-zinc-900">
+    <div className="max-w-7xl mx-auto">
+      <div className="text-center mb-16">
+        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          Smarter Learning for Students & Teachers
+        </h2>
+        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          Brain Lock helps students stay consistent and empowers teachers to guide better with smart tools and insights.
+        </p>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <Shield className="h-16 w-16 text-red-600 mx-auto mb-4" />
-                <CardTitle>Top Admin</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-center">
-                  Complete platform oversight with advanced analytics, user management, and system configuration
-                  controls
-                </CardDescription>
-              </CardContent>
-            </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Student Card */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="text-center">
+            <BookOpen className="h-16 w-16 text-purple-600 mx-auto mb-4" />
+            <CardTitle>For Students</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="text-center">
+              Start daily challenges, get AI assistance, track streaks, and climb the leaderboard while learning smarter every day.
+            </CardDescription>
+          </CardContent>
+        </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <Users className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                <CardTitle>Admin</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-center">
-                  Manage courses, monitor student progress, and coordinate with teachers for optimal learning outcomes
-                </CardDescription>
-              </CardContent>
-            </Card>
+        {/* Teacher Card */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="text-center">
+            <GraduationCap className="h-16 w-16 text-green-600 mx-auto mb-4" />
+            <CardTitle>For Teachers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="text-center">
+              Manage your assigned courses, monitor student scores, and analyze performance with real-time insights.
+            </CardDescription>
+          </CardContent>
+        </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <GraduationCap className="h-16 w-16 text-green-600 mx-auto mb-4" />
-                <CardTitle>Teacher</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-center">
-                  Create engaging content, track student performance, and provide personalized feedback and guidance
-                </CardDescription>
-              </CardContent>
-            </Card>
+        {/* Courses Card */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="text-center">
+            <LayoutGrid className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+            <CardTitle>Explore Courses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="text-center">
+              Discover subject-based learning paths, AI-generated challenge plans, and detailed topic breakdowns for each course.
+            </CardDescription>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+    </section>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center">
-                <BookOpen className="h-16 w-16 text-purple-600 mx-auto mb-4" />
-                <CardTitle>Student</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-center">
-                  Access personalized learning paths, compete with peers, and track your progress with AI assistance
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
 
       {/* How It Works Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-300">
