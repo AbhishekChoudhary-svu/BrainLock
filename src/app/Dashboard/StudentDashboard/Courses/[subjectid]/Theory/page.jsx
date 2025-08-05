@@ -40,6 +40,32 @@ const mockTheoryContent = {
       <p class="mb-4">While seemingly distinct, calculus and linear algebra often intersect. For instance, multivariable calculus uses concepts from linear algebra to describe derivatives and integrals in higher dimensions. Advanced topics include differential equations, numerical methods, and optimization, all of which leverage tools from both fields.</p>
       <p class="mb-4">Mastering these subjects requires consistent practice, a deep understanding of theoretical principles, and the ability to apply them to diverse problems. Utilize the AI assistant to clarify concepts and the search bar to quickly find information within this theory.</p>
     `,
+    title: "Advanced Mathematics: Calculus & Algebra",
+    content: `
+      <p class="mb-4">Welcome to the Advanced Mathematics theory section. Here, we will delve into the intricate world of Calculus and Linear Algebra, building upon foundational concepts to tackle more complex problems.</p>
+      
+      <h3 class="text-xl font-semibold mb-3">I. Calculus: The Study of Change</h3>
+      <p class="mb-2">Calculus is a branch of mathematics focused on limits, functions, derivatives, integrals, and infinite series. It has two major branches: differential calculus and integral calculus.</p>
+      <ul class="list-disc list-inside mb-4 pl-4">
+        <li><strong>Differential Calculus:</strong> Deals with rates of change and slopes of curves. Key concepts include limits, continuity, and differentiation rules (power rule, product rule, chain rule).</li>
+        <li><strong>Integral Calculus:</strong> Deals with accumulation of quantities and areas under curves. Key concepts include antiderivatives, definite and indefinite integrals, and techniques of integration (substitution, integration by parts).</li>
+      </ul>
+      <p class="mb-4">Applications of calculus are vast, ranging from physics and engineering to economics and biology. It allows us to model dynamic systems and predict their behavior over time.</p>
+
+      <h3 class="text-xl font-semibold mb-3">II. Linear Algebra: The Mathematics of Data</h3>
+      <p class="mb-2">Linear Algebra is the study of vectors, vector spaces (also called linear spaces), linear transformations, and systems of linear equations. It is fundamental to modern mathematics and its applications.</p>
+      <ul class="list-disc list-inside mb-4 pl-4">
+        <li><strong>Vectors and Vector Spaces:</strong> Understanding vectors as quantities with both magnitude and direction, and vector spaces as collections of vectors that can be added together and multiplied by scalars.</li>
+        <li><strong>Matrices:</strong> Rectangular arrays of numbers, symbols, or expressions, arranged in rows and columns. Matrices are used to represent linear transformations, solve systems of equations, and store data.</li>
+        <li><strong>Determinants:</strong> A scalar value that can be computed from the elements of a square matrix. It provides information about the properties of the matrix, such as invertibility.</li>
+        <li><strong>Eigenvalues and Eigenvectors:</strong> Special vectors that are only scaled by a linear transformation, without changing direction. They are crucial in many areas, including principal component analysis (PCA) and quantum mechanics.</li>
+      </ul>
+      <p class="mb-4">Linear algebra is the language of data science, machine learning, and computer graphics. Its concepts are essential for understanding algorithms that process and analyze large datasets.</p>
+
+      <h3 class="text-xl font-semibold mb-3">III. Interconnections and Advanced Topics</h3>
+      <p class="mb-4">While seemingly distinct, calculus and linear algebra often intersect. For instance, multivariable calculus uses concepts from linear algebra to describe derivatives and integrals in higher dimensions. Advanced topics include differential equations, numerical methods, and optimization, all of which leverage tools from both fields.</p>
+      <p class="mb-4">Mastering these subjects requires consistent practice, a deep understanding of theoretical principles, and the ability to apply them to diverse problems. Utilize the AI assistant to clarify concepts and the search bar to quickly find information within this theory.</p>
+    `,
   },
   physics: {
     title: "Physics Fundamentals: Mechanics & Electromagnetism",
@@ -125,10 +151,18 @@ export default function SubjectTheoryPage() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
+  
 
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  const stripHtml = (html) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
+};
+
 
   const handleSendMessage = async (e) => {
     e.preventDefault()

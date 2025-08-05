@@ -272,10 +272,12 @@ export default function SubjectCoursePage() {
                     </div>
                     <div className="flex justify-between items-center">
                       <Badge variant="secondary">+{challenge.points} pts</Badge>
+                      <Link href={`/Dashboard/StudentDashboard/Courses/${course.subjectId}/Theory`}>
                       <Button size="sm">
-                        Start Challenge
+                        Open Theory
                         <ChevronRight className="ml-1 h-4 w-4" />
                       </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -290,14 +292,14 @@ export default function SubjectCoursePage() {
         </section>
 
         {/* Link to Theory Page */}
-        <section className="text-center mt-8">
+        {/* <section className="text-center mt-8">
           <Link href={`/Dashboard/StudentDashboard/Courses/${course.subjectId}/Theory`}>
             <Button size="lg" className="text-lg px-8 py-3">
               Explore {course.title} Theory
               <BookOpen className="ml-2 h-5 w-5" />
             </Button>
           </Link>
-        </section>
+        </section> */}
       </main>
     </div>
   )
