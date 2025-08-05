@@ -1,16 +1,28 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +30,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -26,8 +38,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Brain,
   BookOpen,
@@ -58,12 +77,15 @@ import {
   UserMinus,
   Lock,
   Unlock,
-} from "lucide-react"
+  User,
+  CircuitBoard,
+} from "lucide-react";
+import Link from "next/link";
 
 export default function AdminDashboard() {
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [isCreateUserOpen, setIsCreateUserOpen] = useState(false)
-  const [isSystemSettingsOpen, setIsSystemSettingsOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
+  const [isSystemSettingsOpen, setIsSystemSettingsOpen] = useState(false);
 
   // Mock data for admin (includes all teacher data plus admin-specific)
   const adminData = {
@@ -79,7 +101,7 @@ export default function AdminDashboard() {
     totalCourses: 89,
     systemUptime: "99.9%",
     activeUsers: 892,
-  }
+  };
 
   // All users (teachers + students + admins)
   const allUsers = [
@@ -127,7 +149,7 @@ export default function AdminDashboard() {
       courses: 5,
       avgScore: 88,
     },
-  ]
+  ];
 
   const systemStats = [
     {
@@ -158,7 +180,7 @@ export default function AdminDashboard() {
       color: "text-yellow-600",
       bgColor: "bg-yellow-100",
     },
-  ]
+  ];
 
   const recentAdminActivities = [
     {
@@ -185,35 +207,35 @@ export default function AdminDashboard() {
       title: "Suspended user account: john.doe@student.edu",
       time: "1 day ago",
     },
-  ]
+  ];
 
   const getRoleColor = (role) => {
     switch (role) {
       case "admin":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       case "teacher":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "student":
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-100 text-blue-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   const getActivityIcon = (type) => {
     switch (type) {
       case "user_created":
-        return <UserPlus className="h-4 w-4 text-green-600" />
+        return <UserPlus className="h-4 w-4 text-green-600" />;
       case "system_update":
-        return <Settings className="h-4 w-4 text-blue-600" />
+        return <Settings className="h-4 w-4 text-blue-600" />;
       case "course_approved":
-        return <CheckCircle className="h-4 w-4 text-green-600" />
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
       case "user_suspended":
-        return <UserMinus className="h-4 w-4 text-red-600" />
+        return <UserMinus className="h-4 w-4 text-red-600" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-600" />
+        return <AlertCircle className="h-4 w-4 text-gray-600" />;
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -238,7 +260,11 @@ export default function AdminDashboard() {
                 Add User
               </Button>
 
-              <Button size="sm" variant="outline" onClick={() => setIsSystemSettingsOpen(true)}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsSystemSettingsOpen(true)}
+              >
                 <Settings className="h-4 w-4 mr-2" />
                 System
               </Button>
@@ -254,9 +280,15 @@ export default function AdminDashboard() {
               {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    className="flex items-center space-x-2"
+                  >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={adminData.avatar || "/placeholder.svg"} alt={adminData.name} />
+                      <AvatarImage
+                        src={adminData.avatar || "/placeholder.svg"}
+                        alt={adminData.name}
+                      />
                       <AvatarFallback>MT</AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
@@ -268,6 +300,18 @@ export default function AdminDashboard() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <Link href={"/Dashboard/StudentDashboard"}>
+                    <DropdownMenuItem>
+                      <User className="mr-2 h-4 w-4" />
+                      Student Page
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href={"/Dashboard/TeacherDashboard"}>
+                    <DropdownMenuItem>
+                      <CircuitBoard className="mr-2 h-4 w-4" />
+                      Teacher Page
+                    </DropdownMenuItem>
+                  </Link>
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
                     System Settings
@@ -296,8 +340,12 @@ export default function AdminDashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back, {adminData.name.split(" ")[1]}! 👋</h2>
-          <p className="text-gray-600">Monitor system performance and manage all platform users</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Welcome back, {adminData.name.split(" ")[1]}! 👋
+          </h2>
+          <p className="text-gray-600">
+            Monitor system performance and manage all platform users
+          </p>
         </div>
 
         {/* Stats Cards */}
@@ -308,40 +356,54 @@ export default function AdminDashboard() {
               <Users className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{adminData.totalUsers.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {adminData.totalUsers.toLocaleString()}
+              </div>
               <p className="text-xs text-gray-600">+47 this month</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Active Users
+              </CardTitle>
               <Activity className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{adminData.activeUsers}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {adminData.activeUsers}
+              </div>
               <p className="text-xs text-gray-600">71% of total users</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Courses
+              </CardTitle>
               <BookOpen className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{adminData.totalCourses}</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {adminData.totalCourses}
+              </div>
               <p className="text-xs text-gray-600">12 pending approval</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">System Uptime</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                System Uptime
+              </CardTitle>
               <Server className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{adminData.systemUptime}</div>
+              <div className="text-2xl font-bold text-purple-600">
+                {adminData.systemUptime}
+              </div>
               <p className="text-xs text-gray-600">Last 30 days</p>
             </CardContent>
           </Card>
@@ -374,16 +436,23 @@ export default function AdminDashboard() {
                   <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {systemStats.map((stat, index) => {
-                        const Icon = stat.icon
+                        const Icon = stat.icon;
                         return (
-                          <div key={index} className={`p-4 rounded-lg ${stat.bgColor}`}>
+                          <div
+                            key={index}
+                            className={`p-4 rounded-lg ${stat.bgColor}`}
+                          >
                             <div className="flex items-center space-x-2 mb-2">
                               <Icon className={`h-5 w-5 ${stat.color}`} />
-                              <span className="text-sm font-medium">{stat.title}</span>
+                              <span className="text-sm font-medium">
+                                {stat.title}
+                              </span>
                             </div>
-                            <div className={`text-lg font-bold ${stat.color}`}>{stat.value}</div>
+                            <div className={`text-lg font-bold ${stat.color}`}>
+                              {stat.value}
+                            </div>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   </CardContent>
@@ -401,23 +470,40 @@ export default function AdminDashboard() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium">Students</span>
-                        <span className="text-sm text-gray-600">{adminData.totalStudents}</span>
+                        <span className="text-sm text-gray-600">
+                          {adminData.totalStudents}
+                        </span>
                       </div>
-                      <Progress value={(adminData.totalStudents / adminData.totalUsers) * 100} className="h-2" />
+                      <Progress
+                        value={
+                          (adminData.totalStudents / adminData.totalUsers) * 100
+                        }
+                        className="h-2"
+                      />
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium">Teachers</span>
-                        <span className="text-sm text-gray-600">{adminData.totalTeachers}</span>
+                        <span className="text-sm text-gray-600">
+                          {adminData.totalTeachers}
+                        </span>
                       </div>
-                      <Progress value={(adminData.totalTeachers / adminData.totalUsers) * 100} className="h-2" />
+                      <Progress
+                        value={
+                          (adminData.totalTeachers / adminData.totalUsers) * 100
+                        }
+                        className="h-2"
+                      />
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium">Admins</span>
                         <span className="text-sm text-gray-600">46</span>
                       </div>
-                      <Progress value={(46 / adminData.totalUsers) * 100} className="h-2" />
+                      <Progress
+                        value={(46 / adminData.totalUsers) * 100}
+                        className="h-2"
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -433,11 +519,20 @@ export default function AdminDashboard() {
                   <CardContent>
                     <div className="space-y-4">
                       {recentAdminActivities.map((activity) => (
-                        <div key={activity.id} className="flex items-start space-x-3">
-                          <div className="flex-shrink-0 mt-1">{getActivityIcon(activity.type)}</div>
+                        <div
+                          key={activity.id}
+                          className="flex items-start space-x-3"
+                        >
+                          <div className="flex-shrink-0 mt-1">
+                            {getActivityIcon(activity.type)}
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                            <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {activity.title}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {activity.time}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -462,11 +557,17 @@ export default function AdminDashboard() {
                       <UserPlus className="mr-2 h-4 w-4" />
                       Add New User
                     </Button>
-                    <Button className="w-full justify-start bg-transparent" variant="outline">
+                    <Button
+                      className="w-full justify-start bg-transparent"
+                      variant="outline"
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Export User Data
                     </Button>
-                    <Button className="w-full justify-start bg-transparent" variant="outline">
+                    <Button
+                      className="w-full justify-start bg-transparent"
+                      variant="outline"
+                    >
                       <Shield className="mr-2 h-4 w-4" />
                       Security Audit
                     </Button>
@@ -498,7 +599,9 @@ export default function AdminDashboard() {
                     </Alert>
                     <Alert>
                       <CheckCircle className="h-4 w-4" />
-                      <AlertDescription className="text-sm">Database backup completed successfully.</AlertDescription>
+                      <AlertDescription className="text-sm">
+                        Database backup completed successfully.
+                      </AlertDescription>
                     </Alert>
                   </CardContent>
                 </Card>
@@ -514,19 +617,33 @@ export default function AdminDashboard() {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-center">
                       <div className="p-3 bg-blue-50 rounded-lg">
-                        <div className="text-lg font-bold text-blue-600">2.4M</div>
-                        <div className="text-xs text-gray-600">Total Challenges</div>
+                        <div className="text-lg font-bold text-blue-600">
+                          2.4M
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          Total Challenges
+                        </div>
                       </div>
                       <div className="p-3 bg-green-50 rounded-lg">
-                        <div className="text-lg font-bold text-green-600">94%</div>
-                        <div className="text-xs text-gray-600">Success Rate</div>
+                        <div className="text-lg font-bold text-green-600">
+                          94%
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          Success Rate
+                        </div>
                       </div>
                       <div className="p-3 bg-purple-50 rounded-lg">
-                        <div className="text-lg font-bold text-purple-600">156K</div>
-                        <div className="text-xs text-gray-600">Hours Studied</div>
+                        <div className="text-lg font-bold text-purple-600">
+                          156K
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          Hours Studied
+                        </div>
                       </div>
                       <div className="p-3 bg-yellow-50 rounded-lg">
-                        <div className="text-lg font-bold text-yellow-600">98%</div>
+                        <div className="text-lg font-bold text-yellow-600">
+                          98%
+                        </div>
                         <div className="text-xs text-gray-600">Uptime</div>
                       </div>
                     </div>
@@ -584,16 +701,26 @@ export default function AdminDashboard() {
                           </Avatar>
                           <div>
                             <p className="font-medium">{user.name}</p>
-                            <p className="text-sm text-gray-600">{user.email}</p>
+                            <p className="text-sm text-gray-600">
+                              {user.email}
+                            </p>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getRoleColor(user.role)}>{user.role}</Badge>
+                        <Badge className={getRoleColor(user.role)}>
+                          {user.role}
+                        </Badge>
                       </TableCell>
                       <TableCell>{user.department}</TableCell>
                       <TableCell>
-                        <Badge variant={user.status === "active" ? "default" : "secondary"}>{user.status}</Badge>
+                        <Badge
+                          variant={
+                            user.status === "active" ? "default" : "secondary"
+                          }
+                        >
+                          {user.status}
+                        </Badge>
                       </TableCell>
                       <TableCell>{user.lastLogin}</TableCell>
                       <TableCell>
@@ -606,7 +733,9 @@ export default function AdminDashboard() {
                             {user.courses} courses, {user.avgScore}% avg
                           </span>
                         ) : (
-                          <span className="text-sm text-gray-600">System Admin</span>
+                          <span className="text-sm text-gray-600">
+                            System Admin
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -621,6 +750,7 @@ export default function AdminDashboard() {
                               <Eye className="mr-2 h-4 w-4" />
                               View Profile
                             </DropdownMenuItem>
+
                             <DropdownMenuItem>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit User
@@ -674,13 +804,18 @@ export default function AdminDashboard() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg">Pending Approval</CardTitle>
-                    <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                    <Badge
+                      variant="outline"
+                      className="bg-yellow-100 text-yellow-800"
+                    >
                       12 Courses
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">Review and approve new courses submitted by teachers</p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Review and approve new courses submitted by teachers
+                  </p>
                   <Button size="sm" className="w-full">
                     Review Pending
                   </Button>
@@ -691,7 +826,9 @@ export default function AdminDashboard() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg">Active Courses</CardTitle>
-                    <Badge className="bg-green-100 text-green-800">89 Courses</Badge>
+                    <Badge className="bg-green-100 text-green-800">
+                      89 Courses
+                    </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -719,19 +856,29 @@ export default function AdminDashboard() {
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">Performance Metrics</CardTitle>
-                    <Badge className="bg-blue-100 text-blue-800">Analytics</Badge>
+                    <CardTitle className="text-lg">
+                      Performance Metrics
+                    </CardTitle>
+                    <Badge className="bg-blue-100 text-blue-800">
+                      Analytics
+                    </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="text-center p-3 bg-blue-50 rounded-lg">
                       <div className="text-lg font-bold text-blue-600">87%</div>
-                      <div className="text-xs text-gray-600">Avg Completion</div>
+                      <div className="text-xs text-gray-600">
+                        Avg Completion
+                      </div>
                     </div>
                     <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <div className="text-lg font-bold text-green-600">92%</div>
-                      <div className="text-xs text-gray-600">Student Satisfaction</div>
+                      <div className="text-lg font-bold text-green-600">
+                        92%
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        Student Satisfaction
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -780,19 +927,27 @@ export default function AdminDashboard() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div className="p-3 bg-green-50 rounded-lg">
-                      <div className="text-lg font-bold text-green-600">Online</div>
+                      <div className="text-lg font-bold text-green-600">
+                        Online
+                      </div>
                       <div className="text-xs text-gray-600">Status</div>
                     </div>
                     <div className="p-3 bg-blue-50 rounded-lg">
-                      <div className="text-lg font-bold text-blue-600">2.3GB</div>
+                      <div className="text-lg font-bold text-blue-600">
+                        2.3GB
+                      </div>
                       <div className="text-xs text-gray-600">Size</div>
                     </div>
                     <div className="p-3 bg-purple-50 rounded-lg">
-                      <div className="text-lg font-bold text-purple-600">1.2M</div>
+                      <div className="text-lg font-bold text-purple-600">
+                        1.2M
+                      </div>
                       <div className="text-xs text-gray-600">Records</div>
                     </div>
                     <div className="p-3 bg-yellow-50 rounded-lg">
-                      <div className="text-lg font-bold text-yellow-600">12ms</div>
+                      <div className="text-lg font-bold text-yellow-600">
+                        12ms
+                      </div>
                       <div className="text-xs text-gray-600">Avg Query</div>
                     </div>
                   </div>
@@ -806,7 +961,9 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Platform Growth</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Platform Growth
+                  </CardTitle>
                   <TrendingUp className="h-4 w-4 text-green-600" />
                 </CardHeader>
                 <CardContent>
@@ -817,7 +974,9 @@ export default function AdminDashboard() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">User Engagement</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    User Engagement
+                  </CardTitle>
                   <Activity className="h-4 w-4 text-blue-600" />
                 </CardHeader>
                 <CardContent>
@@ -828,7 +987,9 @@ export default function AdminDashboard() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Course Completion</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Course Completion
+                  </CardTitle>
                   <CheckCircle className="h-4 w-4 text-purple-600" />
                 </CardHeader>
                 <CardContent>
@@ -839,7 +1000,9 @@ export default function AdminDashboard() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Revenue Growth</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Revenue Growth
+                  </CardTitle>
                   <Award className="h-4 w-4 text-yellow-600" />
                 </CardHeader>
                 <CardContent>
@@ -852,7 +1015,8 @@ export default function AdminDashboard() {
             <Alert>
               <BarChart3 className="h-4 w-4" />
               <AlertDescription>
-                Advanced analytics dashboard with detailed reports and insights is coming soon.
+                Advanced analytics dashboard with detailed reports and insights
+                is coming soon.
               </AlertDescription>
             </Alert>
           </TabsContent>
@@ -863,22 +1027,36 @@ export default function AdminDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle>System Configuration</CardTitle>
-                  <CardDescription>Manage global system settings</CardDescription>
+                  <CardDescription>
+                    Manage global system settings
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button className="w-full justify-start bg-transparent" variant="outline">
+                  <Button
+                    className="w-full justify-start bg-transparent"
+                    variant="outline"
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     General Settings
                   </Button>
-                  <Button className="w-full justify-start bg-transparent" variant="outline">
+                  <Button
+                    className="w-full justify-start bg-transparent"
+                    variant="outline"
+                  >
                     <Shield className="mr-2 h-4 w-4" />
                     Security Settings
                   </Button>
-                  <Button className="w-full justify-start bg-transparent" variant="outline">
+                  <Button
+                    className="w-full justify-start bg-transparent"
+                    variant="outline"
+                  >
                     <Bell className="mr-2 h-4 w-4" />
                     Notification Settings
                   </Button>
-                  <Button className="w-full justify-start bg-transparent" variant="outline">
+                  <Button
+                    className="w-full justify-start bg-transparent"
+                    variant="outline"
+                  >
                     <Database className="mr-2 h-4 w-4" />
                     Backup Settings
                   </Button>
@@ -888,22 +1066,36 @@ export default function AdminDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle>Platform Management</CardTitle>
-                  <CardDescription>Control platform-wide features</CardDescription>
+                  <CardDescription>
+                    Control platform-wide features
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button className="w-full justify-start bg-transparent" variant="outline">
+                  <Button
+                    className="w-full justify-start bg-transparent"
+                    variant="outline"
+                  >
                     <Users className="mr-2 h-4 w-4" />
                     User Permissions
                   </Button>
-                  <Button className="w-full justify-start bg-transparent" variant="outline">
+                  <Button
+                    className="w-full justify-start bg-transparent"
+                    variant="outline"
+                  >
                     <BookOpen className="mr-2 h-4 w-4" />
                     Course Templates
                   </Button>
-                  <Button className="w-full justify-start bg-transparent" variant="outline">
+                  <Button
+                    className="w-full justify-start bg-transparent"
+                    variant="outline"
+                  >
                     <MessageCircle className="mr-2 h-4 w-4" />
                     AI Assistant Config
                   </Button>
-                  <Button className="w-full justify-start bg-transparent" variant="outline">
+                  <Button
+                    className="w-full justify-start bg-transparent"
+                    variant="outline"
+                  >
                     <Download className="mr-2 h-4 w-4" />
                     Data Export
                   </Button>
@@ -919,20 +1111,31 @@ export default function AdminDashboard() {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Add New User</DialogTitle>
-            <DialogDescription>Create a new user account for the platform.</DialogDescription>
+            <DialogDescription>
+              Create a new user account for the platform.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="user-name" className="text-right">
                 Full Name
               </Label>
-              <Input id="user-name" placeholder="Enter full name" className="col-span-3" />
+              <Input
+                id="user-name"
+                placeholder="Enter full name"
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="user-email" className="text-right">
                 Email
               </Label>
-              <Input id="user-email" type="email" placeholder="Enter email" className="col-span-3" />
+              <Input
+                id="user-email"
+                type="email"
+                placeholder="Enter email"
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="user-role" className="text-right">
@@ -953,7 +1156,11 @@ export default function AdminDashboard() {
               <Label htmlFor="user-department" className="text-right">
                 Department
               </Label>
-              <Input id="user-department" placeholder="Enter department" className="col-span-3" />
+              <Input
+                id="user-department"
+                placeholder="Enter department"
+                className="col-span-3"
+              />
             </div>
           </div>
           <DialogFooter>
@@ -963,32 +1170,55 @@ export default function AdminDashboard() {
       </Dialog>
 
       {/* System Settings Dialog */}
-      <Dialog open={isSystemSettingsOpen} onOpenChange={setIsSystemSettingsOpen}>
+      <Dialog
+        open={isSystemSettingsOpen}
+        onOpenChange={setIsSystemSettingsOpen}
+      >
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>System Settings</DialogTitle>
-            <DialogDescription>Configure global system parameters.</DialogDescription>
+            <DialogDescription>
+              Configure global system parameters.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label htmlFor="maintenance-mode">Maintenance Mode</Label>
-                <input type="checkbox" id="maintenance-mode" className="rounded" />
+                <input
+                  type="checkbox"
+                  id="maintenance-mode"
+                  className="rounded"
+                />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="user-registration">Allow User Registration</Label>
-                <input type="checkbox" id="user-registration" className="rounded" defaultChecked />
+                <Label htmlFor="user-registration">
+                  Allow User Registration
+                </Label>
+                <input
+                  type="checkbox"
+                  id="user-registration"
+                  className="rounded"
+                  defaultChecked
+                />
               </div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="ai-features">Enable AI Features</Label>
-                <input type="checkbox" id="ai-features" className="rounded" defaultChecked />
+                <input
+                  type="checkbox"
+                  id="ai-features"
+                  className="rounded"
+                  defaultChecked
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="max-users">Maximum Users</Label>
                 <Input id="max-users" type="number" defaultValue="5000" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="session-timeout">Session Timeout (minutes)</Label>
+                <Label htmlFor="session-timeout">
+                  Session Timeout (minutes)
+                </Label>
                 <Input id="session-timeout" type="number" defaultValue="60" />
               </div>
             </div>
@@ -1000,5 +1230,5 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

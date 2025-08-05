@@ -1,17 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +25,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -27,8 +33,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Brain,
   BookOpen,
@@ -56,12 +69,15 @@ import {
   Filter,
   Search,
   MoreHorizontal,
-} from "lucide-react"
+  User,
+  CircuitBoard,
+} from "lucide-react";
+import Link from "next/link";
 
 export default function TeacherDashboard() {
-  const [selectedCourse, setSelectedCourse] = useState(null)
-  const [isCreateCourseOpen, setIsCreateCourseOpen] = useState(false)
-  const [isCreateChallengeOpen, setIsCreateChallengeOpen] = useState(false)
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [isCreateCourseOpen, setIsCreateCourseOpen] = useState(false);
+  const [isCreateChallengeOpen, setIsCreateChallengeOpen] = useState(false);
 
   // Mock data for teacher
   const teacherData = {
@@ -75,7 +91,7 @@ export default function TeacherDashboard() {
     activeCourses: 4,
     totalChallenges: 28,
     avgPerformance: 87,
-  }
+  };
 
   const courses = [
     {
@@ -118,7 +134,7 @@ export default function TeacherDashboard() {
       lastUpdated: "1 week ago",
       completion: 100,
     },
-  ]
+  ];
 
   const students = [
     {
@@ -161,7 +177,7 @@ export default function TeacherDashboard() {
       lastActive: "3 days ago",
       status: "inactive",
     },
-  ]
+  ];
 
   const recentActivities = [
     {
@@ -185,7 +201,7 @@ export default function TeacherDashboard() {
       course: "Statistics Fundamentals",
       time: "1 day ago",
     },
-  ]
+  ];
 
   const pendingReviews = [
     {
@@ -204,20 +220,20 @@ export default function TeacherDashboard() {
       submittedAt: "1 day ago",
       score: null,
     },
-  ]
+  ];
 
   const getActivityIcon = (type) => {
     switch (type) {
       case "challenge_created":
-        return <Plus className="h-4 w-4 text-green-600" />
+        return <Plus className="h-4 w-4 text-green-600" />;
       case "student_completed":
-        return <CheckCircle className="h-4 w-4 text-blue-600" />
+        return <CheckCircle className="h-4 w-4 text-blue-600" />;
       case "course_updated":
-        return <Edit className="h-4 w-4 text-orange-600" />
+        return <Edit className="h-4 w-4 text-orange-600" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-600" />
+        return <AlertCircle className="h-4 w-4 text-gray-600" />;
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -253,20 +269,40 @@ export default function TeacherDashboard() {
               {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    className="flex items-center space-x-2"
+                  >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={teacherData.avatar || "/placeholder.svg"} alt={teacherData.name} />
+                      <AvatarImage
+                        src={teacherData.avatar || "/placeholder.svg"}
+                        alt={teacherData.name}
+                      />
                       <AvatarFallback>SW</AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
                       <p className="text-sm font-medium">{teacherData.name}</p>
-                      <p className="text-xs text-gray-500">{teacherData.department}</p>
+                      <p className="text-xs text-gray-500">
+                        {teacherData.department}
+                      </p>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <Link href={"/Dashboard/AdminDashboard"}>
+                    <DropdownMenuItem>
+                      <User className="mr-2 h-4 w-4" />
+                      Admin Page
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href={"/Dashboard/StudentDashboard"}>
+                    <DropdownMenuItem>
+                      <CircuitBoard className="mr-2 h-4 w-4" />
+                      Student Page
+                    </DropdownMenuItem>
+                  </Link>
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
@@ -291,52 +327,72 @@ export default function TeacherDashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back, {teacherData.name.split(" ")[1]}! 👋</h2>
-          <p className="text-gray-600">Manage your courses and track student progress</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Welcome back, {teacherData.name.split(" ")[1]}! 👋
+          </h2>
+          <p className="text-gray-600">
+            Manage your courses and track student progress
+          </p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Students
+              </CardTitle>
               <Users className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{teacherData.totalStudents}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {teacherData.totalStudents}
+              </div>
               <p className="text-xs text-gray-600">+12 this semester</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Courses</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Active Courses
+              </CardTitle>
               <BookOpen className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{teacherData.activeCourses}</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {teacherData.activeCourses}
+              </div>
               <p className="text-xs text-gray-600">2 new this month</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Challenges</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Challenges
+              </CardTitle>
               <Target className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{teacherData.totalChallenges}</div>
+              <div className="text-2xl font-bold text-purple-600">
+                {teacherData.totalChallenges}
+              </div>
               <p className="text-xs text-gray-600">5 pending review</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg Performance</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Avg Performance
+              </CardTitle>
               <TrendingUp className="h-4 w-4 text-yellow-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{teacherData.avgPerformance}%</div>
+              <div className="text-2xl font-bold text-yellow-600">
+                {teacherData.avgPerformance}%
+              </div>
               <p className="text-xs text-gray-600">↑ 3% from last month</p>
             </CardContent>
           </Card>
@@ -373,8 +429,12 @@ export default function TeacherDashboard() {
                           <div className="flex justify-between items-center">
                             <h4 className="font-medium">{course.title}</h4>
                             <div className="flex items-center space-x-2">
-                              <Badge variant="secondary">{course.students} students</Badge>
-                              <span className="text-sm text-gray-600">{course.avgScore}% avg</span>
+                              <Badge variant="secondary">
+                                {course.students} students
+                              </Badge>
+                              <span className="text-sm text-gray-600">
+                                {course.avgScore}% avg
+                              </span>
                             </div>
                           </div>
                           <Progress value={course.completion} className="h-2" />
@@ -398,12 +458,25 @@ export default function TeacherDashboard() {
                   <CardContent>
                     <div className="space-y-4">
                       {recentActivities.map((activity) => (
-                        <div key={activity.id} className="flex items-start space-x-3">
-                          <div className="flex-shrink-0 mt-1">{getActivityIcon(activity.type)}</div>
+                        <div
+                          key={activity.id}
+                          className="flex items-start space-x-3"
+                        >
+                          <div className="flex-shrink-0 mt-1">
+                            {getActivityIcon(activity.type)}
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                            {activity.course && <p className="text-sm text-gray-600">{activity.course}</p>}
-                            <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {activity.title}
+                            </p>
+                            {activity.course && (
+                              <p className="text-sm text-gray-600">
+                                {activity.course}
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-500 mt-1">
+                              {activity.time}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -424,12 +497,21 @@ export default function TeacherDashboard() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {pendingReviews.map((review) => (
-                      <div key={review.id} className="border rounded-lg p-3 space-y-2">
+                      <div
+                        key={review.id}
+                        className="border rounded-lg p-3 space-y-2"
+                      >
                         <div className="flex justify-between items-start">
                           <div>
-                            <p className="font-medium text-sm">{review.student}</p>
-                            <p className="text-xs text-gray-600">{review.challenge}</p>
-                            <p className="text-xs text-gray-500">{review.course}</p>
+                            <p className="font-medium text-sm">
+                              {review.student}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {review.challenge}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {review.course}
+                            </p>
                           </div>
                           <Badge variant="outline" className="text-xs">
                             {review.submittedAt}
@@ -457,15 +539,24 @@ export default function TeacherDashboard() {
                       <Plus className="mr-2 h-4 w-4" />
                       Create Challenge
                     </Button>
-                    <Button className="w-full justify-start bg-transparent" variant="outline">
+                    <Button
+                      className="w-full justify-start bg-transparent"
+                      variant="outline"
+                    >
                       <Upload className="mr-2 h-4 w-4" />
                       Import Students
                     </Button>
-                    <Button className="w-full justify-start bg-transparent" variant="outline">
+                    <Button
+                      className="w-full justify-start bg-transparent"
+                      variant="outline"
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Export Grades
                     </Button>
-                    <Button className="w-full justify-start bg-transparent" variant="outline">
+                    <Button
+                      className="w-full justify-start bg-transparent"
+                      variant="outline"
+                    >
                       <MessageCircle className="mr-2 h-4 w-4" />
                       AI Assistant
                     </Button>
@@ -485,7 +576,10 @@ export default function TeacherDashboard() {
                       .sort((a, b) => b.avgScore - a.avgScore)
                       .slice(0, 3)
                       .map((student, index) => (
-                        <div key={student.id} className="flex items-center space-x-3">
+                        <div
+                          key={student.id}
+                          className="flex items-center space-x-3"
+                        >
                           <div className="flex items-center justify-center w-6 h-6 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold">
                             {index + 1}
                           </div>
@@ -498,8 +592,12 @@ export default function TeacherDashboard() {
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
-                            <p className="text-sm font-medium">{student.name}</p>
-                            <p className="text-xs text-gray-600">{student.avgScore}% avg</p>
+                            <p className="text-sm font-medium">
+                              {student.name}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {student.avgScore}% avg
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -521,7 +619,10 @@ export default function TeacherDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {courses.map((course) => (
-                <Card key={course.id} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={course.id}
+                  className="hover:shadow-lg transition-shadow"
+                >
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg">{course.title}</CardTitle>
@@ -540,6 +641,7 @@ export default function TeacherDashboard() {
                             <Eye className="mr-2 h-4 w-4" />
                             View Details
                           </DropdownMenuItem>
+
                           <DropdownMenuItem>
                             <Download className="mr-2 h-4 w-4" />
                             Export Data
@@ -569,7 +671,13 @@ export default function TeacherDashboard() {
                       </div>
                       <div>
                         <p className="text-gray-600">Status</p>
-                        <Badge variant={course.status === "active" ? "default" : "secondary"}>{course.status}</Badge>
+                        <Badge
+                          variant={
+                            course.status === "active" ? "default" : "secondary"
+                          }
+                        >
+                          {course.status}
+                        </Badge>
                       </div>
                     </div>
 
@@ -582,7 +690,9 @@ export default function TeacherDashboard() {
                     </div>
 
                     <div className="flex justify-between items-center pt-2">
-                      <span className="text-sm text-gray-600">Updated {course.lastUpdated}</span>
+                      <span className="text-sm text-gray-600">
+                        Updated {course.lastUpdated}
+                      </span>
                       <Button size="sm">
                         Manage
                         <ChevronRight className="ml-1 h-4 w-4" />
@@ -601,7 +711,10 @@ export default function TeacherDashboard() {
               <div className="flex space-x-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input placeholder="Search students..." className="pl-10 w-64" />
+                  <Input
+                    placeholder="Search students..."
+                    className="pl-10 w-64"
+                  />
                 </div>
                 <Button variant="outline">
                   <Filter className="h-4 w-4 mr-2" />
@@ -642,7 +755,9 @@ export default function TeacherDashboard() {
                           </Avatar>
                           <div>
                             <p className="font-medium">{student.name}</p>
-                            <p className="text-sm text-gray-600">{student.email}</p>
+                            <p className="text-sm text-gray-600">
+                              {student.email}
+                            </p>
                           </div>
                         </div>
                       </TableCell>
@@ -650,7 +765,11 @@ export default function TeacherDashboard() {
                       <TableCell>
                         <Badge
                           variant={
-                            student.avgScore >= 90 ? "default" : student.avgScore >= 80 ? "secondary" : "destructive"
+                            student.avgScore >= 90
+                              ? "default"
+                              : student.avgScore >= 80
+                              ? "secondary"
+                              : "destructive"
                           }
                         >
                           {student.avgScore}%
@@ -659,7 +778,15 @@ export default function TeacherDashboard() {
                       <TableCell>{student.streak} days</TableCell>
                       <TableCell>{student.lastActive}</TableCell>
                       <TableCell>
-                        <Badge variant={student.status === "active" ? "default" : "secondary"}>{student.status}</Badge>
+                        <Badge
+                          variant={
+                            student.status === "active"
+                              ? "default"
+                              : "secondary"
+                          }
+                        >
+                          {student.status}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -705,9 +832,15 @@ export default function TeacherDashboard() {
               <Card className="border-dashed border-2 border-gray-300 hover:border-gray-400 transition-colors">
                 <CardContent className="flex flex-col items-center justify-center h-48 text-center">
                   <Plus className="h-12 w-12 text-gray-400 mb-4" />
-                  <h3 className="font-semibold text-gray-900 mb-2">Create New Challenge</h3>
-                  <p className="text-sm text-gray-600 mb-4">Design engaging challenges for your students</p>
-                  <Button onClick={() => setIsCreateChallengeOpen(true)}>Get Started</Button>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Create New Challenge
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Design engaging challenges for your students
+                  </p>
+                  <Button onClick={() => setIsCreateChallengeOpen(true)}>
+                    Get Started
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -715,7 +848,9 @@ export default function TeacherDashboard() {
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">Calculus Derivatives</CardTitle>
+                    <CardTitle className="text-lg">
+                      Calculus Derivatives
+                    </CardTitle>
                     <Badge>Active</Badge>
                   </div>
                 </CardHeader>
@@ -751,7 +886,9 @@ export default function TeacherDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Engagement</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Engagement
+                  </CardTitle>
                   <TrendingUp className="h-4 w-4 text-green-600" />
                 </CardHeader>
                 <CardContent>
@@ -762,7 +899,9 @@ export default function TeacherDashboard() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Completion Rate
+                  </CardTitle>
                   <CheckCircle className="h-4 w-4 text-blue-600" />
                 </CardHeader>
                 <CardContent>
@@ -773,7 +912,9 @@ export default function TeacherDashboard() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Study Time</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Avg Study Time
+                  </CardTitle>
                   <Clock className="h-4 w-4 text-purple-600" />
                 </CardHeader>
                 <CardContent>
@@ -784,7 +925,9 @@ export default function TeacherDashboard() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Success Rate
+                  </CardTitle>
                   <Award className="h-4 w-4 text-yellow-600" />
                 </CardHeader>
                 <CardContent>
@@ -797,7 +940,8 @@ export default function TeacherDashboard() {
             <Alert>
               <BarChart3 className="h-4 w-4" />
               <AlertDescription>
-                Detailed analytics and reporting features are coming soon. Export current data using the buttons above.
+                Detailed analytics and reporting features are coming soon.
+                Export current data using the buttons above.
               </AlertDescription>
             </Alert>
           </TabsContent>
@@ -809,20 +953,30 @@ export default function TeacherDashboard() {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Create New Course</DialogTitle>
-            <DialogDescription>Add a new course to your teaching portfolio.</DialogDescription>
+            <DialogDescription>
+              Add a new course to your teaching portfolio.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="course-title" className="text-right">
                 Title
               </Label>
-              <Input id="course-title" placeholder="Course title" className="col-span-3" />
+              <Input
+                id="course-title"
+                placeholder="Course title"
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="course-description" className="text-right">
                 Description
               </Label>
-              <Textarea id="course-description" placeholder="Course description" className="col-span-3" />
+              <Textarea
+                id="course-description"
+                placeholder="Course description"
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="course-difficulty" className="text-right">
@@ -847,18 +1001,27 @@ export default function TeacherDashboard() {
       </Dialog>
 
       {/* Create Challenge Dialog */}
-      <Dialog open={isCreateChallengeOpen} onOpenChange={setIsCreateChallengeOpen}>
+      <Dialog
+        open={isCreateChallengeOpen}
+        onOpenChange={setIsCreateChallengeOpen}
+      >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Create New Challenge</DialogTitle>
-            <DialogDescription>Design a new challenge for your students.</DialogDescription>
+            <DialogDescription>
+              Design a new challenge for your students.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="challenge-title" className="text-right">
                 Title
               </Label>
-              <Input id="challenge-title" placeholder="Challenge title" className="col-span-3" />
+              <Input
+                id="challenge-title"
+                placeholder="Challenge title"
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="challenge-course" className="text-right">
@@ -899,5 +1062,5 @@ export default function TeacherDashboard() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
