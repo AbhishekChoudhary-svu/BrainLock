@@ -875,9 +875,11 @@ export default function TeacherDashboard() {
                       <p className="font-semibold">87%</p>
                     </div>
                   </div>
-                  <Button size="sm" className="w-full">
-                    View Details
-                  </Button>
+                   <Link href={`/Dashboard/TeacherDashboard/Challenges/${courses.id}/manage`}>
+                      <Button size="sm" className="w-full">
+                        View Details
+                      </Button>
+                    </Link>
                 </CardContent>
               </Card>
             </div>
