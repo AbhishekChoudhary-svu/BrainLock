@@ -97,6 +97,7 @@ export default function TeacherDashboard() {
     {
       id: 1,
       title: "Advanced Calculus",
+      submain:"Mathematics",
       students: 32,
       challenges: 8,
       avgScore: 85,
@@ -107,6 +108,7 @@ export default function TeacherDashboard() {
     {
       id: 2,
       title: "Linear Algebra",
+      submain:"Mathematics",
       students: 28,
       challenges: 6,
       avgScore: 92,
@@ -117,6 +119,7 @@ export default function TeacherDashboard() {
     {
       id: 3,
       title: "Statistics Fundamentals",
+      submain:"Mathematics",
       students: 45,
       challenges: 10,
       avgScore: 79,
@@ -127,6 +130,7 @@ export default function TeacherDashboard() {
     {
       id: 4,
       title: "Geometry Basics",
+      submain:"Mathematics",
       students: 51,
       challenges: 4,
       avgScore: 88,
@@ -693,12 +697,17 @@ export default function TeacherDashboard() {
                       <span className="text-sm text-gray-600">
                         Updated {course.lastUpdated}
                       </span>
-                      <Link href={`/Dashboard/TeacherDashboard/Courses/${course.id}/manage`}> {/* ADDED LINK */}
+                      <Link
+                        href={`/Dashboard/TeacherDashboard/Courses/${course.id}/manage`}
+                      >
+                        {" "}
+                        {/* ADDED LINK */}
                         <Button size="sm">
                           Manage
                           <ChevronRight className="ml-1 h-4 w-4" />
                         </Button>
-                      </Link> {/* END LINK */}
+                      </Link>{" "}
+                      {/* END LINK */}
                     </div>
                   </CardContent>
                 </Card>
@@ -847,41 +856,45 @@ export default function TeacherDashboard() {
               </Card>
 
               {/* Sample challenges would be mapped here */}
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">
-                      Calculus Derivatives
-                    </CardTitle>
-                    <Badge>Active</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-600">Course</p>
-                      <p className="font-semibold">Advanced Calculus</p>
+              {courses.map((course) => (
+                <Card key={course.id}>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-lg">
+                        {course.submain}
+                      </CardTitle>
+                      <Badge>Active</Badge>
                     </div>
-                    <div>
-                      <p className="text-gray-600">Difficulty</p>
-                      <Badge variant="destructive">Hard</Badge>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-600">Course</p>
+                        <p className="font-semibold">{course.title}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Difficulty</p>
+                        <Badge variant="destructive">Hard</Badge>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Submissions</p>
+                        <p className="font-semibold">24/32</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Avg Score</p>
+                        <p className="font-semibold">87%</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-gray-600">Submissions</p>
-                      <p className="font-semibold">24/32</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Avg Score</p>
-                      <p className="font-semibold">87%</p>
-                    </div>
-                  </div>
-                   <Link href={`/Dashboard/TeacherDashboard/Challenges/${courses.id}/manage`}>
+                    <Link
+                      href={`/Dashboard/TeacherDashboard/Challenges/${course.id}/manage`}
+                    >
                       <Button size="sm" className="w-full">
                         View Details
                       </Button>
                     </Link>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </TabsContent>
 

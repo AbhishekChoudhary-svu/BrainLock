@@ -14,7 +14,7 @@ import Link from "next/link"
 import { toast } from "sonner"
 
 export default function ManageChallengePage() {
-  const { challengeId } = useParams()
+  const { challengeid } = useParams()
   
 
   // Mock data for challenges and questions
@@ -57,8 +57,8 @@ export default function ManageChallengePage() {
     },
   }
 
-  const challenge = mockChallenges[challengeId] || {
-    id: challengeId,
+  const challenge = mockChallenges[challengeid] || {
+    id: challengeid,
     title: "New Challenge",
     course: "Unknown Course",
     difficulty: "Medium",
