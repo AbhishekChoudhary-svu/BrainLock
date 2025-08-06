@@ -693,10 +693,12 @@ export default function TeacherDashboard() {
                       <span className="text-sm text-gray-600">
                         Updated {course.lastUpdated}
                       </span>
-                      <Button size="sm">
-                        Manage
-                        <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
+                      <Link href={`/Dashboard/TeacherDashboard/Courses/${course.id}/manage`}> {/* ADDED LINK */}
+                        <Button size="sm">
+                          Manage
+                          <ChevronRight className="ml-1 h-4 w-4" />
+                        </Button>
+                      </Link> {/* END LINK */}
                     </div>
                   </CardContent>
                 </Card>
