@@ -266,124 +266,33 @@ export default function SignupPage() {
                           </div>
                         </div>
 
-                        {/* Role-specific fields */}
-                        {role === "admin" && (
-                          <>
-                            <div className="space-y-2">
-                              <Label htmlFor="institution">Institution/Organization</Label>
-                              <div className="relative">
-                                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input
-                                  id="institution"
-                                  name="institution"
-                                  type="text"
-                                  placeholder="Enter institution name"
-                                  value={formData.institution}
-                                  onChange={handleInputChange}
-                                  className="pl-10"
-                                  required
-                                />
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="department">Department</Label>
-                              <Input
-                                id="department"
-                                name="department"
-                                type="text"
-                                placeholder="Enter department"
-                                value={formData.department}
-                                onChange={handleInputChange}
-                                required
-                              />
-                            </div>
-                          </>
-                        )}
-
-                        {role === "teacher" && (
-                          <>
-                            <div className="space-y-2">
-                              <Label htmlFor="institution">School/Institution</Label>
-                              <div className="relative">
-                                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input
-                                  id="institution"
-                                  name="institution"
-                                  type="text"
-                                  placeholder="Enter school/institution name"
-                                  value={formData.institution}
-                                  onChange={handleInputChange}
-                                  className="pl-10"
-                                  required
-                                />
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="subject">Subject Specialization</Label>
-                              <Select onValueChange={(value) => handleSelectChange("subject", value)} required>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select your subject" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {subjectOptions.map((subject) => (
-                                    <SelectItem key={subject} value={subject.toLowerCase()}>
-                                      {subject}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </>
-                        )}
-
-                        {role === "student" && (
-                          <>
-                            <div className="space-y-2">
-                              <Label htmlFor="institution">School/Institution</Label>
-                              <div className="relative">
-                                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                <Input
-                                  id="institution"
-                                  name="institution"
-                                  type="text"
-                                  placeholder="Enter school/institution name"
-                                  value={formData.institution}
-                                  onChange={handleInputChange}
-                                  className="pl-10"
-                                  required
-                                />
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="grade">Grade/Level</Label>
-                              <Select onValueChange={(value) => handleSelectChange("grade", value)} required>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select your grade/level" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {gradeOptions.map((grade) => (
-                                    <SelectItem key={grade} value={grade.toLowerCase()}>
-                                      {grade}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </>
-                        )}
+                       
 
                         {/* Bio field for teachers and admins */}
                         {(role === "teacher" || role === "admin") && (
                           <div className="space-y-2">
-                            <Label htmlFor="bio">Bio (Optional)</Label>
-                            <Textarea
-                              id="bio"
-                              name="bio"
-                              placeholder="Tell us a bit about yourself..."
-                              value={formData.bio}
-                              onChange={handleInputChange}
-                              rows={3}
-                            />
+                           <Label htmlFor="password">Activation Code</Label>
+                            <div className="relative">
+                              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                              <Input
+                                id="password"
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter Activation Code.."
+                                value={formData.activeCode}
+                                onChange={handleInputChange}
+                                className="pl-10 pr-10"
+                                required
+                                minLength={8}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                              >
+                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
                           </div>
                         )}
 

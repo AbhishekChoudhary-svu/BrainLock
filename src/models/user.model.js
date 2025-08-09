@@ -1,4 +1,3 @@
-// models/User.js
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -13,6 +12,11 @@ const userSchema = new mongoose.Schema(
       required: [true, "Please enter your last name"],
       trim: true,
     },
+    phoneNumber: {
+      type: String,
+      required: [true, "Please enter your phone number"],
+      trim: true,
+    },
     email: {
       type: String,
       required: [true, "Please enter your email"],
@@ -20,16 +24,6 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    phoneNumber: {
-      type: String,
-      required: [true, "Please enter your phone number"],
-    },
-    institutionName: {
-      type: String,
-      required: [true, "Please enter your institution/school name"],
-    },
-
-    // Common Auth Fields
     password: {
       type: String,
       required: [true, "Please create a password"],
@@ -41,29 +35,7 @@ const userSchema = new mongoose.Schema(
       default: "student",
     },
 
-    // Student-specific field
-    gradeLevel: {
-      type: String, // For Students only
-      default: null,
-    },
-
-    // Teacher-specific fields
-    subject: {
-      type: String, // For Teachers only
-      default: null,
-    },
-    about: {
-      type: String, // For Teachers & Admins
-      default: "",
-    },
-
-    // Admin-specific field
-    department: {
-      type: String, // For Admins only
-      default: null,
-    },
-
-    // Security & Verification
+    // Email verification
     emailVerified: {
       type: Boolean,
       default: false,
@@ -76,26 +48,13 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    // Password reset
     resetPasswordOtp: {
       type: String,
       default: null,
     },
     resetPasswordExpiry: {
-      type: Date,
-      default: null,
-    },
-
-    // Tokens
-    accessToken: {
-      type: String,
-      default: "",
-    },
-    refreshToken: {
-      type: String,
-      default: "",
-    },
-
-    lastLogin: {
       type: Date,
       default: null,
     },
@@ -109,7 +68,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
+// Avoid recompiling model in dev mode
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 
 export default User;
