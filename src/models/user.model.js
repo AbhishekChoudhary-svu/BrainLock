@@ -64,6 +64,16 @@ const userSchema = new mongoose.Schema(
       enum: ["active", "inactive", "banned"],
       default: "active",
     },
+
+     // Auth tokens
+    access_token: {
+      type: String,
+      default: null,
+    },
+    refresh_token: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );

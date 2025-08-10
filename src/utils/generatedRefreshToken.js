@@ -1,16 +1,20 @@
-import jwt from 'jsonwebtoken';
-import UserModel from '../models/user.model.js';
+import jwt from "jsonwebtoken";
+import User from "@/models/user.model"; // Adjust path for Next.js
 
-export async function generatedRefreshToken(userId) {
-    // Generate a refresh token
-    const refreshToken =  jwt.sign(
-        { id: userId },
-        process.env.SECRET_KEY_REFRESH_TOKEN,
-        { expiresIn: '7d' } // Refresh token valid for 7 days
-    );
+/**
+ * Generate and store a refresh token for a user
+ * @param {string} userId - MongoDB user ID
+ * @returns {Promise<string>} - The generated refresh token
+ */
+export async function generateRefreshToken(userId) {
+  const refreshToken = jwt.sign(
+    { id: userId },
+    process.env.SECRET_KEY_REFRESH_TOKEN, // should be set in .env.local
+    { expiresIn: "7d" }
+  );
 
-    // Store the refresh token in the user's document
-    await UserModel.findByIdAndUpdate({_id:userId}, { refresh_token: refreshToken });
+  // Save refresh token in DB
+  await User.findByIdAndUpdate(userId, { refresh_token: refreshToken });
 
-    return refreshToken;
+  return refreshToken;
 }

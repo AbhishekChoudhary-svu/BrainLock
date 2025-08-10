@@ -1,4 +1,5 @@
-export default function verificationEmailTemplate(username, otp) {
+export default function verificationEmailTemplate(firstName,
+      lastName, otp) {
   return `
     <!DOCTYPE html>
     <html lang="en">
@@ -22,7 +23,7 @@ export default function verificationEmailTemplate(username, otp) {
               
               <tr>
                 <td style="padding: 30px 40px; color:#333333; font-size:16px; line-height:1.6;">
-                  <p style="margin:0 0 16px 0;">Hello <strong>${username}</strong>,</p>
+                  <p style="margin:0 0 16px 0;">Hello <strong>${firstName}${lastName}</strong>,</p>
                   <p style="margin:0 0 16px 0;">Thank you for registering! To complete your registration, please use the following One-Time Password (OTP):</p>
                   
                   <p style="text-align:center; margin:30px 0;">
@@ -33,13 +34,13 @@ export default function verificationEmailTemplate(username, otp) {
                   
                   <p style="margin:0 0 16px 0;">This OTP is valid for the next <strong>10 minutes</strong>.</p>
                   <p style="margin:0 0 16px 0;">If you did not request this verification, you can safely ignore this email.</p>
-                  <p style="margin:30px 0 0 0;">Best regards,<br/><strong>Mart Ai Grocery Store</strong></p>
+                  <p style="margin:30px 0 0 0;">Best regards,<br/><strong>BrainLock - Study Focus App</strong></p>
                 </td>
               </tr>
               
             </table>
             <p style="font-size:12px; color:#999999; margin-top:20px;">
-              &copy; ${new Date().getFullYear()} Mart Ai Grocery Store. All rights reserved.
+              &copy; ${new Date().getFullYear()} BrainLock. All rights reserved.
             </p>
           </td>
         </tr>
