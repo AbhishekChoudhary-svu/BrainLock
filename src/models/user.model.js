@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema(
       enum: ["student", "teacher", "admin"],
       default: "student",
     },
+    
 
     // Email verification
     emailVerified: {

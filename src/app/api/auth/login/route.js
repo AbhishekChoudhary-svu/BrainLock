@@ -44,6 +44,9 @@ export async function POST(req) {
     const accessToken = generateAccessToken(user._id);
     const refreshToken = await generateRefreshToken(user._id);
 
+     user.refresh_Token = refreshToken;
+    await user.save();
+
     // Store tokens in cookies
     const cookieStore = cookies();
     cookieStore.set("accessToken", accessToken, {

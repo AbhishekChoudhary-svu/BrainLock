@@ -25,6 +25,8 @@ import {
   Building,
 } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
+import axios from "axios"
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -34,16 +36,10 @@ export default function SignupPage() {
     firstName: "",
     lastName: "",
     email: "",
-    phone: "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
-    institution: "",
-    department: "",
-    subject: "",
-    grade: "",
-    bio: "",
-    agreeToTerms: false,
-    subscribeNewsletter: false,
+    adminCode : "", teacherCode: ""
   })
 
   const handleInputChange = (e) => {
@@ -54,30 +50,17 @@ export default function SignupPage() {
     }))
   }
 
-  const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-  }
 
   const handleSubmit = (e, role) => {
     e.preventDefault()
 
     // Basic validation
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!")
+      toast.error("Passwords don't match!")
       return
     }
 
-    if (!formData.agreeToTerms) {
-      alert("Please agree to the terms and conditions")
-      return
-    }
-
-    // Handle signup logic here
-    console.log("Signup attempt:", { ...formData, role })
-    // You would typically make an API call here
+  
   }
 
   const getRoleConfig = (role) => {
@@ -110,30 +93,9 @@ export default function SignupPage() {
     return configs[role] || configs.student
   }
 
-  const gradeOptions = [
-    "Grade 9",
-    "Grade 10",
-    "Grade 11",
-    "Grade 12",
-    "Undergraduate",
-    "Graduate",
-    "Postgraduate",
-    "Other",
-  ]
+ 
 
-  const subjectOptions = [
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "English",
-    "History",
-    "Geography",
-    "Computer Science",
-    "Economics",
-    "Psychology",
-    "Other",
-  ]
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
@@ -250,15 +212,15 @@ export default function SignupPage() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="phone">Phone Number</Label>
+                          <Label htmlFor="phoneNumber">Phone Number</Label>
                           <div className="relative">
                             <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <Input
-                              id="phone"
-                              name="phone"
+                              id="phoneNumber"
+                              name="phoneNumber"
                               type="tel"
                               placeholder="Enter phone number"
-                              value={formData.phone}
+                              value={formData.phoneNumber}
                               onChange={handleInputChange}
                               className="pl-10"
                               required
@@ -360,7 +322,7 @@ export default function SignupPage() {
                         </div>
 
                         {/* Checkboxes */}
-                        <div className="space-y-3">
+                        {/* <div className="space-y-3">
                           <div className="flex items-start space-x-2">
                             <input
                               id="agreeToTerms"
@@ -369,7 +331,7 @@ export default function SignupPage() {
                               checked={formData.agreeToTerms}
                               onChange={handleInputChange}
                               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-1"
-                              required
+                              
                             />
                             <Label htmlFor="agreeToTerms" className="text-sm text-gray-600 leading-5">
                               I agree to the{" "}
@@ -396,7 +358,7 @@ export default function SignupPage() {
                               Subscribe to our newsletter for updates and tips
                             </Label>
                           </div>
-                        </div>
+                        </div> */}
 
                         <Button type="submit" className="w-full" size="lg">
                           Create {role.charAt(0).toUpperCase() + role.slice(1)} Account
