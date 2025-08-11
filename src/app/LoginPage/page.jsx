@@ -10,8 +10,11 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Brain, Shield, GraduationCap, BookOpen, Eye, EyeOff, ArrowLeft, Mail, Lock } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
@@ -28,12 +31,37 @@ export default function LoginPage() {
     }))
   }
 
-  const handleSubmit = (e, role) => {
-    e.preventDefault()
-    // Handle login logic here
-    console.log("Login attempt:", { ...formData, role })
-    // You would typically make an API call here
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        toast.error(data.error || "Login failed");
+        return;
+      }
+
+      toast.success(data.message || "Login successful");
+
+      // Optionally store user data in global state or context here
+      // Then navigate to dashboard or homepage
+      router.push("/Dashboard/StudentDashboard");
+
+    } catch (error) {
+      toast.error("Something went wrong, please try again");
+      console.error(error);
+    } 
+  };
 
   const getRoleConfig = (role) => {
     const configs = {

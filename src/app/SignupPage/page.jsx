@@ -1,15 +1,19 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Brain,
   Shield,
@@ -23,15 +27,17 @@ import {
   User,
   Phone,
   Building,
-} from "lucide-react"
-import Link from "next/link"
-import { toast } from "sonner"
-import axios from "axios"
+} from "lucide-react";
+import Link from "next/link";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [activeTab, setActiveTab] = useState("student")
+
+    const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState("student");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -39,29 +45,76 @@ export default function SignupPage() {
     phoneNumber: "",
     password: "",
     confirmPassword: "",
-    adminCode : "", teacherCode: ""
-  })
+    adminCode: "",
+    teacherCode: "",
+  });
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }))
-  }
+    }));
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleSubmit = (e, role) => {
-    e.preventDefault()
-
-    // Basic validation
+    // Validate password confirmation
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords don't match!")
-      return
+      toast.error("Passwords don't match!");
+      return;
     }
 
-  
-  }
+    try {
+      // Prepare request body
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        email: formData.email,
+        password: formData.password,
+        ...(activeTab === "admin" && { adminCode: formData.adminCode }),
+        ...(activeTab === "teacher" && { teacherCode: formData.teacherCode }),
+      };
+
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        toast.error(data.error || "Registration failed!");
+        return;
+      }
+
+      toast.success(
+        data.message || "Registration successful! Please check your email."
+      );
+      localStorage.setItem("userEmail",formData.email)
+
+      // Reset form fields
+      setFormData({
+        firstName: "",
+        lastName: "",
+        phoneNumber: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        adminCode: "",
+        teacherCode: "",
+      });
+      router.push("/VerifyEmailPage")
+      setActiveTab("student");
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+    }
+  };
 
   const getRoleConfig = (role) => {
     const configs = {
@@ -89,20 +142,19 @@ export default function SignupPage() {
         bgColor: "bg-purple-50",
         borderColor: "border-purple-200",
       },
-    }
-    return configs[role] || configs.student
-  }
-
- 
-
-  
+    };
+    return configs[role] || configs.student;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
       {/* Header */}
       <div className="p-4 sm:p-6">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <Link href="/" className="flex items-center space-x-2 text-gray-900 hover:text-blue-600 transition-colors">
+          <Link
+            href="/"
+            className="flex items-center space-x-2 text-gray-900 hover:text-blue-600 transition-colors"
+          >
             <ArrowLeft className="h-5 w-5" />
             <Brain className="h-8 w-8 text-blue-600" />
             <span className="text-2xl font-bold">Brain Lock</span>
@@ -119,12 +171,20 @@ export default function SignupPage() {
               <div className="flex justify-center mb-4">
                 <Brain className="h-12 w-12 text-blue-600" />
               </div>
-              <CardTitle className="text-2xl font-bold">Join Brain Lock</CardTitle>
-              <CardDescription>Create your account and unlock your learning potential</CardDescription>
+              <CardTitle className="text-2xl font-bold">
+                Join Brain Lock
+              </CardTitle>
+              <CardDescription>
+                Create your account and unlock your learning potential
+              </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="admin" className="text-xs sm:text-sm">
                     <Shield className="h-4 w-4 mr-1" />
@@ -141,22 +201,31 @@ export default function SignupPage() {
                 </TabsList>
 
                 {["admin", "teacher", "student"].map((role) => {
-                  const config = getRoleConfig(role)
-                  const Icon = config.icon
+                  const config = getRoleConfig(role);
+                  const Icon = config.icon;
 
                   return (
                     <TabsContent key={role} value={role} className="mt-6">
-                      <div className={`p-4 rounded-lg ${config.bgColor} ${config.borderColor} border mb-6`}>
+                      <div
+                        className={`p-4 rounded-lg ${config.bgColor} ${config.borderColor} border mb-6`}
+                      >
                         <div className="flex items-center space-x-3">
                           <Icon className={`h-6 w-6 ${config.color}`} />
                           <div>
-                            <h3 className="font-semibold text-gray-900">{config.title}</h3>
-                            <p className="text-sm text-gray-600">{config.description}</p>
+                            <h3 className="font-semibold text-gray-900">
+                              {config.title}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {config.description}
+                            </p>
                           </div>
                         </div>
                       </div>
 
-                      <form onSubmit={(e) => handleSubmit(e, role)} className="space-y-4">
+                      <form
+                        onSubmit={(e) => handleSubmit(e, role)}
+                        className="space-y-4"
+                      >
                         {/* Basic Information */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
@@ -228,20 +297,30 @@ export default function SignupPage() {
                           </div>
                         </div>
 
-                       
-
                         {/* Bio field for teachers and admins */}
                         {(role === "teacher" || role === "admin") && (
                           <div className="space-y-2">
-                           <Label htmlFor="password">Activation Code</Label>
+                            <Label htmlFor="activationCode">
+                              Activation Code
+                            </Label>
                             <div className="relative">
                               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                               <Input
-                                id="password"
-                                name="password"
+                                id="activationCode"
+                                name={
+                                  role === "teacher"
+                                    ? "teacherCode"
+                                    : "adminCode"
+                                } // dynamic name
                                 type={showPassword ? "text" : "password"}
-                                placeholder="Enter Activation Code.."
-                                value={formData.activeCode}
+                                placeholder={`Enter ${
+                                  role === "teacher" ? "Teacher" : "Admin"
+                                } Activation Code...`}
+                                value={
+                                  role === "teacher"
+                                    ? formData.teacherCode
+                                    : formData.adminCode
+                                }
                                 onChange={handleInputChange}
                                 className="pl-10 pr-10"
                                 required
@@ -252,7 +331,11 @@ export default function SignupPage() {
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                               >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
                               </button>
                             </div>
                           </div>
@@ -280,13 +363,19 @@ export default function SignupPage() {
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                               >
-                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
                               </button>
                             </div>
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm Password</Label>
+                            <Label htmlFor="confirmPassword">
+                              Confirm Password
+                            </Label>
                             <div className="relative">
                               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                               <Input
@@ -302,10 +391,16 @@ export default function SignupPage() {
                               />
                               <button
                                 type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                onClick={() =>
+                                  setShowConfirmPassword(!showConfirmPassword)
+                                }
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                               >
-                                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                {showConfirmPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
                               </button>
                             </div>
                           </div>
@@ -361,11 +456,12 @@ export default function SignupPage() {
                         </div> */}
 
                         <Button type="submit" className="w-full" size="lg">
-                          Create {role.charAt(0).toUpperCase() + role.slice(1)} Account
+                          Create {role.charAt(0).toUpperCase() + role.slice(1)}{" "}
+                          Account
                         </Button>
                       </form>
                     </TabsContent>
-                  )
+                  );
                 })}
               </Tabs>
 
@@ -375,7 +471,9 @@ export default function SignupPage() {
                     <Separator />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-gray-500">Already have an account?</span>
+                    <span className="bg-white px-2 text-gray-500">
+                      Already have an account?
+                    </span>
                   </div>
                 </div>
 
@@ -406,5 +504,5 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

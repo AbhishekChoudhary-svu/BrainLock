@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Brain, Mail, ArrowLeft, CheckCircle, AlertCircle, RefreshCw, Clock } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-
+import { toast } from "sonner";
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams()
   const email = searchParams.get("email") || "user@example.com"
@@ -92,34 +92,50 @@ export default function VerifyEmailPage() {
   }
 
   // Verify OTP
-  const handleVerifyOtp = async (otpCode) => {
-    setIsLoading(true)
-    setErrorMessage("")
 
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Simulate verification logic
-      if (otpCode === "123456") {
-        setVerificationStatus("success")
-        // Redirect to dashboard after success
-        setTimeout(() => {
-          window.location.href = `/dashboard?role=${role}`
-        }, 2000)
-      } else {
-        setVerificationStatus("error")
-        setErrorMessage("Invalid verification code. Please try again.")
-        setOtp(["", "", "", "", "", ""])
-        inputRefs.current[0]?.focus()
-      }
-    } catch (error) {
-      setVerificationStatus("error")
-      setErrorMessage("Something went wrong. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
+  const handleVerifyOtp = async () => {
+  const otpCode = otp.join("");
+  if (otpCode.length !== 6) {
+    toast.error("Please enter the 6-digit code.");
+    return;
   }
+
+  const email = localStorage.getItem("userEmail")
+  setIsLoading(true);
+  setErrorMessage("");
+  try {
+    const res = await fetch("/api/auth/verifyEmail", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, otp: otpCode }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      setVerificationStatus("error");
+      setErrorMessage(data.error || "Verification failed");
+      toast.error(data.error || "Verification failed");
+      setOtp(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+      return;
+    }
+    localStorage.removeItem("userEmail")
+    setVerificationStatus("success");
+    toast.success(data.message || "Email verified successfully");
+    // Redirect to dashboard or wherever you want
+    setTimeout(() => {
+      window.location.href = `/LoginPage`;
+    }, 2000);
+  } catch (error) {
+    setVerificationStatus("error");
+    toast.error("Server error. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // Resend OTP
   const handleResendOtp = async () => {
