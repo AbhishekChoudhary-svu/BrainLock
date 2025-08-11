@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -73,8 +73,11 @@ import {
   CircuitBoard,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function TeacherDashboard() {
+  const router = useRouter();
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [isCreateCourseOpen, setIsCreateCourseOpen] = useState(false);
   const [isCreateChallengeOpen, setIsCreateChallengeOpen] = useState(false);
@@ -92,6 +95,66 @@ export default function TeacherDashboard() {
     totalChallenges: 28,
     avgPerformance: 87,
   };
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+  
+   
+  
+    useEffect(() => {
+      async function fetchProfile() {
+        try {
+          const res = await fetch("/api/profile", {
+            method: "GET",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          });
+  
+           if (res.status === 401 || res.status === 403) {
+            toast.error("Unauthorized. Please login.");
+            router.push("/LoginPage");
+            return;
+          }
+  
+          const data = await res.json();
+  
+          if (!res.ok || !data.success) {
+            toast.error(data.message || "Failed to load profile");
+            setLoading(false);
+            return;
+          }
+  
+          setUser(data?.user);
+        } catch {
+          toast.error("Something went wrong");
+          router.push("/LoginPage");
+        } finally {
+          setLoading(false);
+        }
+      }
+      fetchProfile();
+    }, [router]);
+
+
+     const handleLogout = async ()=>{
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include", // send cookies
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        toast.error(data.error || "Failed to logout");
+        return;
+      }
+
+      toast.success(data.message || "Logged out successfully");
+      router.push("/LoginPage"); // redirect to login page after logout
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  }
 
   const courses = [
     {
@@ -285,7 +348,7 @@ export default function TeacherDashboard() {
                       <AvatarFallback>SW</AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
-                      <p className="text-sm font-medium">{teacherData.name}</p>
+                      <p className="text-sm font-medium">{user?.firstName}{" "}{user?.lastName}</p>
                       <p className="text-xs text-gray-500">
                         {teacherData.department}
                       </p>
@@ -316,7 +379,7 @@ export default function TeacherDashboard() {
                     Help & Support
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600">
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
@@ -332,7 +395,7 @@ export default function TeacherDashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome back, {teacherData.name.split(" ")[1]}! 👋
+            Welcome back, {user?.firstName.split(" ")[0]}! 👋
           </h2>
           <p className="text-gray-600">
             Manage your courses and track student progress

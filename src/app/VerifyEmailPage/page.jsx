@@ -95,7 +95,7 @@ export default function VerifyEmailPage() {
 
   const handleVerifyOtp = async () => {
   const otpCode = otp.join("");
-  if (otpCode.length !== 6) {
+  if (otpCode.length !== 5) {
     toast.error("Please enter the 6-digit code.");
     return;
   }

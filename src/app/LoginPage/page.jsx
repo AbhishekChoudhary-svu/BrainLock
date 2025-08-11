@@ -31,7 +31,7 @@ export default function LoginPage() {
     }))
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e,role) => {
     e.preventDefault();
 
     try {
@@ -41,6 +41,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
+          role : role,              
         }),
       });
 
@@ -53,9 +54,14 @@ export default function LoginPage() {
 
       toast.success(data.message || "Login successful");
 
-      // Optionally store user data in global state or context here
-      // Then navigate to dashboard or homepage
+ // Redirect based on role
+    if (role === "student") {
       router.push("/Dashboard/StudentDashboard");
+    } else if (role === "teacher") {
+      router.push("/Dashboard/TeacherDashboard");
+    } else if (role === "admin") {
+      router.push("/Dashboard/AdminDashboard");
+    }
 
     } catch (error) {
       toast.error("Something went wrong, please try again");

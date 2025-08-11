@@ -9,19 +9,21 @@ export async function POST(req) {
   try {
     await dbConnect();
 
-    const { email, password } = await req.json();
+    const { email, password, role } = await req.json();
 
-    if (!email || !password) {
+    if (!email || !password || !role) {
       return new Response(
-        JSON.stringify({ success: false, error: "Please provide email and password" }),
+        JSON.stringify({ success: false, error: "Please provide email, password, and role" }),
         { status: 400 }
       );
     }
 
-    const user = await User.findOne({ email });
+    // Find user by email AND role to enforce role-based login
+    const user = await User.findOne({ email, role });
+
     if (!user) {
       return new Response(
-        JSON.stringify({ success: false, error: "Invalid email or password" }),
+        JSON.stringify({ success: false, error: "Invalid email, password, or role" }),
         { status: 401 }
       );
     }
@@ -29,7 +31,7 @@ export async function POST(req) {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return new Response(
-        JSON.stringify({ success: false, error: "Invalid email or password" }),
+        JSON.stringify({ success: false, error: "Invalid email, password, or role" }),
         { status: 401 }
       );
     }
@@ -44,7 +46,7 @@ export async function POST(req) {
     const accessToken = generateAccessToken(user._id);
     const refreshToken = await generateRefreshToken(user._id);
 
-     user.refresh_Token = refreshToken;
+    user.refresh_Token = refreshToken;
     await user.save();
 
     // Store tokens in cookies
@@ -54,7 +56,7 @@ export async function POST(req) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60, // 1 hour
+      maxAge: 60 * 15, // 1 hour
     });
 
     cookieStore.set("refreshToken", refreshToken, {

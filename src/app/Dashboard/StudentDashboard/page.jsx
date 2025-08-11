@@ -82,39 +82,54 @@ export default function StudentDashboard() {
 
  
 
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await fetch("/api/profile", {
-          method: "GET",
+ useEffect(() => {
+  async function fetchProfile() {
+    try {
+      let res = await fetch("/api/profile", {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        const refreshRes = await fetch("/api/auth/refreshToken", {
+          method: "POST",
           credentials: "include",
-          headers: { "Content-Type": "application/json" },
         });
 
-         if (res.status === 401 || res.status === 403) {
-          toast.error("Unauthorized. Please login.");
+        if (refreshRes.ok) {
+          // Retry profile fetch
+          res = await fetch("/api/profile", {
+            method: "GET",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          });
+        } else {
+          toast.error("Session expired. Please login.");
           router.push("/LoginPage");
           return;
         }
-
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          toast.error(data.message || "Failed to load profile");
-          setLoading(false);
-          return;
-        }
-
-        setUser(data?.user);
-      } catch {
-        toast.error("Something went wrong");
-        router.push("/LoginPage");
-      } finally {
-        setLoading(false);
       }
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        toast.error(data.message || "Failed to load profile");
+        return;
+      }
+
+      setUser(data?.user);
+    } catch {
+      toast.error("Something went wrong");
+      router.push("/LoginPage");
+    } finally {
+      setLoading(false);
     }
-    fetchProfile();
-  }, [router]);
+  }
+
+  fetchProfile();
+}, [router]);
+
 
   const courses = [
     {
