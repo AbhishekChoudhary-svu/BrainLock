@@ -8,8 +8,11 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Brain, ArrowLeft, Lock, Eye, EyeOff, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export default function ForgotPasswordPage() {
+  const router = useRouter()
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -54,16 +57,44 @@ export default function ForgotPasswordPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (validateForm()) {
-      // Handle password reset logic here
-      console.log("Password reset attempt:", formData)
-      setIsSubmitted(true)
-      // You would typically make an API call here
+  if (!validateForm()) return;
+
+  try {
+    const email = localStorage.getItem("forgetEmail"); // Saved during OTP step
+    if (!email) {
+      toast.error("Email not found. Please start the reset process again.");
+      return;
     }
+
+    const res = await fetch("/api/auth/resetPassword", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        newPassword: formData.newPassword,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      toast.error(data.message || "Password reset failed");
+      return;
+    }
+
+    toast.success("Password reset successfully!");
+    router.push("/LoginPage")
+    localStorage.removeItem("forgetEmail"); // Clear stored email
+
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong. Please try again.");
   }
+};
+
 
   if (isSubmitted) {
     return (

@@ -1,6 +1,7 @@
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/user.model";
-import { sendEmail } from "@/lib/emailService"; // your email utility
+import { sendEmail } from "@/lib/emailService";
+import verificationEmailTemplate from "@/utils/verifyEmailTemplete";
 
 export async function POST(req) {
   try {
@@ -17,7 +18,7 @@ export async function POST(req) {
     // 1. Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      // To prevent enumeration attacks
+      // Prevent enumeration attacks
       return new Response(
         JSON.stringify({
           success: true,
@@ -30,23 +31,21 @@ export async function POST(req) {
     // 2. Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 3. Save OTP in user document with expiry (5 minutes)
-    user.resetPasswordOTP = otp;
-    user.resetPasswordOTPExpire = Date.now() + 5 * 60 * 1000; // 5 min expiry
+    // 3. Save OTP with expiry (5 minutes)
+    user.otp = otp;
+    user.otpExpires = Date.now() + 5 * 60 * 1000;
     await user.save({ validateBeforeSave: false });
 
-    // 4. Send OTP to email
-    const message = `
-      <h2>Password Reset OTP</h2>
-      <p>Your OTP is: <strong>${otp}</strong></p>
-      <p>This OTP will expire in 5 minutes.</p>
-    `;
+    // ✅ Pull firstName and lastName from DB user
+    const { firstName, lastName } = user;
 
-    await sendEmail({
-      to: user.email,
-      subject: "Your Password Reset OTP",
-      html: message,
-    });
+    // 4. Send OTP email
+    await sendEmail(
+      email,
+      "Verify Your Reset Password - BrainLock",
+      `Your OTP is ${otp}`,
+      verificationEmailTemplate(firstName, lastName, otp)
+    );
 
     return new Response(
       JSON.stringify({ success: true, message: "OTP sent to email" }),

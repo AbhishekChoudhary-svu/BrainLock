@@ -69,6 +69,38 @@ export default function LoginPage() {
     } 
   };
 
+  const handleForgetSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("/api/auth/forgetPassword", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,           
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        toast.error(data.error || "Login failed");
+        return;
+      }
+      localStorage.setItem("otpType","forget")
+      localStorage.setItem("forgetEmail", formData.email)
+
+      toast.success(data.message || "Login successful");
+
+      router.push("/VerifyEmailPage");
+   
+
+    } catch (error) {
+      toast.error("Something went wrong, please try again");
+      console.error(error);
+    } 
+  };
+
   const getRoleConfig = (role) => {
     const configs = {
       admin: {
@@ -214,7 +246,7 @@ export default function LoginPage() {
                               Remember me
                             </Label>
                           </div>
-                          <Link href="/VerifyEmailPage" className="text-sm text-blue-600 hover:underline">
+                          <Link href={""} onClick={handleForgetSubmit} className="text-sm text-blue-600 hover:underline">
                             Forgot password?
                           </Link>
                         </div>

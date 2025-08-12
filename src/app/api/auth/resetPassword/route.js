@@ -6,8 +6,8 @@ export async function POST(req) {
   try {
     await dbConnect();
 
-    const { email, otp, newPassword } = await req.json();
-    if (!email || !otp || !newPassword) {
+    const { email, newPassword } = await req.json();
+    if (!email || !newPassword) {
       return new Response(
         JSON.stringify({ success: false, message: "All fields are required" }),
         { status: 400 }
@@ -18,29 +18,18 @@ export async function POST(req) {
     const user = await User.findOne({ email });
     if (!user) {
       return new Response(
-        JSON.stringify({ success: false, message: "Invalid email or OTP" }),
-        { status: 400 }
+        JSON.stringify({ success: false, message: "User not found" }),
+        { status: 404 }
       );
     }
 
-    // 2. Check OTP & expiry
-    if (
-      user.resetPasswordOTP !== otp ||
-      Date.now() > user.resetPasswordOTPExpire
-    ) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Invalid or expired OTP" }),
-        { status: 400 }
-      );
-    }
-
-    // 3. Hash new password
+    // 2. Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // 4. Update password & clear OTP fields
+    // 3. Update password
     user.password = hashedPassword;
-    user.resetPasswordOTP = undefined;
-    user.resetPasswordOTPExpire = undefined;
+    user.otp = null;
+    user.otpExpires = null;
 
     await user.save();
 

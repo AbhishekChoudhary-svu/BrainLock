@@ -50,16 +50,6 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
-    // Password reset
-    resetPasswordOtp: {
-      type: String,
-      default: null,
-    },
-    resetPasswordExpiry: {
-      type: Date,
-      default: null,
-    },
-
     status: {
       type: String,
       enum: ["active", "inactive", "banned"],

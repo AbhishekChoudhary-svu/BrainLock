@@ -8,13 +8,13 @@ import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Brain, Mail, ArrowLeft, CheckCircle, AlertCircle, RefreshCw, Clock } from "lucide-react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner";
 export default function VerifyEmailPage() {
+  const router = useRouter();
   const searchParams = useSearchParams()
-  const email = searchParams.get("email") || "user@example.com"
   const role = searchParams.get("role") || "student"
-
+  
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
   const [isLoading, setIsLoading] = useState(false)
   const [isResending, setIsResending] = useState(false)
@@ -22,7 +22,9 @@ export default function VerifyEmailPage() {
   const [errorMessage, setErrorMessage] = useState("")
   const [timeLeft, setTimeLeft] = useState(300) // 5 minutes in seconds
   const [canResend, setCanResend] = useState(false)
-
+  const mode = localStorage.getItem("otpType")
+  const emailKey = mode === "forget" ? "forgetEmail"  : "userEmail";
+  const email = localStorage.getItem(emailKey) || "user@example.com"
   const inputRefs = useRef([])
 
   // Timer countdown
@@ -93,49 +95,59 @@ export default function VerifyEmailPage() {
 
   // Verify OTP
 
-  const handleVerifyOtp = async () => {
+ const handleVerifyOtp = async () => {
   const otpCode = otp.join("");
   if (otpCode.length !== 5) {
     toast.error("Please enter the 6-digit code.");
     return;
   }
+  const mode = localStorage.getItem("otpType")
+  const emailKey = mode === "forget" ? "forgetEmail"  : "userEmail";
+  const email = localStorage.getItem(emailKey);
 
-  const email = localStorage.getItem("userEmail")
+  if (!email) {
+    toast.error("Email not found. Please try again.");
+    return;
+  }
+
   setIsLoading(true);
   setErrorMessage("");
+
   try {
-    const res = await fetch("/api/auth/verifyEmail", {
+    const endpoint =
+       "/api/auth/verifyEmail" ;
+      
+
+    const res = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp: otpCode }),
     });
 
     const data = await res.json();
 
     if (!res.ok || !data.success) {
-      setVerificationStatus("error");
-      setErrorMessage(data.error || "Verification failed");
-      toast.error(data.error || "Verification failed");
-      setOtp(["", "", "", "", "", ""]);
-      inputRefs.current[0]?.focus();
+      toast.error(data.error || "Invalid OTP");
+      setIsLoading(false);
       return;
     }
-    localStorage.removeItem("userEmail")
-    setVerificationStatus("success");
-    toast.success(data.message || "Email verified successfully");
-    // Redirect to dashboard or wherever you want
-    setTimeout(() => {
-      window.location.href = `/LoginPage`;
-    }, 2000);
+
+    toast.success("OTP verified successfully");
+
+    if (mode === "forget") {
+      router.push("/ForgetPassPage");
+    } else {
+      router.push(`/LoginPage`);
+    }
+
   } catch (error) {
-    setVerificationStatus("error");
-    toast.error("Server error. Please try again.");
+    toast.error("Something went wrong, please try again");
+    console.error(error);
   } finally {
     setIsLoading(false);
   }
 };
+
 
   // Resend OTP
   const handleResendOtp = async () => {
