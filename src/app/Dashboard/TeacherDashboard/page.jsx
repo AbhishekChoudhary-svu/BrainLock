@@ -75,6 +75,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
 
 export default function TeacherDashboard() {
   const router = useRouter();
@@ -95,10 +96,52 @@ export default function TeacherDashboard() {
     totalChallenges: 28,
     avgPerformance: 87,
   };
+
+  const [courseData, setCourseData] = useState({
+  title: "",
+  description: "",
+  category: "",
+  price: 0,
+  published: false,
+  status: "inactive"
+});
+
+
+const handleCreateCourse = async () => {
+  const res = await fetch("/api/teacher/courses", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(courseData),
+  });
+  const data = await res.json();
+  if (data.success) {
+    setIsCreateCourseOpen(false);
+    toast.success("Course Created Successfully..")
+    // refresh list or show success toast
+  }else{
+
+    toast.error("Course Failed..")
+  }
+};
+
+
+
+
     const [user, setUser] = useState(null);
+    const [courses , setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
   
-   
+   useEffect(() => {
+  async function fetchCourses() {
+    const res = await fetch("/api/teacher/courses");
+    const data = await res.json();
+    if (data.success) {
+      setCourses(data.data);
+    }
+  }
+  fetchCourses();
+}, []);
+
   
     useEffect(() => {
       async function fetchProfile() {
@@ -155,53 +198,6 @@ export default function TeacherDashboard() {
       toast.error("Something went wrong");
     }
   }
-
-  const courses = [
-    {
-      id: 1,
-      title: "Advanced Calculus",
-      submain:"Mathematics",
-      students: 32,
-      challenges: 8,
-      avgScore: 85,
-      status: "active",
-      lastUpdated: "2 days ago",
-      completion: 78,
-    },
-    {
-      id: 2,
-      title: "Linear Algebra",
-      submain:"Mathematics",
-      students: 28,
-      challenges: 6,
-      avgScore: 92,
-      status: "active",
-      lastUpdated: "1 day ago",
-      completion: 65,
-    },
-    {
-      id: 3,
-      title: "Statistics Fundamentals",
-      submain:"Mathematics",
-      students: 45,
-      challenges: 10,
-      avgScore: 79,
-      status: "active",
-      lastUpdated: "3 hours ago",
-      completion: 45,
-    },
-    {
-      id: 4,
-      title: "Geometry Basics",
-      submain:"Mathematics",
-      students: 51,
-      challenges: 4,
-      avgScore: 88,
-      status: "completed",
-      lastUpdated: "1 week ago",
-      completion: 100,
-    },
-  ];
 
   const students = [
     {
@@ -488,30 +484,37 @@ export default function TeacherDashboard() {
                       <span>Course Performance</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {courses
-                      .filter((course) => course.status === "active")
-                      .map((course) => (
-                        <div key={course.id} className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <h4 className="font-medium">{course.title}</h4>
-                            <div className="flex items-center space-x-2">
-                              <Badge variant="secondary">
-                                {course.students} students
-                              </Badge>
-                              <span className="text-sm text-gray-600">
-                                {course.avgScore}% avg
-                              </span>
-                            </div>
-                          </div>
-                          <Progress value={course.completion} className="h-2" />
-                          <div className="flex justify-between text-sm text-gray-600">
-                            <span>{course.completion}% complete</span>
-                            <span>Updated {course.lastUpdated}</span>
-                          </div>
-                        </div>
-                      ))}
-                  </CardContent>
+                 
+          <CardContent className="space-y-4">
+            {courses
+              .filter((course) => course.status === "active")
+              .map((course) => (
+                <div key={course._id} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">{course.title}</h4>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="secondary">
+                        {course.studentsEnrolled?.length || 0} students
+                      </Badge>
+                      <span className="text-sm text-gray-600">
+                        {course.avgScore}% avg
+                      </span>
+                    </div>
+                  </div>
+
+                  <Progress value={course.completion} className="h-2" />
+
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>{course.completion}% complete</span>
+                    <span>
+                      Updated{" "}
+                      {formatDistanceToNow(new Date(course.updatedAt), { addSuffix: true })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+          </CardContent>
+
                 </Card>
 
                 {/* Recent Activity */}
@@ -1029,56 +1032,130 @@ export default function TeacherDashboard() {
       </main>
 
       {/* Create Course Dialog */}
-      <Dialog open={isCreateCourseOpen} onOpenChange={setIsCreateCourseOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Create New Course</DialogTitle>
-            <DialogDescription>
-              Add a new course to your teaching portfolio.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="course-title" className="text-right">
-                Title
-              </Label>
-              <Input
-                id="course-title"
-                placeholder="Course title"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="course-description" className="text-right">
-                Description
-              </Label>
-              <Textarea
-                id="course-description"
-                placeholder="Course description"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="course-difficulty" className="text-right">
-                Difficulty
-              </Label>
-              <Select>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select difficulty" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Create Course</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Create Course Dialog */}
+<Dialog open={isCreateCourseOpen} onOpenChange={setIsCreateCourseOpen}>
+  <DialogContent className="sm:max-w-[500px]">
+    <DialogHeader>
+      <DialogTitle>Create New Course</DialogTitle>
+      <DialogDescription>
+        Fill in the course details below.
+      </DialogDescription>
+    </DialogHeader>
+    <div className="grid gap-4 py-4">
+
+      {/* Title */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="course-title" className="text-right">
+          Title
+        </Label>
+        <Input
+          id="course-title"
+          placeholder="Course title"
+          value={courseData.title}
+          onChange={(e) =>
+            setCourseData({ ...courseData, title: e.target.value })
+          }
+          className="col-span-3"
+        />
+      </div>
+
+      {/* Description */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="course-description" className="text-right">
+          Description
+        </Label>
+        <Textarea
+          id="course-description"
+          placeholder="Course description"
+          value={courseData.description}
+          onChange={(e) =>
+            setCourseData({ ...courseData, description: e.target.value })
+          }
+          className="col-span-3"
+        />
+      </div>
+
+      {/* Category */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="course-category" className="text-right">
+          Category
+        </Label>
+        <Input
+          id="course-category"
+          placeholder="e.g., Mathematics"
+          value={courseData.category}
+          onChange={(e) =>
+            setCourseData({ ...courseData, category: e.target.value })
+          }
+          className="col-span-3"
+        />
+      </div>
+
+
+      {/* Price */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="course-price" className="text-right">
+          Price
+        </Label>
+        <Input
+          id="course-price"
+          type="number"
+          min="0"
+          value={courseData.price}
+          onChange={(e) =>
+            setCourseData({ ...courseData, price: Number(e.target.value) })
+          }
+          className="col-span-3"
+        />
+      </div>
+
+      {/* Status */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="course-status" className="text-right">
+          Status
+        </Label>
+        <Select
+          onValueChange={(value) =>
+            setCourseData({ ...courseData, status: value })
+          }
+        >
+          <SelectTrigger className="col-span-3">
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+     
+
+      {/* Published */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label className="text-right">Published</Label>
+        <input
+          type="checkbox"
+          checked={courseData.published}
+          onChange={(e) =>
+            setCourseData({ ...courseData, published: e.target.checked })
+          }
+          className="col-span-3 w-5 h-5"
+        />
+      </div>
+    </div>
+
+    <DialogFooter>
+      <Button
+        onClick={handleCreateCourse}
+        disabled={!courseData.title || !courseData.description || !courseData.category}
+      >
+        Create Course
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+
 
       {/* Create Challenge Dialog */}
       <Dialog

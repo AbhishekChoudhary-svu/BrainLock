@@ -9,9 +9,7 @@ const courseSchema = new mongoose.Schema(
     instructor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
-    thumbnail: { type: String },
     published: { type: Boolean, default: false },
     subtopics: [
       {
@@ -25,6 +23,16 @@ const courseSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    challenges: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Challenge",
+      },
+    ],
+    avgScore: { type: Number, min: 0, max: 100, default: 0 },
+    status: { type: String, enum: ["active", "inactive"], default: "inactive" },
+    completion: { type: Number, min: 0, max: 100, default: 0 },
+  
   },
   { timestamps: true }
 );
