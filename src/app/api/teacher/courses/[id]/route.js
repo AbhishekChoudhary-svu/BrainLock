@@ -5,10 +5,10 @@ export async function GET(req, { params }) {
   try {
     await dbConnect();
     const course = await Course.findById(params.id)
-      .populate("instructor", "firstName lastName email")
-      .populate("subtopics")
-      .populate("studentsEnrolled", "firstName lastName")
-      .populate("challenges");
+      // .populate("instructor", "firstName lastName email")
+      // .populate("subtopics")
+      // .populate("studentsEnrolled", "firstName lastName")
+      // .populate("challenges");
 
     if (!course) {
       return new Response(

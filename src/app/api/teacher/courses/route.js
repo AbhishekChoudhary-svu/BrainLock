@@ -27,10 +27,10 @@ export async function GET() {
     await dbConnect();
 
     const courses = await Course.find()
-      .populate("instructor", "firstName lastName email")
-      .populate("subtopics")
-      .populate("studentsEnrolled", "firstName lastName")
-      .populate("challenges");
+      // .populate("instructor", "firstName lastName email")
+      // // .populate("subtopics")
+      // // .populate("studentsEnrolled", "firstName lastName")
+      // // .populate("challenges");
 
     return new Response(
       JSON.stringify({ success: true, data: courses }),
