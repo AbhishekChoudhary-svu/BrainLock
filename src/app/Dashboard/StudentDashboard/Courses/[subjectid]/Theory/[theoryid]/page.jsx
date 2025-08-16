@@ -2,7 +2,7 @@
 
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,109 +20,22 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-
-// Mock theory content for subjects
-const mockTheoryContent = {
-  mathematics: {
-    title: "Advanced Mathematics",
-    subtopics: [
-      {
-        id: 101,
-        title: "Calculus Derivatives",
-        content: `
-          <p>Derivatives measure the rate of change of a function. It’s a core concept in differential calculus.</p>
-          <ul class="list-disc list-inside">
-            <li><strong>Definition:</strong> A derivative represents an instantaneous rate of change (slope of a tangent line).</li>
-            <li><strong>Notation:</strong> f'(x), dy/dx</li>
-            <li><strong>Rules:</strong> Power rule, product rule, quotient rule, chain rule.</li>
-            <li><strong>Applications:</strong> Optimization, motion problems, curve sketching.</li>
-          </ul>
-        `,
-      },
-      {
-        id: 102,
-        title: "Linear Equations Challenge",
-        content: `
-          <p>Linear equations form the backbone of algebra. They describe straight-line relationships.</p>
-          <ul class="list-disc list-inside">
-            <li><strong>Standard Form:</strong> ax + b = 0</li>
-            <li><strong>Slope-Intercept Form:</strong> y = mx + c</li>
-            <li><strong>Systems of Linear Equations:</strong> Solved using substitution, elimination, or matrices.</li>
-            <li><strong>Applications:</strong> Modeling, prediction, geometry, economics.</li>
-          </ul>
-        `,
-      },
-    ],
-  },
-  physics: {
-    title: "Physics Fundamentals",
-    subtopics: [
-      {
-        title: "Newton’s Laws of Motion",
-        content: `
-          <p>Newton’s three laws form the basis of classical mechanics.</p>
-          <ul class="list-disc list-inside">
-            <li><strong>1st Law (Inertia):</strong> An object remains at rest or in uniform motion unless acted upon.</li>
-            <li><strong>2nd Law:</strong> F = ma – Force equals mass times acceleration.</li>
-            <li><strong>3rd Law:</strong> For every action, there is an equal and opposite reaction.</li>
-          </ul>
-        `,
-      },
-      {
-        title: "Kinematics",
-        content: `
-          <p>Kinematics describes motion without considering its causes.</p>
-          <ul class="list-disc list-inside">
-            <li><strong>Quantities:</strong> Displacement, velocity, acceleration, time.</li>
-            <li><strong>Equations of Motion:</strong> Used for uniformly accelerated motion.</li>
-            <li><strong>Graphs:</strong> Position-time and velocity-time plots reveal motion patterns.</li>
-          </ul>
-        `,
-      },
-    ],
-  },
-  chemistry: {
-    title: "Chemistry Basics",
-    subtopics: [
-      {
-        title: "Atomic Structure",
-        content: `
-          <p>Atoms are the smallest unit of matter, made up of protons, neutrons, and electrons.</p>
-          <ul class="list-disc list-inside">
-            <li><strong>Subatomic Particles:</strong> Protons (+), Neutrons (0), Electrons (-)</li>
-            <li><strong>Electron Configuration:</strong> Determines chemical properties.</li>
-            <li><strong>Periodic Table:</strong> Arranges elements by atomic number and properties.</li>
-          </ul>
-        `,
-      },
-      {
-        title: "Chemical Bonding",
-        content: `
-          <p>Atoms combine through bonding to achieve stability.</p>
-          <ul class="list-disc list-inside">
-            <li><strong>Ionic Bonds:</strong> Transfer of electrons, forming ions.</li>
-            <li><strong>Covalent Bonds:</strong> Sharing of electrons.</li>
-            <li><strong>Metallic Bonds:</strong> Sea of delocalized electrons.</li>
-            <li><strong>Molecular Geometry:</strong> Shapes of molecules influence properties.</li>
-          </ul>
-        `,
-      },
-    ],
-  },
-};
+import MyContext from "@/context/ThemeProvider";
 
 export default function SubjectTheoryPage() {
+  const context = useContext(MyContext);
   const params = useParams();
-  const { subjectid } = params;
+  const { theoryid } = params;
 
-  const searchParams = useSearchParams();
-  const subtopicId = Number(searchParams.get("subtopic")); // Make sure it's a number
+  useEffect(() => {
+    context.fetchCourses();
+  }, []);
+  const subtopic = context.courses
+    .flatMap((course) => course.subtopics || [])
+    .find((s) => String(s._id) === String(theoryid));
 
-  const currentSubtopic = mockTheoryContent[subjectid]?.subtopics.find(
-    (s) => s.id === subtopicId
-  );
-
-  const theory = mockTheoryContent[subjectid];
+  // 2. Get its contents array safely
+  const contents = Array.isArray(subtopic?.contents) ? subtopic.contents : [];
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -191,9 +104,7 @@ export default function SubjectTheoryPage() {
     }
   };
 
-  const subjectName = getSubjectName(subjectid);
-
-  if (!currentSubtopic) {
+  if (!contents) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
         <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
@@ -201,7 +112,7 @@ export default function SubjectTheoryPage() {
           Theory Not Found
         </h2>
         <p className="text-gray-600 mb-6">
-          The theory content for subject "{subjectid}" could not be found.
+          The theory content for subject "{contents}" could not be found.
         </p>
         <Link href="/Dashboard/StudentDashboard">
           <Button>Back to Dashboard</Button>
@@ -217,7 +128,7 @@ export default function SubjectTheoryPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
-              href={`/Dashboard/StudentDashboard/Courses/${subjectid}`}
+              href={`/Dashboard/StudentDashboard/Courses/${theoryid}`}
               className="flex items-center space-x-3 text-gray-900 hover:text-purple-600 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -228,7 +139,7 @@ export default function SubjectTheoryPage() {
               </div>
             </Link>
             <Badge variant="secondary" className="text-sm">
-              {subjectName} Theory
+              {subtopic.title} Theory
             </Badge>
           </div>
         </div>
@@ -241,26 +152,39 @@ export default function SubjectTheoryPage() {
           <Card className="h-full flex flex-col">
             <CardHeader>
               <CardTitle className="text-2xl font-bold">
-                {theory.title}
+                {subtopic.title}
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 overflow-auto">
               <ScrollArea className="h-[calc(100vh-250px)] pr-4">
-                {currentSubtopic ? (
-                  <div className="mb-8">
-                    <h3 className="text-xl font-semibold mb-2">
-                      {currentSubtopic.title}
-                    </h3>
-                    <div
-                      className="prose max-w-none"
-                      dangerouslySetInnerHTML={{
-                        __html: currentSubtopic.content,
-                      }}
-                    />
+                {contents.map((c) => (
+                  <div key={c._id} className="mb-8">
+                    {c.videoUrl && (
+                      <iframe
+                        className="w-full h-64 mb-4"
+                        src={c.videoUrl}
+                        title={c.title}
+                        frameBorder="0"
+                        allowFullScreen
+                      />
+                    )}
+
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {c.description}
+                    </p>
+
+                    {c.fileUrl && (
+                      <a
+                        href={c.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline mt-2 inline-block"
+                      >
+                        Download/View File
+                      </a>
+                    )}
                   </div>
-                ) : (
-                  <p className="text-red-500 text-sm">Subtopic not found.</p>
-                )}
+                ))}
               </ScrollArea>
             </CardContent>
           </Card>
@@ -303,7 +227,7 @@ export default function SubjectTheoryPage() {
                 <div className="space-y-4">
                   {messages.length === 0 && (
                     <div className="text-center text-gray-500 text-sm py-4">
-                      Ask me anything about {subjectName}!
+                      Ask me anything about {contents.title}!
                     </div>
                   )}
                   {messages.map((msg, index) => (

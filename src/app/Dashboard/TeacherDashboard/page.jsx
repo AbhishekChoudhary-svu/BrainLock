@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -76,10 +76,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import MyContext from "@/context/ThemeProvider";
 
 export default function TeacherDashboard() {
+  const context = useContext(MyContext)
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [courseData, setCourseData] = useState([]);
   const [isCreateChallengeOpen, setIsCreateChallengeOpen] = useState(false);
 
   // Mock data for teacher
@@ -96,22 +99,7 @@ export default function TeacherDashboard() {
     avgPerformance: 87,
   };
 
-  const [courseData, setCourseData] = useState({
-    title: "",
-    description: "",
-    category: "",
-    price: 0,
-    published: false,
-    status: "inactive",
-  });
-
-  async function fetchCourses() {
-    const res = await fetch("/api/teacher/courses");
-    const data = await res.json();
-    if (data.success) {
-      setCourses(data.data);
-    }
-  }
+  
   const isEditMode = Boolean(courseData?._id);
 
 // edit and create for both
@@ -135,7 +123,7 @@ export default function TeacherDashboard() {
             : "Course created successfully!"
         );
         setIsDialogOpen(false);
-        fetchCourses();
+        context.fetchCourses();
       } else {
         toast.success(data.error || "Failed to save course");
       }
@@ -146,11 +134,10 @@ export default function TeacherDashboard() {
   };
 
   const [user, setUser] = useState(null);
-  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCourses();
+    context.fetchCourses();
   }, []);
 
   const openCreateDialog = () => {
@@ -312,7 +299,7 @@ export default function TeacherDashboard() {
       const data = await res.json();
       if (res.ok) {
         toast.success("Course deleted successfully!");
-        fetchCourses();
+        context.fetchCourses();
       } else {
         toast.error(data.error || "Failed to delete course");
       }
@@ -527,7 +514,7 @@ export default function TeacherDashboard() {
                   </CardHeader>
 
                   <CardContent className="space-y-4">
-                    {courses
+                    {context.courses
                       .filter((course) => course.status === "active")
                       .map((course) => (
                         <div key={course._id} className="space-y-2">
@@ -735,7 +722,7 @@ export default function TeacherDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
+              {context.courses.map((course) => (
                 <Card
                   key={course._id}
                   className="hover:shadow-lg transition-shadow"
@@ -980,7 +967,7 @@ export default function TeacherDashboard() {
               </Card>
 
               {/* Sample challenges would be mapped here */}
-              {courses.map((course) => (
+              {context.courses.map((course) => (
                 <Card key={course.id}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -1249,7 +1236,7 @@ export default function TeacherDashboard() {
                   <SelectValue placeholder="Select course" />
                 </SelectTrigger>
                 <SelectContent>
-                  {courses.map((course) => (
+                  {context.courses.map((course) => (
                     <SelectItem key={course._id} value={course._id.toString()}>
                       {course.title}
                     </SelectItem>

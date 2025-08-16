@@ -21,99 +21,11 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-
-// Mock data for courses and challenges
-const mockCourses = [
-  {
-    id: 1,
-    title: "Advanced Mathematics",
-    subjectId: "mathematics",
-    progress: 78,
-    difficulty: "Hard",
-    points: 150,
-    status: "active",
-    description:
-      "Dive deep into advanced mathematical concepts including calculus, differential equations, and linear algebra. This course is designed to challenge your analytical skills and prepare you for higher-level studies.",
-    subtopics: [
-      {
-        id: 101,
-        title: "Calculus Derivatives",
-        difficulty: "Hard",
-        estimatedTime: "45 min",
-        dueDate: "Tomorrow",
-        points: 50,
-        description:
-          "Master the concepts of differentiation and its applications in real-world problems.",
-      },
-      {
-        id: 102,
-        title: "Linear Equations Challenge",
-        difficulty: "Medium",
-        estimatedTime: "30 min",
-        dueDate: "In 5 days",
-        points: 45,
-        description:
-          "Solve systems of linear equations using various methods, including substitution and elimination.",
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "Physics Fundamentals",
-    subjectId: "physics",
-    progress: 5,
-    difficulty: "Medium",
-    points: 120,
-    status: "active",
-    description:
-      "Explore the fundamental principles of physics, from classical mechanics to electromagnetism. Understand the laws governing the universe through interactive lessons and practical examples.",
-    subtopics: [
-      {
-        title: "Newton's Laws Quiz",
-        difficulty: "Medium",
-        estimatedTime: "30 min",
-        dueDate: "In 3 days",
-        points: 40,
-        description:
-          "Test your understanding of Newton's three laws of motion through a series of challenging questions.",
-      },
-      {
-        title: "Thermodynamics Principles",
-        difficulty: "Hard",
-        estimatedTime: "60 min",
-        dueDate: "In 7 days",
-        points: 60,
-        description:
-          "Explore the laws of thermodynamics and their applications in energy transfer.",
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "Chemistry Basics",
-    subjectId: "chemistry",
-    progress: 100,
-    difficulty: "Easy",
-    points: 200,
-    status: "completed",
-    description:
-      "An introductory course covering the basics of chemical reactions, atomic structure, and periodic trends. Build a strong foundation in chemistry for future scientific endeavors.",
-    subtopics: [
-      {
-        title: "Periodic Table Quiz",
-        difficulty: "Easy",
-        estimatedTime: "20 min",
-        dueDate: "Next week",
-        points: 30,
-        description:
-          "Identify elements and understand their properties on the periodic table with this interactive quiz.",
-      },
-    ],
-  },
-];
+import { useContext, useEffect } from "react";
+import MyContext from "@/context/ThemeProvider";
 
 const getDifficultyColor = (difficulty) => {
-  switch (difficulty.toLowerCase()) {
+  switch (difficulty?.toLowerCase()) {
     case "easy":
       return "bg-green-100 text-green-800";
     case "medium":
@@ -126,13 +38,22 @@ const getDifficultyColor = (difficulty) => {
 };
 
 export default function SubjectCoursePage() {
+  const context = useContext(MyContext);
   const params = useParams();
-  const { subjectid } = params;
 
-  const course = mockCourses.find((c) => c.subjectId === subjectid);
-  const challengesForSubject = mockCourses.filter(
-    (c) => c.subjectId === subjectid
+  useEffect(() => {
+    context.fetchCourses();
+  }, []);
+
+  const { subtopicid } = params;
+
+  // Find the course that contains this subtopic
+  const course = context.courses.find((c) =>
+    c.subtopics?.some((sub) => String(sub.id) === String(subtopicid))
   );
+
+  // Get all challenges (subtopics) inside this course
+  const challengesForSubject = course ? course.subtopics : [];
 
   if (!course) {
     return (
@@ -142,7 +63,7 @@ export default function SubjectCoursePage() {
           Course Not Found
         </h2>
         <p className="text-gray-600 mb-6">
-          The course for subject "{subjectid}" could not be found.
+          The course for the given subtopic could not be found.
         </p>
         <Link href="/Dashboard/StudentDashboard">
           <Button>Back to Dashboard</Button>
@@ -197,9 +118,9 @@ export default function SubjectCoursePage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Progress</span>
-                  <span>{course.progress}%</span>
+                  <span>{course.progress || 50}%</span>
                 </div>
-                <Progress value={course.progress} className="h-2" />
+                <Progress value={course.progress || 50} className="h-2" />
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
@@ -219,17 +140,19 @@ export default function SubjectCoursePage() {
                 </div>
                 <div>
                   <p className="text-gray-600">Difficulty</p>
-                  <Badge className={getDifficultyColor(course.difficulty)}>
-                    {course.difficulty}
+                  <Badge className={getDifficultyColor(course.difficulty || "Hard")}>
+                    {course.difficulty || "Hard"}
                   </Badge>
                 </div>
                 <div>
                   <p className="text-gray-600">Points Earned</p>
-                  <p className="font-semibold">{course.points}</p>
+                  <p className="font-semibold">{course.points || 50}</p>
                 </div>
                 <div>
                   <p className="text-gray-600">Next Challenge</p>
-                  <p className="font-semibold">{course.nextChallenge}</p>
+                  <p className="font-semibold">
+                    {course.subtopics?.[0]?.title || "No challenges yet"}
+                  </p>
                 </div>
               </div>
               <div className="flex justify-end">
@@ -296,9 +219,9 @@ export default function SubjectCoursePage() {
                         {subtopic.title}
                       </CardTitle>
                       <Badge
-                        className={getDifficultyColor(subtopic.difficulty)}
+                        className={getDifficultyColor(subtopic.difficulty) || "Hard"}
                       >
-                        {subtopic.difficulty}
+                        {subtopic.difficulty || "Hard"}
                       </Badge>
                     </div>
                     <CardDescription>{subtopic.description}</CardDescription>
@@ -306,18 +229,18 @@ export default function SubjectCoursePage() {
                   <CardContent className="space-y-3">
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-500">
-                        ⏱️ {subtopic.estimatedTime}
+                        ⏱️ {subtopic.estimatedTime || "4 Days"}
                       </span>
                       <span className="text-gray-500">
-                        📅 Due: {subtopic.dueDate}
+                        📅 Due: {subtopic.dueDate || subtopic.updatedAt.split("T")[0]}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <Badge variant="secondary">+{subtopic.points} pts</Badge>
+                      <Badge variant="secondary">+{subtopic.points || 50} pts</Badge>
                       <Link
                         href={`/Dashboard/StudentDashboard/Courses/${
-                          course.subjectId
-                        }/Theory?subtopic=${encodeURIComponent(subtopic.id)}`}
+                          course._id
+                        }/Theory/${subtopic._id}`}
                       >
                         <Button size="sm">
                           Open Theory

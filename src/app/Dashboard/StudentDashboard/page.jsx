@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -53,8 +53,10 @@ import {
 import Link from "next/link"; // Import Link
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import MyContext from "@/context/ThemeProvider";
 
 export default function StudentDashboard() {
+  const context = useContext(MyContext)
     const router = useRouter();
   const [currentStreak, setCurrentStreak] = useState(7);
   const [studyTimer, setStudyTimer] = useState({
@@ -62,6 +64,10 @@ export default function StudentDashboard() {
     seconds: 0,
     isRunning: false,
   });
+
+  useEffect(()=>{
+    context.fetchCourses();
+  },[])
 
   // Mock data
   const studentData = {
@@ -131,41 +137,41 @@ export default function StudentDashboard() {
 }, [router]);
 
 
-  const courses = [
-    {
-      id: 1,
-      title: "Advanced Mathematics",
-      subjectId: "mathematics", // Added subjectId for routing
-      progress: 78,
-      nextChallenge: "Calculus Derivatives",
-      dueDate: "Tomorrow",
-      difficulty: "Hard",
-      points: 150,
-      status: "active",
-    },
-    {
-      id: 2,
-      title: "Physics Fundamentals",
-      subjectId: "physics", // Added subjectId for routing
-      progress: 45,
-      nextChallenge: "Newton's Laws Quiz",
-      dueDate: "In 3 days",
-      difficulty: "Medium",
-      points: 120,
-      status: "active",
-    },
-    {
-      id: 3,
-      title: "Chemistry Basics",
-      subjectId: "chemistry", // Added subjectId for routing
-      progress: 100,
-      nextChallenge: "Course Completed",
-      dueDate: "Completed",
-      difficulty: "Easy",
-      points: 200,
-      status: "completed",
-    },
-  ];
+  // const courses = [
+  //   {
+  //     id: 1,
+  //     title: "Advanced Mathematics",
+  //     subjectId: "mathematics", // Added subjectId for routing
+  //     progress: 78,
+  //     nextChallenge: "Calculus Derivatives",
+  //     dueDate: "Tomorrow",
+  //     difficulty: "Hard",
+  //     points: 150,
+  //     status: "active",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Physics Fundamentals",
+  //     subjectId: "physics", // Added subjectId for routing
+  //     progress: 45,
+  //     nextChallenge: "Newton's Laws Quiz",
+  //     dueDate: "In 3 days",
+  //     difficulty: "Medium",
+  //     points: 120,
+  //     status: "active",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Chemistry Basics",
+  //     subjectId: "chemistry", // Added subjectId for routing
+  //     progress: 100,
+  //     nextChallenge: "Course Completed",
+  //     dueDate: "Completed",
+  //     difficulty: "Easy",
+  //     points: 200,
+  //     status: "completed",
+  //   },
+  // ];
 
   const recentActivities = [
     {
@@ -472,17 +478,17 @@ export default function StudentDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {courses
+                    {context.courses
                       .filter((course) => course.status === "active")
                       .map((course) => (
                         <div key={course.id} className="space-y-2">
                           <div className="flex justify-between items-center">
                             <h4 className="font-medium">{course.title}</h4>
-                            <Badge
-                              className={getDifficultyColor(course.difficulty)}
+                            {/* <Badge
+                              className={getDifficultyColor(course.difficulty) || ""}
                             >
-                              {course.difficulty}
-                            </Badge>
+                              {course.difficulty || ""}
+                            </Badge> */}
                           </div>
                           <Progress value={course.progress} className="h-2" />
                           <div className="flex justify-between text-sm text-gray-600">
@@ -641,9 +647,9 @@ export default function StudentDashboard() {
           {/* Courses Tab */}
           <TabsContent value="courses" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
+              {context.courses.map((course) => (
                 <Card
-                  key={course.id}
+                  key={course._id}
                   className="hover:shadow-lg transition-shadow"
                 >
                   <CardHeader>
@@ -669,9 +675,9 @@ export default function StudentDashboard() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>Progress</span>
-                        <span>{course.progress}%</span>
+                        <span>{course.progress || 50}%</span>
                       </div>
-                      <Progress value={course.progress} className="h-2" />
+                      <Progress value={course.progress || 50} className="h-2" />
                     </div>
 
                     <div className="space-y-2">
@@ -679,26 +685,26 @@ export default function StudentDashboard() {
                         <span className="text-sm text-gray-600">
                           Next Challenge:
                         </span>
-                        <Badge
+                        {/* <Badge
                           className={getDifficultyColor(course.difficulty)}
                         >
                           {course.difficulty}
-                        </Badge>
+                        </Badge> */}
                       </div>
                       <p className="text-sm font-medium">
-                        {course.nextChallenge}
+                        {course.subtopics?.[0]?.title || "No subtopics available"}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Due: {course.dueDate}
+                        Due: {course.subtopics?.[0]?.createdAt.split("T")[0]}
                       </p>
                     </div>
 
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-sm text-gray-600">
-                        Points: {course.points}
+                        Points: {course.points || 50}
                       </span>
                       <Link
-                        href={`/Dashboard/StudentDashboard/Courses/${course.subjectId}`}
+                        href={`/Dashboard/StudentDashboard/Courses/${course._id}`}
                       >
                         {" "}
                         {/* Link to new course page */}
