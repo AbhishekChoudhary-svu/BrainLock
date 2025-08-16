@@ -144,7 +144,7 @@ export default function SubtopicContentManagePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
-              href={`/Dashboard/TeacherDashboard/Courses/${courseid}/manage`}
+              href={`/Dashboard/TeacherDashboard/Courses/${courseid}/`}
               className="flex items-center space-x-3 text-gray-900 hover:text-green-600 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -169,98 +169,138 @@ export default function SubtopicContentManagePage() {
         </div>
 
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <ImageIcon className="h-5 w-5 text-blue-600" />
-              <span>Subtopic Details & Content</span>
-            </CardTitle>
-            <CardDescription>Update the title, theory, and associated image for this subtopic.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Subtopic Title */}
-            <div className="space-y-2">
-              <Label htmlFor="subtopic-title">Subtopic Title</Label>
-              <Input
-                id="subtopic-title"
-                value={subtopicTitle}
-                onChange={(e) => setSubtopicTitle(e.target.value)}
-                placeholder="Enter subtopic title"
-              />
-            </div>
+  <CardHeader>
+    <CardTitle className="flex items-center space-x-2">
+      <ImageIcon className="h-5 w-5 text-blue-600" />
+      <span>Subtopic Details & Content</span>
+    </CardTitle>
+    <CardDescription>
+      Manage subtopic title, theory content, videos, PDFs, and images.
+    </CardDescription>
+  </CardHeader>
 
-            {/* Subtopic Content (Text) */}
-            <div className="space-y-2">
-              <Label htmlFor="subtopic-content">Subtopic Theory / Content</Label>
-              <Textarea
-                id="subtopic-content"
-                value={subtopicContent}
-                onChange={(e) => setSubtopicContent(e.target.value)}
-                placeholder="Write your subtopic theory here..."
-                rows={15}
-                className="min-h-[200px]"
-              />
-              <p className="text-sm text-gray-500">
-                For advanced styling (bold, italics, lists), consider integrating a rich text editor like TinyMCE or Quill.
-              </p>
-            </div>
+  <CardContent className="space-y-6">
+    {/* Subtopic Title */}
+    <div className="space-y-2">
+      <Label htmlFor="subtopic-title">Subtopic Title</Label>
+      <Input
+        id="subtopic-title"
+        value={subtopicTitle}
+        onChange={(e) => setSubtopicTitle(e.target.value)}
+        placeholder="Enter subtopic title"
+      />
+    </div>
 
-            {/* Image Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="subtopic-image">Subtopic Image</Label>
-              <div className="flex items-center space-x-4">
-                <Input
-                  id="subtopic-image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="flex-1"
-                />
-                <Button variant="outline" className="shrink-0">
-                  <Upload className="mr-2 h-4 w-4" /> Upload
-                </Button>
-              </div>
-              {subtopicImage && (
-                <div className="mt-4 border rounded-md overflow-hidden">
-                  <img
-                    src={subtopicImage || "/placeholder.svg"}
-                    alt="Subtopic Preview"
-                    className="w-full h-48 object-cover"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "/placeholder.svg?height=300&width=500";
-                    }}
-                  />
-                </div>
-              )}
-              <p className="text-xs text-gray-500">Upload a new image or paste an image URL directly into the input above.</p>
-            </div>
+    {/* Theory / Article Text */}
+    <div className="space-y-2">
+      <Label htmlFor="subtopic-description">Theory / Article</Label>
+      <Textarea
+        id="subtopic-description"
+        value={subtopicDescription}
+        onChange={(e) => setSubtopicDescription(e.target.value)}
+        placeholder="Write theory or article content here..."
+        rows={10}
+        className="min-h-[150px]"
+      />
+    </div>
 
-            {/* Save Button and Status */}
-            <div className="flex items-center justify-end gap-4">
-              {saveStatus === "success" && (
-                <div className="flex items-center text-green-600 text-sm">
-                  <CheckCircle className="h-4 w-4 mr-2" /> Content saved successfully!
-                </div>
-              )}
-              {saveStatus === "error" && (
-                <div className="flex items-center text-red-600 text-sm">
-                  <AlertCircle className="h-4 w-4 mr-2" /> Failed to save content.
-                </div>
-              )}
-              <Button onClick={handleSaveContent} disabled={isSaving}>
-                {isSaving ? (
-                  <>
-                    <Save className="mr-2 h-4 w-4 animate-pulse" /> Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" /> Save Changes
-                  </>
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+    {/* Video URL */}
+    <div className="space-y-2">
+      <Label htmlFor="video-url">Video (YouTube / Embed URL)</Label>
+      <Input
+        id="video-url"
+        type="url"
+        value={videoUrl}
+        onChange={(e) => setVideoUrl(e.target.value)}
+        placeholder="https://www.youtube.com/embed/..."
+      />
+      {videoUrl && (
+        <div className="mt-3 aspect-video">
+          <iframe
+            src={videoUrl}
+            title="Video Preview"
+            className="w-full h-full rounded-md border"
+            allowFullScreen
+          />
+        </div>
+      )}
+    </div>
+
+    {/* File (PDF / Docs) */}
+    <div className="space-y-2">
+      <Label htmlFor="file-upload">Attach PDF / File</Label>
+      <Input
+        id="file-upload"
+        type="file"
+        accept=".pdf,.doc,.docx"
+        onChange={handleFileUpload}
+      />
+      {fileUrl && (
+        <p className="text-sm text-blue-600 underline mt-2">
+          <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+            View Uploaded File
+          </a>
+        </p>
+      )}
+    </div>
+
+    {/* Subtopic Image */}
+    <div className="space-y-2">
+      <Label htmlFor="subtopic-image">Subtopic Image</Label>
+      <div className="flex items-center space-x-4">
+        <Input
+          id="subtopic-image"
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="flex-1"
+        />
+        <Button variant="outline" className="shrink-0">
+          <Upload className="mr-2 h-4 w-4" /> Upload
+        </Button>
+      </div>
+      {subtopicImage && (
+        <div className="mt-4 border rounded-md overflow-hidden">
+          <img
+            src={subtopicImage || "/placeholder.svg"}
+            alt="Subtopic Preview"
+            className="w-full h-48 object-cover"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "/placeholder.svg?height=300&width=500";
+            }}
+          />
+        </div>
+      )}
+    </div>
+
+    {/* Save Button + Status */}
+    <div className="flex items-center justify-end gap-4">
+      {saveStatus === "success" && (
+        <div className="flex items-center text-green-600 text-sm">
+          <CheckCircle className="h-4 w-4 mr-2" /> Subtopic saved successfully!
+        </div>
+      )}
+      {saveStatus === "error" && (
+        <div className="flex items-center text-red-600 text-sm">
+          <AlertCircle className="h-4 w-4 mr-2" /> Failed to save subtopic.
+        </div>
+      )}
+      <Button onClick={handleSaveContent} disabled={isSaving}>
+        {isSaving ? (
+          <>
+            <Save className="mr-2 h-4 w-4 animate-pulse" /> Saving...
+          </>
+        ) : (
+          <>
+            <Save className="mr-2 h-4 w-4" /> Save Changes
+          </>
+        )}
+      </Button>
+    </div>
+  </CardContent>
+</Card>
+
       </main>
     </div>
   )

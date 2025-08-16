@@ -2,16 +2,10 @@ import mongoose from "mongoose";
 
 const contentSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true },
-    type: {
-      type: String,
-      enum: ["video", "article", "quiz", "assignment"],
-      default: "article",
-    },
-    description: { type: String },
-    videoUrl: { type: String },
-    fileUrl: { type: String },
-    duration: { type: Number }, 
+    description: { type: String }, // for theory / article text
+    videoUrl: { type: String },    // for embedded video links (YouTube, etc.)
+    fileUrl: { type: String },     // for PDFs or other attachments
+    duration: { type: Number },    // optional, for video length
   },
   { timestamps: true }
 );

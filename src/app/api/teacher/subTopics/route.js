@@ -27,8 +27,8 @@ export async function GET() {
   try {
     await dbConnect();
     const subtopics = await Subtopic.find()
-      .populate("course")
-      .populate("contents");
+      // .populate("course")
+      //.populate("contents");
 
     return new Response(
       JSON.stringify({ success: true, data: subtopics }),
