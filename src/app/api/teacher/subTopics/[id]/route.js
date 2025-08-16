@@ -1,29 +1,27 @@
+// File: /app/api/subtopics/[id]/route.js
 import dbConnect from "@/lib/dbConnect";
-import Course from "@/models/course.model";
+import Subtopic from "@/models/subtopic.model";
 
+// GET Subtopic by ID
 export async function GET(req, { params }) {
   try {
     await dbConnect();
-    
-    const course = await Course.findById(params.id)
-      // .populate("instructor", "firstName lastName email")
-      // .populate("subtopics")
-      // .populate("studentsEnrolled", "firstName lastName")
-      // .populate("challenges");
+    const subtopic = await Subtopic.findById(params.id)
+      .populate("course")
+      .populate("contents");
 
-    if (!course) {
+    if (!subtopic) {
       return new Response(
-        JSON.stringify({ success: false, error: "Course not found" }),
+        JSON.stringify({ success: false, message: "Subtopic not found" }),
         { status: 404 }
       );
     }
 
     return new Response(
-      JSON.stringify({ success: true, data: course }),
+      JSON.stringify({ success: true, data: subtopic }),
       { status: 200 }
     );
   } catch (error) {
-    console.error(error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { status: 400 }
@@ -31,29 +29,30 @@ export async function GET(req, { params }) {
   }
 }
 
+// UPDATE Subtopic by ID
 export async function PUT(req, { params }) {
   try {
     await dbConnect();
     const body = await req.json();
 
-    const course = await Course.findByIdAndUpdate(params.id, body, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedSubtopic = await Subtopic.findByIdAndUpdate(
+      params.id,
+      body,
+      { new: true, runValidators: true }
+    );
 
-    if (!course) {
+    if (!updatedSubtopic) {
       return new Response(
-        JSON.stringify({ success: false, error: "Course not found" }),
+        JSON.stringify({ success: false, message: "Subtopic not found" }),
         { status: 404 }
       );
     }
 
     return new Response(
-      JSON.stringify({ success: true, data: course }),
+      JSON.stringify({ success: true, data: updatedSubtopic }),
       { status: 200 }
     );
   } catch (error) {
-    console.error(error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { status: 400 }
@@ -61,24 +60,24 @@ export async function PUT(req, { params }) {
   }
 }
 
+// DELETE Subtopic by ID
 export async function DELETE(req, { params }) {
   try {
     await dbConnect();
-    const course = await Course.findByIdAndDelete(params.id);
+    const deletedSubtopic = await Subtopic.findByIdAndDelete(params.id);
 
-    if (!course) {
+    if (!deletedSubtopic) {
       return new Response(
-        JSON.stringify({ success: false, error: "Course not found" }),
+        JSON.stringify({ success: false, message: "Subtopic not found" }),
         { status: 404 }
       );
     }
 
     return new Response(
-      JSON.stringify({ success: true, message: "Course deleted successfully" }),
+      JSON.stringify({ success: true, message: "Subtopic deleted successfully" }),
       { status: 200 }
     );
   } catch (error) {
-    console.error(error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { status: 400 }

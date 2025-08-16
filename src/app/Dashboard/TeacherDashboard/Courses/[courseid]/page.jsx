@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useParams, useRouter } from "next/navigation"
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -16,87 +16,102 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ArrowLeft, Brain, Plus, Edit, Trash2, ChevronRight, MoreHorizontal } from 'lucide-react'
+} from "@/components/ui/dropdown-menu";
+import {
+  ArrowLeft,
+  Brain,
+  Plus,
+  Edit,
+  Trash2,
+  ChevronRight,
+  MoreHorizontal,
+} from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 export default function CourseSubtopicManagePage() {
-  const params = useParams()
-  const router = useRouter()
-  const courseId = params.courseid // Make sure your folder is named [id]
+  const params = useParams();
+  const router = useRouter();
+  const courseId = params.courseid; // Make sure your folder is named [id]
 
-  const [course, setCourse] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
-  const [isCreateSubtopicOpen, setIsCreateSubtopicOpen] = useState(false)
-  const [newSubtopicTitle, setNewSubtopicTitle] = useState("")
+  const [course, setCourse] = useState([]);
+  const [courseid, setCourseid] = useState("");
+  const [newSubtopicDescription, setNewSubtopicDescription] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [isCreateSubtopicOpen, setIsCreateSubtopicOpen] = useState(false);
+  const [newSubtopicTitle, setNewSubtopicTitle] = useState("");
 
   useEffect(() => {
     async function fetchCourse() {
       try {
-        setLoading(true)
-        const res = await fetch(`/api/teacher/courses/${courseId}`)
+        setLoading(true);
+        const res = await fetch(`/api/teacher/courses/${courseId}`);
         if (!res.ok) {
-          const { error } = await res.json()
-          throw new Error(error || "Failed to fetch course")
+          const { error } = await res.json();
+          throw new Error(error || "Failed to fetch course");
         }
-        const data = await res.json()
-        setCourse(data.data)
+        const data = await res.json();
+        setCourse(data.data);
       } catch (err) {
-        setError(err.message)
+        setError(err.message);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-    if (courseId) fetchCourse()
-  }, [courseId])
+    if (courseId) fetchCourse();
+  }, [courseId]);
 
   const handleCreateSubtopic = async () => {
-    if (!newSubtopicTitle.trim()) return
     try {
-      // Call backend API to create subtopic here
-      // await fetch(`/api/course/${courseId}/subtopics`, { method: "POST", body: JSON.stringify({...}) })
+      const res = await fetch("/api/teacher/subTopics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newSubtopicTitle,
+          description: newSubtopicDescription,
+          course: courseId, // ✅ use params
+          contents: [],
+        }),
+      });
 
-      // Temp local update for UI without refetch
-      setCourse(prev => ({
-        ...prev,
-        subtopics: [
-          ...(prev.subtopics || []),
-          {
-            _id: `temp-${Date.now()}`,
-            title: newSubtopicTitle.trim(),
-            content: "New subtopic content",
-          },
-        ],
-      }))
-      setNewSubtopicTitle("")
-      setIsCreateSubtopicOpen(false)
-    } catch (err) {
-      console.error(err)
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Subtopic created successfully!");
+        setNewSubtopicTitle("");
+        setNewSubtopicDescription("");
+        setCourseid("");
+        setIsCreateSubtopicOpen(false);
+      } else {
+        toast.error(data.error || "Failed to create subtopic");
+      }
+    } catch (error) {
+      toast.error("Error creating subtopic:", error);
     }
-  }
+  };
 
   const handleDeleteSubtopic = async (subtopicId) => {
     try {
       // await fetch(`/api/subtopic/${subtopicId}`, { method: "DELETE" })
-      setCourse(prev => ({
+      setCourse((prev) => ({
         ...prev,
-        subtopics: prev.subtopics.filter(s => s._id !== subtopicId),
-      }))
+        subtopics: prev.subtopics.filter((s) => s._id !== subtopicId),
+      }));
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }
+  };
 
-  if (loading) return <p className="p-6">Loading...</p>
-  if (error) return <p className="p-6 text-red-500">{error}</p>
-  if (!course) return <p className="p-6">Course not found.</p>
+  if (loading) return <p className="p-6">Loading...</p>;
+  if (error) return <p className="p-6 text-red-500">{error}</p>;
+  if (!course) return <p className="p-6">Course not found.</p>;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -139,7 +154,10 @@ export default function CourseSubtopicManagePage() {
               <Plus className="h-5 w-5 text-green-600" />
               <span>Subtopics</span>
             </CardTitle>
-            <Dialog open={isCreateSubtopicOpen} onOpenChange={setIsCreateSubtopicOpen}>
+            <Dialog
+              open={isCreateSubtopicOpen}
+              onOpenChange={setIsCreateSubtopicOpen}
+            >
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
@@ -149,9 +167,13 @@ export default function CourseSubtopicManagePage() {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Create New Subtopic</DialogTitle>
-                  <DialogDescription>Enter the title for your new subtopic.</DialogDescription>
+                  <DialogDescription>
+                    Fill in details to create a new subtopic.
+                  </DialogDescription>
                 </DialogHeader>
+
                 <div className="grid gap-4 py-4">
+                  {/* Title */}
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="subtopic-title" className="text-right">
                       Title
@@ -164,28 +186,73 @@ export default function CourseSubtopicManagePage() {
                       className="col-span-3"
                     />
                   </div>
+
+                  {/* Description */}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label
+                      htmlFor="subtopic-description"
+                      className="text-right"
+                    >
+                      Description
+                    </Label>
+                    <Textarea
+                      id="subtopic-description"
+                      value={newSubtopicDescription}
+                      onChange={(e) =>
+                        setNewSubtopicDescription(e.target.value)
+                      }
+                      placeholder="Brief description of subtopic"
+                      className="col-span-3"
+                    />
+                  </div>
+
+                  {/* Course Selection */}
+                    <div className="flex items-center gap-18">
+                      <Label htmlFor="subtopic-course" className="text-right">
+                        Course
+                      </Label>
+                      <Input
+                        id="subtopic-course"
+                        value={course?.title || ""}
+                        disabled
+                        className="col-span-3 text-black bg-gray-100"
+                      />
+                    </div>
                 </div>
+
                 <DialogFooter>
-                  <Button onClick={handleCreateSubtopic}>Create Subtopic</Button>
+                  <Button onClick={handleCreateSubtopic}>
+                    Create Subtopic
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
           </CardHeader>
           <CardContent className="space-y-4">
-            {(!course.subtopics || course.subtopics.length === 0) ? (
+            {!course.subtopics || course.subtopics.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
-                No subtopics added yet. Click "Create New Subtopic" to get started!
+                No subtopics added yet. Click "Create New Subtopic" to get
+                started!
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 {course.subtopics.map((subtopic) => (
-                  <Card key={subtopic._id} className="lg:flex-row flex items-center justify-between p-4">
+                  <Card
+                    key={subtopic._id}
+                    className="lg:flex-row flex items-center justify-between p-4"
+                  >
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{subtopic.title}</h3>
-                      <p className="text-sm text-gray-600">ID: {subtopic._id}</p>
+                      <h3 className="font-semibold text-lg">
+                        {subtopic.title}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        ID: {subtopic._id}
+                      </p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Link href={`/Dashboard/TeacherDashboard/Courses/${courseId}/manage/${subtopic._id}`}>
+                      <Link
+                        href={`/Dashboard/TeacherDashboard/Courses/${courseId}/manage/${subtopic._id}`}
+                      >
                         <Button variant="outline" size="sm">
                           Manage Content
                           <ChevronRight className="ml-1 h-4 w-4" />
@@ -221,5 +288,5 @@ export default function CourseSubtopicManagePage() {
         </Card>
       </main>
     </div>
-  )
+  );
 }
