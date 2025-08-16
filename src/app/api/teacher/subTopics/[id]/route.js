@@ -1,6 +1,7 @@
-// File: /app/api/subtopics/[id]/route.js
 import dbConnect from "@/lib/dbConnect";
 import Subtopic from "@/models/subtopic.model";
+import Course from "@/models/course.model";
+import Content from "@/models/content.model";
 
 // GET Subtopic by ID
 export async function GET(req, { params }) {
@@ -64,8 +65,9 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     await dbConnect();
-    const deletedSubtopic = await Subtopic.findByIdAndDelete(params.id);
 
+    // Find subtopic first (so we can access its course & contents)
+    const deletedSubtopic = await Subtopic.findById(params.id);
     if (!deletedSubtopic) {
       return new Response(
         JSON.stringify({ success: false, message: "Subtopic not found" }),
@@ -73,8 +75,26 @@ export async function DELETE(req, { params }) {
       );
     }
 
+    // Delete all contents linked to this subtopic
+    if (deletedSubtopic.contents && deletedSubtopic.contents.length > 0) {
+      await Content.deleteMany({ _id: { $in: deletedSubtopic.contents } });
+    }
+
+    // Remove subtopic from course
+    if (deletedSubtopic.course) {
+      await Course.findByIdAndUpdate(deletedSubtopic.course, {
+        $pull: { subtopics: deletedSubtopic._id },
+      });
+    }
+
+    // Finally delete the subtopic itself
+    await Subtopic.findByIdAndDelete(params.id);
+
     return new Response(
-      JSON.stringify({ success: true, message: "Subtopic deleted successfully" }),
+      JSON.stringify({
+        success: true,
+        message: "Subtopic and its contents deleted successfully",
+      }),
       { status: 200 }
     );
   } catch (error) {

@@ -28,7 +28,13 @@ export async function GET() {
 
     const courses = await Course.find()
       // .populate("instructor", "firstName lastName email")
-      // // .populate("subtopics")
+       .populate({
+    path: "subtopics",
+    populate: {
+      path: "contents",   // populate the contents of each subtopic
+      model: "Content"
+    }
+  });
       // // .populate("studentsEnrolled", "firstName lastName")
       // // .populate("challenges");
 

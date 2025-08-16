@@ -2,10 +2,18 @@ import mongoose from "mongoose";
 
 const contentSchema = new mongoose.Schema(
   {
-    description: { type: String }, // for theory / article text
-    videoUrl: { type: String },    // for embedded video links (YouTube, etc.)
-    fileUrl: { type: String },     // for PDFs or other attachments
+    title: { type: String, required: true },
+    description: { type: String }, // theory / article text
+    videoUrl: { type: String },    // embedded video links (YouTube, etc.)
+    fileUrl: { type: String },     // PDFs or other attachments
     duration: { type: Number },    // optional, for video length
+
+    // link content to a specific Subtopic
+    subtopic: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subtopic",
+      required: true,
+    },
   },
   { timestamps: true }
 );

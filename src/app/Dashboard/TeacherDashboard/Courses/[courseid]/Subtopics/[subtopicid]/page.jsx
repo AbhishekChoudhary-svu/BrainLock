@@ -2,138 +2,139 @@
 
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Brain, Upload, Save, ImageIcon, AlertCircle, CheckCircle } from 'lucide-react'
-
-// Mock data for courses with nested subtopics (must be consistent with parent page)
-const mockCoursesWithSubtopics = {
-  "1": {
-    id: 1,
-    title: "Advanced Calculus",
-    subtopics: [
-      {
-        id: "1-1",
-        title: "Introduction to Multivariable Calculus",
-        content: `This section introduces the fundamental concepts of multivariable calculus, including functions of several variables, limits, and continuity.`,
-        imageUrl: "/placeholder.svg?height=300&width=500",
-      },
-      {
-        id: "1-2",
-        title: "Partial Derivatives and Gradients",
-        content: `Explore the concept of partial derivatives and how to compute them. Understand the geometric interpretation of the gradient vector.`,
-        imageUrl: "/placeholder.svg?height=300&width=500",
-      },
-      {
-        id: "1-3",
-        title: "Multiple Integrals",
-        content: `Learn about double and triple integrals, their properties, and applications in calculating areas, volumes, and mass.`,
-        imageUrl: "/placeholder.svg?height=300&width=500",
-      },
-    ],
-  },
-  "2": {
-    id: 2,
-    title: "Linear Algebra",
-    subtopics: [
-      {
-        id: "2-1",
-        title: "Vectors and Vector Spaces",
-        content: `An introduction to vectors, vector operations, and the definition of vector spaces and subspaces.`,
-        imageUrl: "/placeholder.svg?height=300&width=500",
-      },
-      {
-        id: "2-2",
-        title: "Matrices and Linear Transformations",
-        content: `Understand matrices, matrix operations, and how matrices represent linear transformations.`,
-        imageUrl: "/placeholder.svg?height=300&width=500",
-      },
-    ],
-  },
-  "3": {
-    id: 3,
-    title: "Statistics Fundamentals",
-    subtopics: [
-      {
-        id: "3-1",
-        title: "Descriptive Statistics",
-        content: `Learn to summarize and describe data using measures of central tendency (mean, median, mode) and dispersion (variance, standard deviation).`,
-        imageUrl: "/placeholder.svg?height=300&width=500",
-      },
-      {
-        id: "3-2",
-        title: "Probability Basics",
-        content: `Introduction to probability theory, including events, sample spaces, and basic probability rules.`,
-        imageUrl: "/placeholder.svg?height=300&width=500",
-      },
-    ],
-  },
-  "4": {
-    id: 4,
-    title: "Geometry Basics",
-    subtopics: [
-      {
-        id: "4-1",
-        title: "Euclidean Geometry",
-        content: `Fundamental concepts of Euclidean geometry, including points, lines, planes, and basic postulates.`,
-        imageUrl: "/placeholder.svg?height=300&width=500",
-      },
-    ],
-  },
-}
+import { ArrowLeft, Brain, Upload, Save, ImageIcon, AlertCircle, CheckCircle, FileText, Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 export default function SubtopicContentManagePage() {
   const params = useParams()
-  const { courseid, subtopicId } = params
+  const { courseid, subtopicid } = params
 
-  const course = mockCoursesWithSubtopics[courseid]
-  const initialSubtopicData = course?.subtopics.find((st) => st.id === subtopicId) || {
-    title: "Unknown Subtopic",
-    content: "No content available for this subtopic yet. Start adding some!",
-    imageUrl: "/placeholder.svg?height=300&width=500",
-  }
-
-  const [subtopicTitle, setSubtopicTitle] = useState(initialSubtopicData.title)
-  const [subtopicContent, setSubtopicContent] = useState(initialSubtopicData.content)
-  const [subtopicImage, setSubtopicImage] = useState(initialSubtopicData.imageUrl)
+  const [subtopic, setSubtopic] = useState({})
+  const [subtopicDescription, setSubtopicDescription] = useState("")
+  const [videoUrl, setVideoUrl] = useState("")
+  const [fileUrl, setFileUrl] = useState("")
+  const [subtopicImage, setSubtopicImage] = useState("")
   const [isSaving, setIsSaving] = useState(false)
-  const [saveStatus, setSaveStatus] = useState(null) // null, 'success', 'error'
+  const [saveStatus, setSaveStatus] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setSubtopicImage(reader.result) // This will be a data URL for local preview
-      }
-      reader.readAsDataURL(file)
+  const [contents, setContents] = useState([]) 
+  const [editingContentId, setEditingContentId] = useState(null) 
+
+  // Fetch subtopic
+  async function fetchSubtopics() {
+    try {
+      setLoading(true)
+      const res = await fetch(`/api/teacher/subTopics/${subtopicid}`)
+      if (!res.ok) throw new Error("Failed to fetch subtopic")
+      const data = await res.json()
+      setSubtopic(data.data)
+    } catch (err) {
+      console.error(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
+
+  async function fetchContents() {
+    try {
+      const res = await fetch(`/api/teacher/theory?subtopic=${subtopicid}`)
+      if (!res.ok) throw new Error("Failed to fetch contents")
+      const data = await res.json()
+      setContents(data.data)
+    } catch (err) {
+      console.error(err.message)
+    }
+  }
+
+  useEffect(() => {
+    if (subtopicid) {
+      fetchSubtopics()
+      fetchContents()
+    }
+  }, [subtopicid])
+
+  // File upload (PDF/DOC)
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      const url = URL.createObjectURL(file) // local preview
+      setFileUrl(url)
+    }
+  }
+
+  // Save content
   const handleSaveContent = async () => {
     setIsSaving(true)
     setSaveStatus(null)
     try {
-      // Simulate API call to save content
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      console.log("Saving subtopic content:", { subtopicTitle, subtopicContent, subtopicImage })
+      const payload = {
+        title: subtopic.title,
+        description: subtopicDescription,
+        videoUrl,
+        fileUrl,
+        subtopic: subtopicid,
+      }
+
+      const method = editingContentId ? "PUT" : "POST"
+      const url = editingContentId
+        ? `/api/teacher/theory/${editingContentId}`
+        : `/api/teacher/theory`
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to save")
+      {
+        editingContentId ? toast.success("Content Updated Successfully") :
+        toast.success("Content Created Successfully")
+      }
+        
       setSaveStatus("success")
-      // In a real app, you'd update the actual data source here
-      // const subtopicIndex = course.subtopics.findIndex(st => st.id === subtopicId);
-      // if (subtopicIndex !== -1) {
-      //   course.subtopics[subtopicIndex] = { ...course.subtopics[subtopicIndex], title: subtopicTitle, content: subtopicContent, imageUrl: subtopicImage };
-      // }
+      setEditingContentId(null) // reset edit mode
+      setSubtopicDescription("")
+      setVideoUrl("")
+      setFileUrl("")
+      fetchContents() // refresh contents
     } catch (error) {
-      console.error("Failed to save content:", error)
+      toast.error("Failed to create or update")
       setSaveStatus("error")
     } finally {
       setIsSaving(false)
-      setTimeout(() => setSaveStatus(null), 3000) // Clear status message after 3 seconds
+      setTimeout(() => setSaveStatus(null), 3000)
+    }
+  }
+
+  
+  const handleEdit = (content) => {
+    setEditingContentId(content._id)
+    setSubtopicDescription(content.description || "")
+    setVideoUrl(content.videoUrl || "")
+    setFileUrl(content.fileUrl || "")
+  }
+
+  
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`/api/teacher/theory/${id}`, { method: "DELETE" })
+      if (!res.ok) toast.error("Failed to delete")
+
+        toast.success("Content Deleted Successfully")
+      fetchContents()
+    } catch (err) {
+      console.error(err.message)
     }
   }
 
@@ -161,146 +162,196 @@ export default function SubtopicContentManagePage() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Edit Content for "{subtopicTitle}"</h2>
-          <p className="text-lg text-gray-600">Course: {course?.title || "Loading..."}</p>
-        </div>
-
+      {/* Main */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Form */}
         <Card className="shadow-lg">
-  <CardHeader>
-    <CardTitle className="flex items-center space-x-2">
-      <ImageIcon className="h-5 w-5 text-blue-600" />
-      <span>Subtopic Details & Content</span>
-    </CardTitle>
-    <CardDescription>
-      Manage subtopic title, theory content, videos, PDFs, and images.
-    </CardDescription>
-  </CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <ImageIcon className="h-5 w-5 text-blue-600" />
+              <span>Subtopic Details & Content</span>
+            </CardTitle>
+            <CardDescription>
+              Manage subtopic title, theory content, videos, PDFs, and images.
+            </CardDescription>
+          </CardHeader>
 
-  <CardContent className="space-y-6">
-    {/* Subtopic Title */}
-    <div className="space-y-2">
-      <Label htmlFor="subtopic-title">Subtopic Title</Label>
-      <Input
-        id="subtopic-title"
-        value={subtopicTitle}
-        onChange={(e) => setSubtopicTitle(e.target.value)}
-        placeholder="Enter subtopic title"
-      />
-    </div>
+          <CardContent className="space-y-6">
+            {/* Title */}
+            <div className="space-y-2">
+              <Label htmlFor="subtopic-title">Subtopic Title</Label>
+              <Input
+                id="subtopic-title"
+                value={subtopic.title}
+                disabled
+                placeholder="Enter subtopic title"
+              />
+            </div>
 
-    {/* Theory / Article Text */}
-    <div className="space-y-2">
-      <Label htmlFor="subtopic-description">Theory / Article</Label>
-      <Textarea
-        id="subtopic-description"
-        value={subtopicDescription}
-        onChange={(e) => setSubtopicDescription(e.target.value)}
-        placeholder="Write theory or article content here..."
-        rows={10}
-        className="min-h-[150px]"
-      />
-    </div>
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="subtopic-description">Theory / Article</Label>
+              <Textarea
+                id="subtopic-description"
+                value={subtopicDescription}
+                onChange={(e) => setSubtopicDescription(e.target.value)}
+                placeholder="Write theory or article content here..."
+                rows={8}
+              />
+            </div>
 
-    {/* Video URL */}
-    <div className="space-y-2">
-      <Label htmlFor="video-url">Video (YouTube / Embed URL)</Label>
-      <Input
-        id="video-url"
-        type="url"
-        value={videoUrl}
-        onChange={(e) => setVideoUrl(e.target.value)}
-        placeholder="https://www.youtube.com/embed/..."
-      />
-      {videoUrl && (
-        <div className="mt-3 aspect-video">
-          <iframe
-            src={videoUrl}
-            title="Video Preview"
-            className="w-full h-full rounded-md border"
-            allowFullScreen
-          />
-        </div>
-      )}
-    </div>
+            {/* Video URL */}
+            <div className="space-y-2">
+              <Label htmlFor="video-url">Video (YouTube / Embed URL)</Label>
+              <Input
+                id="video-url"
+                type="url"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="https://www.youtube.com/embed/..."
+              />
+            </div>
 
-    {/* File (PDF / Docs) */}
-    <div className="space-y-2">
-      <Label htmlFor="file-upload">Attach PDF / File</Label>
-      <Input
-        id="file-upload"
-        type="file"
-        accept=".pdf,.doc,.docx"
-        onChange={handleFileUpload}
-      />
-      {fileUrl && (
-        <p className="text-sm text-blue-600 underline mt-2">
-          <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-            View Uploaded File
-          </a>
-        </p>
-      )}
-    </div>
+            {/* File Upload */}
+            <div className="space-y-2">
+              <Label htmlFor="file-upload">Attach PDF / File</Label>
+              <Input
+                id="file-upload"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={handleFileUpload}
+              />
+            </div>
 
-    {/* Subtopic Image */}
-    <div className="space-y-2">
-      <Label htmlFor="subtopic-image">Subtopic Image</Label>
-      <div className="flex items-center space-x-4">
-        <Input
-          id="subtopic-image"
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="flex-1"
-        />
-        <Button variant="outline" className="shrink-0">
-          <Upload className="mr-2 h-4 w-4" /> Upload
-        </Button>
-      </div>
-      {subtopicImage && (
-        <div className="mt-4 border rounded-md overflow-hidden">
-          <img
-            src={subtopicImage || "/placeholder.svg"}
-            alt="Subtopic Preview"
-            className="w-full h-48 object-cover"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = "/placeholder.svg?height=300&width=500";
-            }}
-          />
-        </div>
-      )}
-    </div>
+            {/* Image Upload
+            <div className="space-y-2">
+              <Label htmlFor="subtopic-image">Subtopic Image</Label>
+              <Input
+                id="subtopic-image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+              />
+            </div> */}
 
-    {/* Save Button + Status */}
-    <div className="flex items-center justify-end gap-4">
-      {saveStatus === "success" && (
-        <div className="flex items-center text-green-600 text-sm">
-          <CheckCircle className="h-4 w-4 mr-2" /> Subtopic saved successfully!
-        </div>
-      )}
-      {saveStatus === "error" && (
-        <div className="flex items-center text-red-600 text-sm">
-          <AlertCircle className="h-4 w-4 mr-2" /> Failed to save subtopic.
-        </div>
-      )}
-      <Button onClick={handleSaveContent} disabled={isSaving}>
-        {isSaving ? (
-          <>
-            <Save className="mr-2 h-4 w-4 animate-pulse" /> Saving...
-          </>
-        ) : (
-          <>
-            <Save className="mr-2 h-4 w-4" /> Save Changes
-          </>
-        )}
-      </Button>
-    </div>
-  </CardContent>
-</Card>
+            {/* Save Button */}
+            <div className="flex items-center justify-end gap-4">
+              {saveStatus === "success" && (
+                <div className="flex items-center text-green-600 text-sm">
+                  <CheckCircle className="h-4 w-4 mr-2" /> Subtopic saved successfully!
+                </div>
+              )}
+              {saveStatus === "error" && (
+                <div className="flex items-center text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4 mr-2" /> Failed to save subtopic.
+                </div>
+              )}
+              <Button onClick={handleSaveContent} disabled={isSaving}>
+                {isSaving ? (
+                  <>
+                    <Save className="mr-2 h-4 w-4 animate-pulse" /> Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" /> Save Changes
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
+        {/* Preview */}
+        <Card className="shadow-lg border-green-500">
+          <CardHeader>
+            <CardTitle className="text-green-700">Live Preview</CardTitle>
+            <CardDescription>See how your content will look</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Video */}
+            {videoUrl && (
+              <div className="aspect-video">
+                <iframe
+                  src={videoUrl}
+                  title="Video Preview"
+                  className=" h-[80vh] w-full rounded-md border"
+                  allowFullScreen
+                />
+              </div>
+            )}
+
+            {/* Title */}
+            {subtopic && <h2 className="text-xl font-bold">{subtopic.title}</h2>}
+
+            {/* Description */}
+            {subtopicDescription && (
+              <p className="text-gray-700 whitespace-pre-line">{subtopicDescription}</p>
+            )}
+
+            {/* File */}
+            {fileUrl && (
+              <p className="flex items-center text-blue-600 underline text-sm">
+                <FileText className="h-4 w-4 mr-2" />
+                <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                  View Uploaded File
+                </a>
+              </p>
+            )}
+
+            {/* Image */}
+            {subtopicImage && (
+              <div className="mt-4 border rounded-md overflow-hidden">
+                <img
+                  src={subtopicImage}
+                  alt="Subtopic Preview"
+                  className="w-full h-48 object-cover"
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+         {/* --- FETCHED CONTENT LIST --- */}
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-blue-700">Saved Contents</CardTitle>
+            <CardDescription>All contents for this subtopic</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {contents.length === 0 ? (
+              <p className="text-gray-500">No contents added yet.</p>
+            ) : (
+              contents.map((c) => (
+                <div key={c._id} className="border rounded-md p-4 flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold">{c.title}</h3>
+                    <p className="text-sm text-gray-700 whitespace-pre-line">{c.description}</p>
+                    {c.videoUrl && (
+                      <iframe
+                        src={c.videoUrl}
+                        className="w-full h-[70vh] rounded-md mt-10"
+                        allowFullScreen
+                      />
+                    )}
+                    {c.fileUrl && (
+                      <a href={c.fileUrl} target="_blank" className="text-blue-600 underline flex items-center mt-5">
+                        <FileText className="h-4 w-4 mr-2 mt-1" /> {c.title}
+                      </a>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <Button size="sm" variant="outline" onClick={() => handleEdit(c)}>
+                      <Pencil className="h-4 w-4 mr-1" /> Edit
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(c._id)}>
+                      <Trash2 className="h-4 w-4 mr-1" /> Delete
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
       </main>
     </div>
   )
