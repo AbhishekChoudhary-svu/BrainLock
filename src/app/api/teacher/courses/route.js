@@ -1,5 +1,7 @@
 import dbConnect from "@/lib/dbConnect";
 import Course from "@/models/course.model";
+import Subtopic from "@/models/subtopic.model";
+import Content from "@/models/content.model";
 
 
 // Create a new course (POST) & Get all courses (GET)
