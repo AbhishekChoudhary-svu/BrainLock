@@ -40,21 +40,18 @@ const getDifficultyColor = (difficulty) => {
 export default function SubjectCoursePage() {
   const context = useContext(MyContext);
   const params = useParams();
+  const { courseid } = params;
 
   useEffect(() => {
     context.fetchCourses();
   }, []);
 
-  const { subtopicid } = params;
 
-  // Find the course that contains this subtopic
-  const course = context.courses.find((c) =>
-    c.subtopics?.some((sub) => String(sub.id) === String(subtopicid))
-  );
+  const course = context?.courses?.find(c => String(c._id) === String(courseid));
 
-  // Get all challenges (subtopics) inside this course
-  const challengesForSubject = course ? course.subtopics : [];
 
+  // Subtopics for this course
+  const challengesForSubject = course?.subtopics || [];
   if (!course) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
@@ -240,7 +237,7 @@ export default function SubjectCoursePage() {
                       <Link
                         href={`/Dashboard/StudentDashboard/Courses/${
                           course._id
-                        }/Theory/${subtopic._id}`}
+                        }/Subtopics/${subtopic._id}`}
                       >
                         <Button size="sm">
                           Open Theory

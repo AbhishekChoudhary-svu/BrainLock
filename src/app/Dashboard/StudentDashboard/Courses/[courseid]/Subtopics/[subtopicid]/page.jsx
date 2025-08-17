@@ -25,14 +25,14 @@ import MyContext from "@/context/ThemeProvider";
 export default function SubjectTheoryPage() {
   const context = useContext(MyContext);
   const params = useParams();
-  const { theoryid } = params;
+  const { courseid,subtopicid } = params;
 
   useEffect(() => {
     context.fetchCourses();
   }, []);
   const subtopic = context.courses
     .flatMap((course) => course.subtopics || [])
-    .find((s) => String(s._id) === String(theoryid));
+    .find((s) => String(s._id) === String(subtopicid));
 
   // 2. Get its contents array safely
   const contents = Array.isArray(subtopic?.contents) ? subtopic.contents : [];
@@ -128,7 +128,7 @@ export default function SubjectTheoryPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
-              href={`/Dashboard/StudentDashboard/Courses/${theoryid}`}
+              href={`/Dashboard/StudentDashboard/Courses/${courseid}`}
               className="flex items-center space-x-3 text-gray-900 hover:text-purple-600 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />

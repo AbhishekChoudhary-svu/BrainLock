@@ -1,6 +1,7 @@
 import dbConnect from "@/lib/dbConnect";
 import Course from "@/models/course.model";
 
+
 // Create a new course (POST) & Get all courses (GET)
 export async function POST(req) {
   try {
@@ -26,15 +27,15 @@ export async function GET() {
   try {
     await dbConnect();
 
-    const courses = await Course.find()
+    const courses = await Course.find() 
       // .populate("instructor", "firstName lastName email")
        .populate({
-    path: "subtopics",
-    populate: {
-      path: "contents",   // populate the contents of each subtopic
-      model: "Content"
-    }
-  });
+        path: "subtopics",
+        populate: {
+          path: "contents",
+          model: "Content",
+        },
+      })
       // // .populate("studentsEnrolled", "firstName lastName")
       // // .populate("challenges");
 

@@ -31,10 +31,20 @@ export async function POST(req) {
 }
 
 // GET ALL Subtopics
-export async function GET() {
+export async function GET(req) {
   try {
     await dbConnect();
-    const subtopics = await Subtopic.find().populate("contents")
+    const { searchParams } = new URL(req.url);
+    const courseId = searchParams.get("courseId");
+
+    if (!courseId) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Course ID is required" }),
+        { status: 400 }
+      );
+    }
+
+    const subtopics = await Subtopic.find({ course: courseId });
 
     return new Response(
       JSON.stringify({ success: true, data: subtopics }),
@@ -43,7 +53,8 @@ export async function GET() {
   } catch (error) {
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
-      { status: 400 }
+      { status: 500 }
     );
   }
 }
+

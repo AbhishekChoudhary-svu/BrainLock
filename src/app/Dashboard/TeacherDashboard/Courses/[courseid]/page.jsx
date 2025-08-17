@@ -68,21 +68,21 @@ export default function CourseSubtopicManagePage() {
       }
     }
     async function fetchCourseSubTopics() {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/teacher/subTopics`);
-        if (!res.ok) {
-          const { error } = await res.json();
-          throw new Error(error || "Failed to fetch course");
-        }
-        const data = await res.json();
-        setSubtopic(data.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+  try {
+    setLoading(true);
+    const res = await fetch(`/api/teacher/subTopics?courseId=${courseId}`);
+    if (!res.ok) {
+      const { error } = await res.json();
+      throw new Error(error || "Failed to fetch subtopics");
     }
+    const data = await res.json();
+    setSubtopic(data.data);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+}
 
 
 

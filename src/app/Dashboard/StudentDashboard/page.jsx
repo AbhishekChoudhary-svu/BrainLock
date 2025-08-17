@@ -481,7 +481,7 @@ export default function StudentDashboard() {
                     {context.courses
                       .filter((course) => course.status === "active")
                       .map((course) => (
-                        <div key={course.id} className="space-y-2">
+                        <div key={course._id} className="space-y-2">
                           <div className="flex justify-between items-center">
                             <h4 className="font-medium">{course.title}</h4>
                             {/* <Badge
@@ -695,7 +695,7 @@ export default function StudentDashboard() {
                         {course.subtopics?.[0]?.title || "No subtopics available"}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Due: {course.subtopics?.[0]?.createdAt.split("T")[0]}
+                        Due: {course.createdAt.split("T")[0]}
                       </p>
                     </div>
 
