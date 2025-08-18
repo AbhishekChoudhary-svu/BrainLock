@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -56,18 +56,13 @@ import { useRouter } from "next/navigation";
 import MyContext from "@/context/ThemeProvider";
 
 export default function StudentDashboard() {
-  const context = useContext(MyContext)
-    const router = useRouter();
+  const context = useContext(MyContext);
+  const router = useRouter();
   const [currentStreak, setCurrentStreak] = useState(7);
-  const [studyTimer, setStudyTimer] = useState({
-    minutes: 25,
-    seconds: 0,
-    isRunning: false,
-  });
 
-  useEffect(()=>{
+  useEffect(() => {
     context.fetchCourses();
-  },[])
+  }, []);
 
   // Mock data
   const studentData = {
@@ -83,59 +78,56 @@ export default function StudentDashboard() {
     activeCourses: 2,
   };
 
- const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
- 
-
- useEffect(() => {
-  async function fetchProfile() {
-    try {
-      let res = await fetch("/api/profile", {
-        method: "GET",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (res.status === 401 || res.status === 403) {
-        const refreshRes = await fetch("/api/auth/refreshToken", {
-          method: "POST",
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        let res = await fetch("/api/profile", {
+          method: "GET",
           credentials: "include",
+          headers: { "Content-Type": "application/json" },
         });
 
-        if (refreshRes.ok) {
-          // Retry profile fetch
-          res = await fetch("/api/profile", {
-            method: "GET",
+        if (res.status === 401 || res.status === 403) {
+          const refreshRes = await fetch("/api/auth/refreshToken", {
+            method: "POST",
             credentials: "include",
-            headers: { "Content-Type": "application/json" },
           });
-        } else {
-          toast.error("Session expired. Please login.");
-          router.push("/LoginPage");
+
+          if (refreshRes.ok) {
+            // Retry profile fetch
+            res = await fetch("/api/profile", {
+              method: "GET",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+            });
+          } else {
+            toast.error("Session expired. Please login.");
+            router.push("/LoginPage");
+            return;
+          }
+        }
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          toast.error(data.message || "Failed to load profile");
           return;
         }
+
+        setUser(data?.user);
+      } catch {
+        toast.error("Something went wrong");
+        router.push("/LoginPage");
+      } finally {
+        setLoading(false);
       }
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        toast.error(data.message || "Failed to load profile");
-        return;
-      }
-
-      setUser(data?.user);
-    } catch {
-      toast.error("Something went wrong");
-      router.push("/LoginPage");
-    } finally {
-      setLoading(false);
     }
-  }
 
-  fetchProfile();
-}, [router]);
-
+    fetchProfile();
+  }, [router]);
 
   // const courses = [
   //   {
@@ -200,7 +192,7 @@ export default function StudentDashboard() {
     },
   ];
 
-  const handleLogout = async ()=>{
+  const handleLogout = async () => {
     try {
       const res = await fetch("/api/auth/logout", {
         method: "POST",
@@ -219,7 +211,7 @@ export default function StudentDashboard() {
     } catch (error) {
       toast.error("Something went wrong");
     }
-  }
+  };
 
   const leaderboard = [
     {
@@ -298,6 +290,50 @@ export default function StudentDashboard() {
     }
   };
 
+   const [studyTimer, setStudyTimer] = useState({
+    minutes: 25, // Default Pomodoro session
+    seconds: 0,
+    isRunning: false,
+  });
+
+  const intervalRef = useRef(null);
+
+  // Start/Pause toggle
+  const toggleTimer = () => {
+    setStudyTimer((prev) => ({ ...prev, isRunning: !prev.isRunning }));
+  };
+
+  // Reset timer
+  const resetTimer = () => {
+    clearInterval(intervalRef.current);
+    setStudyTimer({
+      minutes: 25,
+      seconds: 0,
+      isRunning: false,
+    });
+  };
+
+  useEffect(() => {
+    if (studyTimer.isRunning) {
+      intervalRef.current = setInterval(() => {
+        setStudyTimer((prev) => {
+          if (prev.seconds > 0) {
+            return { ...prev, seconds: prev.seconds - 1 };
+          } else if (prev.minutes > 0) {
+            return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+          } else {
+            clearInterval(intervalRef.current);
+            return { ...prev, isRunning: false }; // Stop when finished
+          }
+        });
+      }, 1000);
+    } else {
+      clearInterval(intervalRef.current);
+    }
+
+    return () => clearInterval(intervalRef.current);
+  }, [studyTimer.isRunning]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -338,27 +374,27 @@ export default function StudentDashboard() {
                       <AvatarFallback>AJ</AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
-                      <p className="text-sm font-medium">{user?.firstName} {" "}{user?.lastName}</p>
-                      <p className="text-xs text-gray-500">
-                        {user?.email}
+                      <p className="text-sm font-medium">
+                        {user?.firstName} {user?.lastName}
                       </p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                   <Link href={"/Dashboard/AdminDashboard"}>
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    Admin Page
-                  </DropdownMenuItem>
+                  <Link href={"/Dashboard/AdminDashboard"}>
+                    <DropdownMenuItem>
+                      <User className="mr-2 h-4 w-4" />
+                      Admin Page
+                    </DropdownMenuItem>
                   </Link>
-                   <Link href={"/Dashboard/TeacherDashboard"}>
-                  <DropdownMenuItem>
-                    <CircuitBoard className="mr-2 h-4 w-4" />
-                    Teacher Page
-                  </DropdownMenuItem>
+                  <Link href={"/Dashboard/TeacherDashboard"}>
+                    <DropdownMenuItem>
+                      <CircuitBoard className="mr-2 h-4 w-4" />
+                      Teacher Page
+                    </DropdownMenuItem>
                   </Link>
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
@@ -369,7 +405,10 @@ export default function StudentDashboard() {
                     Help & Support
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-red-600"
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
@@ -490,10 +529,15 @@ export default function StudentDashboard() {
                               {course.difficulty || ""}
                             </Badge> */}
                           </div>
-                          <Progress value={course.progress || 50} className="h-2" />
+                          <Progress
+                            value={course.progress || 50}
+                            className="h-2"
+                          />
                           <div className="flex justify-between text-sm text-gray-600">
                             <span>{course.progress || 50}% complete</span>
-                            <span className="font-[500] text-black">Next: {course.challenges?.[0].title}</span>
+                            <span className="font-[500] text-black">
+                              Next: {course.challenges?.[0].title}
+                            </span>
                           </div>
                         </div>
                       ))}
@@ -564,6 +608,7 @@ export default function StudentDashboard() {
                         variant={
                           studyTimer.isRunning ? "destructive" : "default"
                         }
+                        onClick={toggleTimer}
                       >
                         {studyTimer.isRunning ? (
                           <Pause className="h-4 w-4" />
@@ -571,7 +616,7 @@ export default function StudentDashboard() {
                           <Play className="h-4 w-4" />
                         )}
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={resetTimer}>
                         <RotateCcw className="h-4 w-4" />
                       </Button>
                     </div>
@@ -585,13 +630,7 @@ export default function StudentDashboard() {
                     <CardTitle>Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <Button
-                      className="w-full justify-start bg-transparent"
-                      variant="outline"
-                    >
-                      <MessageCircle className="mr-2 h-4 w-4" />
-                      Ask AI Assistant
-                    </Button>
+                    
                     <Button
                       className="w-full justify-start bg-transparent"
                       variant="outline"
@@ -647,7 +686,7 @@ export default function StudentDashboard() {
           {/* Courses Tab */}
           <TabsContent value="courses" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {context.courses.map((course ,idx) => (
+              {context.courses.map((course, idx) => (
                 <Card
                   key={course._id}
                   className="hover:shadow-lg transition-shadow"
@@ -681,28 +720,25 @@ export default function StudentDashboard() {
                     </div>
 
                     <div className="space-y-2">
-                      {
-                        course.challenges.length >0 && <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">
-                          Next Challenge:
-                        </span>
-                        {/* <Badge
+                      {course.challenges.length > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">
+                            Next Challenge:
+                          </span>
+                          {/* <Badge
                           className={getDifficultyColor(course.difficulty)}
                         >
                           {course.difficulty}
                         </Badge> */}
-                        {
-                          course.challenges.map((challenge)=>{
+                          {course.challenges.map((challenge) => {
                             return (
-                                 <p className="text-sm font-medium">
-                        {challenge?.title || "No subtopics available"}
-                      </p>
-                            )
-                          })
-                        }
-                     
-                      </div>
-                      }
+                              <p className="text-sm font-medium">
+                                {challenge?.title || "No subtopics available"}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      )}
                       <p className="text-xs font-bold pt-2 text-gray-800">
                         Due: {course.createdAt.split("T")[0]}
                       </p>
@@ -792,49 +828,47 @@ export default function StudentDashboard() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-3 gap-4">
-                  {context.courses.map((course) => (
-                    <div
-                      key={course._id}
-                      className="border rounded-lg p-4 space-y-6"
-                    >
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-[500] text-xl">{course.title}</h4>
-                        {/* <Badge
+                    {context.courses.map((course) => (
+                      <div
+                        key={course._id}
+                        className="border rounded-lg p-4 space-y-6"
+                      >
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-[500] text-xl">{course.title}</h4>
+                          {/* <Badge
                           className={getDifficultyColor(challenge.difficulty)}
                         >
                           {challenge.difficulty}
                         </Badge> */}
+                        </div>
+                        <p className="text-sm font-[500] text-gray-600">
+                          Next Challenge : {course.challenges?.[0].title}
+                        </p>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-500">
+                            ⏱️ {course.time || "50 min"}
+                          </span>
+                          <span className="text-gray-500">
+                            📅 {course.createdAt.split("T")[0]}
+                          </span>
+                          <Badge variant="secondary">
+                            +{course.points || 50} pts
+                          </Badge>
+                        </div>
+                        <Link
+                          href={`/Dashboard/StudentDashboard/Challenges/${course._id}`}
+                        >
+                          {" "}
+                          {/* Link to new challenges page */}
+                          <Button size="sm" className="w-full">
+                            View All Challenges
+                          </Button>
+                        </Link>
                       </div>
-                      <p className="text-sm font-[500] text-gray-600">
-                       Next Challenge : {course.challenges?.[0].title}
-                      </p>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-500">
-                          ⏱️ {course.time || "50 min"}
-                        </span>
-                        <span className="text-gray-500">
-                          📅 {course.createdAt.split("T")[0]}
-                        </span>
-                        <Badge variant="secondary">
-                          +{course.points || 50} pts
-                        </Badge>
-                      </div>
-                      <Link
-                        href={`/Dashboard/StudentDashboard/Challenges/${course._id}`}
-                      >
-                        {" "}
-                        {/* Link to new challenges page */}
-                        <Button size="sm" className="w-full">
-                          View All Challenges
-                        </Button>
-                      </Link>
-                    </div>
-                  ))}
+                    ))}
                   </div>
                 </CardContent>
               </Card>
-
-              
             </div>
           </TabsContent>
 

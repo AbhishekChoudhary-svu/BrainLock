@@ -146,7 +146,7 @@ export default function SubjectTheoryPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-8">
+      <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-5">
         {/* Left Column: Theory Content */}
         <div className="flex-1 min-w-0">
           <Card className="h-full flex flex-col">
@@ -156,7 +156,7 @@ export default function SubjectTheoryPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 overflow-auto">
-              <ScrollArea className="h-[calc(100vh-250px)] pr-4">
+              <ScrollArea className="h-[62vh] pr-4">
                 {contents.map((c) => (
                   <div key={c._id} className="mb-8">
                     {c.videoUrl && (
@@ -193,7 +193,7 @@ export default function SubjectTheoryPage() {
         {/* Right Column: AI Assistant & Search */}
         <div className="w-full lg:w-96 flex-shrink-0 space-y-8">
           {/* Search Bar */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Search className="h-5 w-5 text-blue-600" />
@@ -212,10 +212,10 @@ export default function SubjectTheoryPage() {
                 (Note: Search functionality is a placeholder for now)
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* AI Assistant */}
-          <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[calc(100vh-320px)]">
+          <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[82vh]">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <MessageCircle className="h-5 w-5 text-purple-600" />
