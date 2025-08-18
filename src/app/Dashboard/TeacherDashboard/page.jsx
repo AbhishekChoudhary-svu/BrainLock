@@ -83,6 +83,7 @@ export default function TeacherDashboard() {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [courseData, setCourseData] = useState([]);
+  const [challengeData, setChallengeData] = useState([]);
   const [isCreateChallengeOpen, setIsCreateChallengeOpen] = useState(false);
 
   // Mock data for teacher
@@ -132,6 +133,29 @@ export default function TeacherDashboard() {
     }
     setLoading(false);
   };
+
+  const handleSaveChallenge = async () => {
+    try {
+      const res = await fetch("/api/teacher/challenges", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(challengeData),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("Challenge created successfully!");
+        if (onSave) onSave(data.challenge);
+        setIsOpen(false);
+      } else {
+        alert("Error: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong.");
+    }
+  };
+
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -972,9 +996,42 @@ export default function TeacherDashboard() {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg">
-                        {course.submain}
+                        {course.submain || "Derivatives"}
                       </CardTitle>
-                      <Badge>Active</Badge>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => openEditDialog(course)}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Challenge
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem>
+                            <Download className="mr-2 h-4 w-4" />
+                            Export Data
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteCourse(course._id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete Challenge
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -992,12 +1049,13 @@ export default function TeacherDashboard() {
                         <p className="font-semibold">24/32</p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Avg Score</p>
-                        <p className="font-semibold">87%</p>
+                        <p className="text-gray-600">Status</p>
+                        <Badge >Active</Badge>
+
                       </div>
                     </div>
                     <Link
-                      href={`/Dashboard/TeacherDashboard/Challenges/${course.id}/manage`}
+                      href={`/Dashboard/TeacherDashboard/Challenges/${course.id}/`}
                     >
                       <Button size="sm" className="w-full">
                         View Details
@@ -1076,7 +1134,6 @@ export default function TeacherDashboard() {
         </Tabs>
       </main>
 
-      {/* Create Course Dialog */}
       {/* Create Course Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
@@ -1205,66 +1262,130 @@ export default function TeacherDashboard() {
       </Dialog>
 
       {/* Create Challenge Dialog */}
-      <Dialog
-        open={isCreateChallengeOpen}
-        onOpenChange={setIsCreateChallengeOpen}
+     <Dialog open={isCreateChallengeOpen} onOpenChange={setIsCreateChallengeOpen}>
+  <DialogContent className="sm:max-w-[500px]">
+    <DialogHeader>
+      <DialogTitle>Create New Challenge</DialogTitle>
+      <DialogDescription>
+        Fill in the challenge details below.
+      </DialogDescription>
+    </DialogHeader>
+
+    <div className="grid gap-4 py-4">
+      {/* Title */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="challenge-title" className="text-right">
+          Title
+        </Label>
+        <Input
+          id="challenge-title"
+          placeholder="Challenge title"
+          value={challengeData.title}
+          onChange={(e) =>
+            setChallengeData({ ...challengeData, title: e.target.value })
+          }
+          className="col-span-3"
+        />
+      </div>
+
+      {/* Description */}
+      <div className="grid grid-cols-4 items-start gap-4">
+        <Label htmlFor="challenge-description" className="text-right">
+          Description
+        </Label>
+        <Textarea
+          id="challenge-description"
+          placeholder="Challenge description"
+          value={challengeData.description}
+          onChange={(e) =>
+            setChallengeData({
+              ...challengeData,
+              description: e.target.value,
+            })
+          }
+          className="col-span-3"
+        />
+      </div>
+
+      {/* Course */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="challenge-course" className="text-right">
+          Course
+        </Label>
+        <Select
+          onValueChange={(val) =>
+            setChallengeData({ ...challengeData, course: val })
+          }
+        >
+          <SelectTrigger className="col-span-3">
+            <SelectValue placeholder="Select course" />
+          </SelectTrigger>
+          <SelectContent>
+            {context.courses.map((course) => (
+              <SelectItem key={course._id} value={course._id.toString()}>
+                {course.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Status */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="challenge-status" className="text-right">
+          Status
+        </Label>
+        <Select
+          onValueChange={(val) =>
+            setChallengeData({ ...challengeData, status: val })
+          }
+        >
+          <SelectTrigger className="col-span-3">
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="archived">Archived</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Difficulty */}
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="challenge-difficulty" className="text-right">
+          Difficulty
+        </Label>
+        <Select
+          onValueChange={(val) =>
+            setChallengeData({ ...challengeData, difficulty: val })
+          }
+        >
+          <SelectTrigger className="col-span-3">
+            <SelectValue placeholder="Select difficulty" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="easy">Easy</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="hard">Hard</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+
+    <DialogFooter>
+      <Button
+        onClick={handleSaveChallenge}
+        disabled={!challengeData.title || !challengeData.course}
       >
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Create New Challenge</DialogTitle>
-            <DialogDescription>
-              Design a new challenge for your students.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="challenge-title" className="text-right">
-                Title
-              </Label>
-              <Input
-                id="challenge-title"
-                placeholder="Challenge title"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="challenge-course" className="text-right">
-                Course
-              </Label>
-              <Select>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select course" />
-                </SelectTrigger>
-                <SelectContent>
-                  {context.courses.map((course) => (
-                    <SelectItem key={course._id} value={course._id.toString()}>
-                      {course.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="challenge-type" className="text-right">
-                Type
-              </Label>
-              <Select>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="quiz">Quiz</SelectItem>
-                  <SelectItem value="assignment">Assignment</SelectItem>
-                  <SelectItem value="project">Project</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Create Challenge</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        Create Challenge
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+
     </div>
   );
 }
