@@ -102,6 +102,7 @@ export default function TeacherDashboard() {
 
   
   const isEditMode = Boolean(courseData?._id);
+  const isEditModeChallenge = Boolean(challengeData?._id);
 
 // edit and create for both
   const handleSaveCourse = async () => {
@@ -135,25 +136,33 @@ export default function TeacherDashboard() {
   };
 
   const handleSaveChallenge = async () => {
+    setLoading(true);
     try {
-      const res = await fetch("/api/teacher/challenges", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(challengeData),
-      });
-
+      const res = await fetch(
+        `/api/teacher/challenges/${isEditModeChallenge ? challengeData?._id : ""}`,
+        {
+          method: isEditModeChallenge ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(challengeData),
+        }
+      );
       const data = await res.json();
-      if (data.success) {
-        alert("Challenge created successfully!");
-        if (onSave) onSave(data.challenge);
-        setIsOpen(false);
+
+      if (res.ok) {
+        toast.success(
+          isEditModeChallenge
+            ? "Challenge updated successfully!"
+            : "Challenge created successfully!"
+        );
+        setIsCreateChallengeOpen(false);
+        context.fetchChallenges();
       } else {
-        alert("Error: " + data.error);
+        toast.success(data.error || "Failed to save Challenge");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong.");
+    } catch (error) {
+      console.error(error);
     }
+    setLoading(false);
   };
 
 
@@ -162,16 +171,26 @@ export default function TeacherDashboard() {
 
   useEffect(() => {
     context.fetchCourses();
+    context.fetchChallenges();
   }, []);
 
   const openCreateDialog = () => {
     setCourseData({});
     setIsDialogOpen(true);
   };
+  const openCreateChallengeDialog = () => {
+    setChallengeData({});
+    setIsCreateChallengeOpen(true);
+  };
 
   const openEditDialog = (course) => {
     setCourseData(course);
     setIsDialogOpen(true);
+  };
+
+  const openEditChallengesDialog = (challenge) => {
+    setChallengeData(challenge);
+    setIsCreateChallengeOpen(true);
   };
 
   useEffect(() => {
@@ -324,6 +343,23 @@ export default function TeacherDashboard() {
       if (res.ok) {
         toast.success("Course deleted successfully!");
         context.fetchCourses();
+      } else {
+        toast.error(data.error || "Failed to delete course");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDeleteChallenge = async (id) => {
+    try {
+      const res = await fetch(`/api/teacher/challenges/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Challenges deleted successfully!");
+        context.fetchChallenges();
       } else {
         toast.error(data.error || "Failed to delete course");
       }
@@ -968,7 +1004,7 @@ export default function TeacherDashboard() {
           <TabsContent value="challenges" className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Challenge Management</h3>
-              <Button onClick={() => setIsCreateChallengeOpen(true)}>
+              <Button onClick={() => openCreateChallengeDialog()}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Challenge
               </Button>
@@ -984,19 +1020,19 @@ export default function TeacherDashboard() {
                   <p className="text-sm text-gray-600 mb-4">
                     Design engaging challenges for your students
                   </p>
-                  <Button onClick={() => setIsCreateChallengeOpen(true)}>
+                  <Button onClick={() => openCreateChallengeDialog()}>
                     Get Started
                   </Button>
                 </CardContent>
               </Card>
 
               {/* Sample challenges would be mapped here */}
-              {context.courses.map((course) => (
-                <Card key={course.id}>
+              {context.challenges.map((challenge) => (
+                <Card key={challenge._id}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg">
-                        {course.submain || "Derivatives"}
+                        {challenge.title}
                       </CardTitle>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -1006,7 +1042,7 @@ export default function TeacherDashboard() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => openEditDialog(course)}
+                            onClick={() => openEditChallengesDialog(challenge)}
                           >
                             <Edit className="mr-2 h-4 w-4" />
                             Edit Challenge
@@ -1023,7 +1059,7 @@ export default function TeacherDashboard() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onClick={() => handleDeleteCourse(course._id)}
+                            onClick={() => handleDeleteChallenge(challenge._id)}
                             className="text-red-600"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
@@ -1038,24 +1074,24 @@ export default function TeacherDashboard() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-gray-600">Course</p>
-                        <p className="font-semibold">{course.title}</p>
+                        <p className="font-semibold">{challenge.course.title}</p>
                       </div>
                       <div>
                         <p className="text-gray-600">Difficulty</p>
-                        <Badge variant="destructive">Hard</Badge>
+                        <Badge variant="destructive">{challenge.difficulty}</Badge>
                       </div>
                       <div>
-                        <p className="text-gray-600">Submissions</p>
-                        <p className="font-semibold">24/32</p>
+                        <p className="text-gray-600">Submissions Date</p>
+                        <p className="font-semibold">{challenge.createdAt.split("T")[0]}</p>
                       </div>
                       <div>
                         <p className="text-gray-600">Status</p>
-                        <Badge >Active</Badge>
+                        <Badge >{challenge.status}</Badge>
 
                       </div>
                     </div>
                     <Link
-                      href={`/Dashboard/TeacherDashboard/Challenges/${course.id}/`}
+                      href={`/Dashboard/TeacherDashboard/Challenges/${challenge._id}`}
                     >
                       <Button size="sm" className="w-full">
                         View Details

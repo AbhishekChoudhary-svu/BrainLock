@@ -18,13 +18,6 @@ const subjectChallengeSchema = new mongoose.Schema(
       },
     ],
 
-    assignments: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Assignment",
-      },
-    ],
-
     status: {
       type: String,
       enum: ["pending", "active", "inactive", "completed"],

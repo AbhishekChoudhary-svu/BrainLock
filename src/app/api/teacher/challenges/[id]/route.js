@@ -1,13 +1,15 @@
 import dbConnect from "@/lib/dbConnect";
-import SubjectChallenge from "@/models/SubjectChallenge";
+import SubjectChallenge from "@/models/subjectChallenge.model";
+import MCQ from "@/models/mcq.model";
+import Course from "@/models/course.model";
 
 export async function GET(req, { params }) {
   try {
     await dbConnect();
     const challenge = await SubjectChallenge.findById(params.id)
       .populate("course", "title")
-      .populate("mcqs")
-      .populate("assignments");
+      // .populate("mcqs")
+      // .populate("assignments");
 
     if (!challenge) {
       return new Response(
@@ -60,10 +62,16 @@ export async function PUT(req, { params }) {
   }
 }
 
-export async function DELETE(req, { params }) {
+export async function DELETE(req, context) {
   try {
     await dbConnect();
-    const challenge = await SubjectChallenge.findByIdAndDelete(params.id);
+
+    // Await params first
+    const { params } = context; // Next.js requires you to destructure params
+    const challengeId = params.id;
+
+    // Find the challenge
+    const challenge = await SubjectChallenge.findById(challengeId);
 
     if (!challenge) {
       return new Response(
@@ -72,12 +80,24 @@ export async function DELETE(req, { params }) {
       );
     }
 
+    // Delete all MCQs associated with this challenge
+    await MCQ.deleteMany({ subjectChallenge: challenge._id });
+
+    // Remove the challenge ID from the associated course
+    await Course.findByIdAndUpdate(
+      challenge.course,
+      { $pull: { challenges: challenge._id } }
+    );
+
+    // Delete the challenge itself
+    await SubjectChallenge.findByIdAndDelete(challengeId);
+
     return new Response(
-      JSON.stringify({ success: true, message: "Challenge deleted successfully" }),
+      JSON.stringify({ success: true, message: "Challenge and all its MCQs deleted successfully" }),
       { status: 200 }
     );
   } catch (error) {
-    console.error(error);
+    console.error("Challenge DELETE error:", error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { status: 500 }
