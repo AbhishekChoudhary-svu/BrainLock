@@ -26,7 +26,7 @@ const courseSchema = new mongoose.Schema(
     challenges: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Challenge",
+        ref: "SubjectChallenge",
       },
     ],
     avgScore: { type: Number, min: 0, max: 100, default: 0 },

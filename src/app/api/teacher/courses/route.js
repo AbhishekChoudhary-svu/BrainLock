@@ -2,7 +2,8 @@ import dbConnect from "@/lib/dbConnect";
 import Course from "@/models/course.model";
 import Subtopic from "@/models/subtopic.model";
 import Content from "@/models/content.model";
-
+import SubjectChallenge from "@/models/subjectChallenge.model";
+import MCQ from "@/models/mcq.model";
 
 // Create a new course (POST) & Get all courses (GET)
 export async function POST(req) {
@@ -38,8 +39,15 @@ export async function GET() {
           model: "Content",
         },
       })
+      .populate({
+        path: "challenges",
+        populate: {
+          path: "mcqs",
+          model: "MCQ",
+        },
+      })
       // // .populate("studentsEnrolled", "firstName lastName")
-      // // .populate("challenges");
+       
 
     return new Response(
       JSON.stringify({ success: true, data: courses }),

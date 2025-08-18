@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, Brain, Search, Filter, ChevronRight, AlertCircle } from "lucide-react"
-import { useState } from "react"
+import { useContext, useEffect, useState } from "react"
+import MyContext from "@/context/ThemeProvider"
 
 // Mock data for challenges
 const mockChallenges = [
@@ -107,13 +108,27 @@ const getDifficultyColor = (difficulty) => {
 }
 
 export default function SubjectChallengesPage() {
+  const context = useContext(MyContext)
   const params = useParams()
-  const { subjectid } = params
+  const { courseid } = params
+
+  useEffect(()=>{
+    context.fetchCourses();
+  },[])
+
+
   const [searchTerm, setSearchTerm] = useState("")
   const [filterDifficulty, setFilterDifficulty] = useState("all")
   const [filterStatus, setFilterStatus] = useState("all")
 
-  const challengesForSubject = mockChallenges.filter((c) => c.subjectId === subjectid)
+  // Flatten courses in case nested
+const allCourses = context?.courses?.flat() || [];
+
+// Find the course by ID
+const course = allCourses.find((c) => String(c._id) === String(courseid));
+
+// Get challenges safely
+const challengesForSubject = course?.challenges || [];
 
   const filteredChallenges = challengesForSubject.filter((challenge) => {
     const matchesSearch =
@@ -124,27 +139,13 @@ export default function SubjectChallengesPage() {
     return matchesSearch && matchesDifficulty && matchesStatus
   })
 
-  const getSubjectName = (id) => {
-    switch (id) {
-      case "mathematics":
-        return "Mathematics"
-      case "physics":
-        return "Physics"
-      case "chemistry":
-        return "Chemistry"
-      default:
-        return id.charAt(0).toUpperCase() + id.slice(1)
-    }
-  }
-
-  const subjectName = getSubjectName(subjectid)
 
   if (challengesForSubject.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
         <AlertCircle className="h-16 w-16 text-gray-500 mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 mb-2">No Challenges Found</h2>
-        <p className="text-gray-600 mb-6">There are no challenges available for {subjectName} yet.</p>
+        <p className="text-gray-600 mb-6">There are no challenges available for {courseid} yet.</p>
         <Link href="/Dashboard/StudentDashboard">
           <Button>Back to Dashboard</Button>
         </Link>
@@ -159,7 +160,7 @@ export default function SubjectChallengesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
-              href="/Dashboard/StudentDashboard"
+              href={`/Dashboard/StudentDashboard/Courses/${courseid}`}
               className="flex items-center space-x-3 text-gray-900 hover:text-purple-600 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -179,7 +180,7 @@ export default function SubjectChallengesPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Challenges for {subjectName}</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Challenges for {course?.title}</h2>
           <p className="text-lg text-gray-600">Explore and conquer challenges in your chosen subject.</p>
         </div>
 
@@ -234,12 +235,12 @@ export default function SubjectChallengesPage() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500">⏱️ {challenge.estimatedTime}</span>
-                      <span className="text-gray-500">📅 Due: {challenge.dueDate}</span>
+                      <span className="text-gray-500">⏱️ {challenge.estimatedTime || "50 mins"}</span>
+                      <span className="text-gray-500">📅 Due: {challenge.createdAt.split("T")[0]}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <Badge variant="secondary">+{challenge.points} pts</Badge>
-                      <Link href={`/Dashboard/StudentDashboard/Challenges/${subjectid}/${challenge.challengeId}`}>
+                      <Badge variant="secondary">+{challenge.points || 50} pts</Badge>
+                      <Link href={`/Dashboard/StudentDashboard/Challenges/${courseid}/${challenge._id}`}>
                         <Button size="sm" disabled={challenge.status === "completed"}>
                           {challenge.status === "completed" ? "Completed" : "Start Challenge"}
                           {challenge.status !== "completed" && <ChevronRight className="ml-1 h-4 w-4" />}

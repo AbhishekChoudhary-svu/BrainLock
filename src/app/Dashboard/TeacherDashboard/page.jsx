@@ -829,11 +829,11 @@ export default function TeacherDashboard() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-gray-600">Students</p>
-                        <p className="font-semibold">{course.students}</p>
+                        <p className="font-semibold">{course.students || 50}</p>
                       </div>
                       <div>
                         <p className="text-gray-600">Challenges</p>
-                        <p className="font-semibold">{course.challenges}</p>
+                        <p className="font-semibold">{course.challenges.length}</p>
                       </div>
                       <div>
                         <p className="text-gray-600">Avg Score</p>

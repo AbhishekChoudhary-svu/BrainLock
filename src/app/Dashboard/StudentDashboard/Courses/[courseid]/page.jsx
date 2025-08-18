@@ -154,7 +154,7 @@ export default function SubjectCoursePage() {
               </div>
               <div className="flex justify-end">
                 <Link
-                  href={`/Dashboard/StudentDashboard/Challenges/${course.subjectId}`}
+                  href={`/Dashboard/StudentDashboard/Challenges/${course._id}`}
                 >
                   <Button>
                     View All Challenges

@@ -490,10 +490,10 @@ export default function StudentDashboard() {
                               {course.difficulty || ""}
                             </Badge> */}
                           </div>
-                          <Progress value={course.progress} className="h-2" />
+                          <Progress value={course.progress || 50} className="h-2" />
                           <div className="flex justify-between text-sm text-gray-600">
-                            <span>{course.progress}% complete</span>
-                            <span>Next: {course.nextChallenge}</span>
+                            <span>{course.progress || 50}% complete</span>
+                            <span className="font-[500] text-black">Next: {course.challenges?.[0].title}</span>
                           </div>
                         </div>
                       ))}
@@ -647,7 +647,7 @@ export default function StudentDashboard() {
           {/* Courses Tab */}
           <TabsContent value="courses" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {context.courses.map((course) => (
+              {context.courses.map((course ,idx) => (
                 <Card
                   key={course._id}
                   className="hover:shadow-lg transition-shadow"
@@ -681,7 +681,8 @@ export default function StudentDashboard() {
                     </div>
 
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center">
+                      {
+                        course.challenges.length >0 && <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">
                           Next Challenge:
                         </span>
@@ -690,16 +691,24 @@ export default function StudentDashboard() {
                         >
                           {course.difficulty}
                         </Badge> */}
-                      </div>
-                      <p className="text-sm font-medium">
-                        {course.subtopics?.[0]?.title || "No subtopics available"}
+                        {
+                          course.challenges.map((challenge)=>{
+                            return (
+                                 <p className="text-sm font-medium">
+                        {challenge?.title || "No subtopics available"}
                       </p>
-                      <p className="text-xs text-gray-500">
+                            )
+                          })
+                        }
+                     
+                      </div>
+                      }
+                      <p className="text-xs font-bold pt-2 text-gray-800">
                         Due: {course.createdAt.split("T")[0]}
                       </p>
                     </div>
 
-                    <div className="flex justify-between items-center pt-2">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">
                         Points: {course.points || 50}
                       </span>
@@ -727,57 +736,7 @@ export default function StudentDashboard() {
 
           {/* Challenges Tab */}
           <TabsContent value="challenges" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Upcoming Challenges */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Target className="h-5 w-5 text-blue-600" />
-                    <span>Upcoming Challenges</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {upcomingChallenges.map((challenge) => (
-                    <div
-                      key={challenge.id}
-                      className="border rounded-lg p-4 space-y-3"
-                    >
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-medium">{challenge.title}</h4>
-                        <Badge
-                          className={getDifficultyColor(challenge.difficulty)}
-                        >
-                          {challenge.difficulty}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-600">
-                        {challenge.course}
-                      </p>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-500">
-                          ⏱️ {challenge.estimatedTime}
-                        </span>
-                        <span className="text-gray-500">
-                          📅 {challenge.dueDate}
-                        </span>
-                        <Badge variant="secondary">
-                          +{challenge.points} pts
-                        </Badge>
-                      </div>
-                      <Link
-                        href={`/Dashboard/StudentDashboard/Challenges/${challenge.subjectId}`}
-                      >
-                        {" "}
-                        {/* Link to new challenges page */}
-                        <Button size="sm" className="w-full">
-                          Start Challenge
-                        </Button>
-                      </Link>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-
+            <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
               {/* Challenge Stats */}
               <Card>
                 <CardHeader>
@@ -787,7 +746,7 @@ export default function StudentDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-4 gap-4">
                     <div className="text-center p-4 bg-blue-50 rounded-lg">
                       <div className="text-2xl font-bold text-blue-600">24</div>
                       <div className="text-sm text-gray-600">Completed</div>
@@ -823,6 +782,59 @@ export default function StudentDashboard() {
                   </Alert>
                 </CardContent>
               </Card>
+              {/* Upcoming Challenges */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Target className="h-5 w-5 text-blue-600" />
+                    <span>Upcoming Challenges</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
+                  {context.courses.map((course) => (
+                    <div
+                      key={course._id}
+                      className="border rounded-lg p-4 space-y-6"
+                    >
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-[500] text-xl">{course.title}</h4>
+                        {/* <Badge
+                          className={getDifficultyColor(challenge.difficulty)}
+                        >
+                          {challenge.difficulty}
+                        </Badge> */}
+                      </div>
+                      <p className="text-sm font-[500] text-gray-600">
+                       Next Challenge : {course.challenges?.[0].title}
+                      </p>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500">
+                          ⏱️ {course.time || "50 min"}
+                        </span>
+                        <span className="text-gray-500">
+                          📅 {course.createdAt.split("T")[0]}
+                        </span>
+                        <Badge variant="secondary">
+                          +{course.points || 50} pts
+                        </Badge>
+                      </div>
+                      <Link
+                        href={`/Dashboard/StudentDashboard/Challenges/${course._id}`}
+                      >
+                        {" "}
+                        {/* Link to new challenges page */}
+                        <Button size="sm" className="w-full">
+                          View All Challenges
+                        </Button>
+                      </Link>
+                    </div>
+                  ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              
             </div>
           </TabsContent>
 
