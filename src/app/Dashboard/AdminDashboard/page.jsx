@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -83,8 +83,10 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import MyContext from "@/context/ThemeProvider";
 
 export default function AdminDashboard() {
+  const context = useContext(MyContext)
   const router = useRouter();
   const [selectedUser, setSelectedUser] = useState(null);
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
@@ -105,44 +107,17 @@ export default function AdminDashboard() {
     systemUptime: "99.9%",
     activeUsers: 892,
   };
-   const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+
   
    
   
     useEffect(() => {
-      async function fetchProfile() {
-        try {
-          const res = await fetch("/api/profile", {
-            method: "GET",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-          });
-  
-           if (res.status === 401 || res.status === 403) {
-            toast.error("Unauthorized. Please login.");
-            router.push("/LoginPage");
-            return;
-          }
-  
-          const data = await res.json();
-  
-          if (!res.ok || !data.success) {
-            toast.error(data.message || "Failed to load profile");
-            setLoading(false);
-            return;
-          }
-  
-          setUser(data?.user);
-        } catch {
-          toast.error("Something went wrong");
-          router.push("/LoginPage");
-        } finally {
-          setLoading(false);
-        }
-      }
-      fetchProfile();
-    }, [router]);
+      
+      context.fetchAllUsers();
+      context.fetchCourses();
+      context.fetchProfile();
+
+    }, []);
 
 
      const handleLogout = async ()=>{
@@ -169,7 +144,7 @@ export default function AdminDashboard() {
   
 
   // All users (teachers + students + admins)
-  const allUsers = [
+  const allUsers1 = [
     {
       id: 1,
       name: "Dr. Sarah Wilson",
@@ -357,7 +332,7 @@ export default function AdminDashboard() {
                       <AvatarFallback>MT</AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
-                      <p className="text-sm font-medium">{user?.firstName}{" "}{user?.lastName}</p>
+                      <p className="text-sm font-medium">{context.user?.firstName}{" "}{context.user?.lastName}</p>
                       <p className="text-xs text-gray-500">System Admin</p>
                     </div>
                   </Button>
@@ -375,6 +350,12 @@ export default function AdminDashboard() {
                     <DropdownMenuItem>
                       <CircuitBoard className="mr-2 h-4 w-4" />
                       Teacher Page
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href={"/Dashboard/ProfilePage"}>
+                    <DropdownMenuItem>
+                      <CircuitBoard className="mr-2 h-4 w-4" />
+                      My Profile
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuItem>
@@ -406,7 +387,7 @@ export default function AdminDashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.firstName.split(" ")[0]}! 👋
+            Welcome back, {context.user?.firstName}! 👋
           </h2>
           <p className="text-gray-600">
             Monitor system performance and manage all platform users
@@ -422,9 +403,9 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-red-600">
-                {adminData.totalUsers.toLocaleString()}
+                {context.allUsers.length}
               </div>
-              <p className="text-xs text-gray-600">+47 this month</p>
+              <p className="text-xs text-gray-600">+2 this month</p>
             </CardContent>
           </Card>
 
@@ -437,7 +418,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {adminData.activeUsers}
+                {context.allUsers.length}
               </div>
               <p className="text-xs text-gray-600">71% of total users</p>
             </CardContent>
@@ -452,7 +433,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">
-                {adminData.totalCourses}
+                {context.courses.length}
               </div>
               <p className="text-xs text-gray-600">12 pending approval</p>
             </CardContent>
@@ -752,20 +733,20 @@ export default function AdminDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {allUsers.map((user) => (
-                    <TableRow key={user.id}>
+                  {context.allUsers.map((user) => (
+                    <TableRow key={user._id}>
                       <TableCell>
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-8 w-8">
                             <AvatarFallback>
-                              {user.name
+                              {(user.firstName + " " + user.lastName)
                                 .split(" ")
                                 .map((n) => n[0])
                                 .join("")}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{user.name}</p>
+                            <p className="font-medium">{user.firstName + " " + user.lastName}</p>
                             <p className="text-sm text-gray-600">
                               {user.email}
                             </p>
@@ -777,7 +758,7 @@ export default function AdminDashboard() {
                           {user.role}
                         </Badge>
                       </TableCell>
-                      <TableCell>{user.department}</TableCell>
+                      <TableCell>{user.department || "Mathematics"}</TableCell>
                       <TableCell>
                         <Badge
                           variant={
@@ -787,15 +768,15 @@ export default function AdminDashboard() {
                           {user.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>{user.lastLogin}</TableCell>
+                      <TableCell>{user.lastLogin || " 2 Days Ago"}</TableCell>
                       <TableCell>
                         {user.role === "teacher" ? (
                           <span className="text-sm text-gray-600">
-                            {user.courses} courses, {user.students} students
+                            {user.courses || 4} courses, {user.students || 50} students
                           </span>
                         ) : user.role === "student" ? (
                           <span className="text-sm text-gray-600">
-                            {user.courses} courses, {user.avgScore}% avg
+                            {user.courses || 4} courses, {user.avgScore || 50}% avg
                           </span>
                         ) : (
                           <span className="text-sm text-gray-600">

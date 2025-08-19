@@ -62,6 +62,7 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     context.fetchCourses();
+    context.fetchProfile();
   }, []);
 
   // Mock data
@@ -78,56 +79,6 @@ export default function StudentDashboard() {
     activeCourses: 2,
   };
 
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        let res = await fetch("/api/profile", {
-          method: "GET",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (res.status === 401 || res.status === 403) {
-          const refreshRes = await fetch("/api/auth/refreshToken", {
-            method: "POST",
-            credentials: "include",
-          });
-
-          if (refreshRes.ok) {
-            // Retry profile fetch
-            res = await fetch("/api/profile", {
-              method: "GET",
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-            });
-          } else {
-            toast.error("Session expired. Please login.");
-            router.push("/LoginPage");
-            return;
-          }
-        }
-
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          toast.error(data.message || "Failed to load profile");
-          return;
-        }
-
-        setUser(data?.user);
-      } catch {
-        toast.error("Something went wrong");
-        router.push("/LoginPage");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchProfile();
-  }, [router]);
 
   // const courses = [
   //   {
@@ -241,28 +192,6 @@ export default function StudentDashboard() {
     },
   ];
 
-  const upcomingChallenges = [
-    {
-      id: 1,
-      title: "Calculus Derivatives",
-      course: "Advanced Mathematics",
-      subjectId: "mathematics", // Added subjectId for routing
-      difficulty: "Hard",
-      estimatedTime: "45 min",
-      dueDate: "Tomorrow",
-      points: 50,
-    },
-    {
-      id: 2,
-      title: "Newton's Laws Quiz",
-      course: "Physics Fundamentals",
-      subjectId: "physics", // Added subjectId for routing
-      difficulty: "Medium",
-      estimatedTime: "30 min",
-      dueDate: "In 3 days",
-      points: 40,
-    },
-  ];
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty.toLowerCase()) {
@@ -375,9 +304,9 @@ export default function StudentDashboard() {
                     </Avatar>
                     <div className="text-left hidden sm:block">
                       <p className="text-sm font-medium">
-                        {user?.firstName} {user?.lastName}
+                        {context.user?.firstName} {context.user?.lastName}
                       </p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
+                      <p className="text-xs text-gray-500">{context.user?.email}</p>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
@@ -394,6 +323,12 @@ export default function StudentDashboard() {
                     <DropdownMenuItem>
                       <CircuitBoard className="mr-2 h-4 w-4" />
                       Teacher Page
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href={"/Dashboard/ProfilePage"}>
+                    <DropdownMenuItem>
+                      <CircuitBoard className="mr-2 h-4 w-4" />
+                      My Profile
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuItem>
@@ -424,7 +359,7 @@ export default function StudentDashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.firstName.split(" ")[0]}! 👋
+            Welcome back, {context.user?.firstName}! 👋
           </h2>
           <p className="text-gray-600">
             Ready to continue your learning journey?

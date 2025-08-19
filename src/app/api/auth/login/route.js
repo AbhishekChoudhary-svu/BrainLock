@@ -43,20 +43,23 @@ export async function POST(req) {
       );
     }
 
+    // Generate tokens
     const accessToken = generateAccessToken(user._id);
     const refreshToken = await generateRefreshToken(user._id);
 
+    // Save refresh token in DB
     user.refresh_Token = refreshToken;
     await user.save();
 
-    // Store tokens in cookies
-    const cookieStore = cookies();
+    // ✅ Use async cookies
+    const cookieStore = await cookies();
+
     cookieStore.set("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 7, // 7 hour
+      maxAge: 60 * 60 * 7, // 7 hours
     });
 
     cookieStore.set("refreshToken", refreshToken, {
@@ -81,10 +84,10 @@ export async function POST(req) {
       }),
       { status: 200 }
     );
-
   } catch (error) {
+    console.error(error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: "Server error" }),
       { status: 500 }
     );
   }

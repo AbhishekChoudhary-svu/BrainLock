@@ -1,4 +1,4 @@
-// src/app/api/auth/refresh/route.js
+// src/app/api/auth/refreshToken/route.js
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { generateAccessToken } from "@/utils/generatedAccessToken";
@@ -9,8 +9,9 @@ export async function POST() {
   try {
     await dbConnect();
 
-    // 1. Get refresh token from cookies
-    const refreshToken = cookies().get("refreshToken")?.value;
+    const cookieStore = await cookies();
+    const refreshToken = cookieStore.get("refreshToken")?.value;
+
     if (!refreshToken) {
       return new Response(
         JSON.stringify({ success: false, error: "Refresh token missing" }),
@@ -18,46 +19,45 @@ export async function POST() {
       );
     }
 
-    // 2. Verify refresh token
+    // 1. Verify refresh token
     let decoded;
     try {
       decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    } catch {
+    } catch (err) {
       return new Response(
         JSON.stringify({ success: false, error: "Invalid or expired refresh token" }),
         { status: 403 }
       );
     }
 
-    // 3. Find user from decoded token
+    // 2. Find user and validate refresh token
     const user = await User.findById(decoded.id);
-    if (!user) {
+    if (!user || user.refresh_Token !== refreshToken) {
       return new Response(
-        JSON.stringify({ success: false, error: "User not found" }),
-        { status: 404 }
+        JSON.stringify({ success: false, error: "Invalid refresh token (mismatch)" }),
+        { status: 403 }
       );
     }
 
-    // 4. Generate new access token only
+    // 3. Generate new access token
     const newAccessToken = generateAccessToken(user._id);
 
-    // 5. Update access token cookie
-    cookies().set("accessToken", newAccessToken, {
+    // 4. Update cookie with new access token
+    cookieStore.set("accessToken", newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 60 * 60 * 7, // 7 hours
       path: "/",
+      maxAge: 60 *  60 * 7, // 7 hours
     });
 
-    // 6. Send success response
+    // 5. Return response
     return new Response(
       JSON.stringify({ success: true, accessToken: newAccessToken }),
       { status: 200 }
     );
-
   } catch (error) {
-    console.error(error);
+    console.error("Refresh token error:", error);
     return new Response(
       JSON.stringify({ success: false, error: "Server error" }),
       { status: 500 }

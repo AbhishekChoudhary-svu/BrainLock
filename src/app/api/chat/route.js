@@ -10,7 +10,7 @@ export async function POST(req) {
       messages,
     });
 
-    // ✅ Updated method name for Vercel AI SDK v3+
+    
     return result.toTextStreamResponse();
   } catch (error) {
     console.error("Error in AI chat API:", error);

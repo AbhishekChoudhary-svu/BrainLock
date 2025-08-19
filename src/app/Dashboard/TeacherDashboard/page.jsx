@@ -166,12 +166,12 @@ export default function TeacherDashboard() {
   };
 
 
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     context.fetchCourses();
     context.fetchChallenges();
+    context.fetchAllUsers();
+    context.fetchProfile();
+
   }, []);
 
   const openCreateDialog = () => {
@@ -193,39 +193,6 @@ export default function TeacherDashboard() {
     setIsCreateChallengeOpen(true);
   };
 
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await fetch("/api/profile", {
-          method: "GET",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (res.status === 401 || res.status === 403) {
-          toast.error("Unauthorized. Please login.");
-          router.push("/LoginPage");
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          toast.error(data.message || "Failed to load profile");
-          setLoading(false);
-          return;
-        }
-
-        setUser(data?.user);
-      } catch {
-        toast.error("Something went wrong");
-        router.push("/LoginPage");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProfile();
-  }, [router]);
 
   const handleLogout = async () => {
     try {
@@ -428,7 +395,7 @@ export default function TeacherDashboard() {
                     </Avatar>
                     <div className="text-left hidden sm:block">
                       <p className="text-sm font-medium">
-                        {user?.firstName} {user?.lastName}
+                        {context.user?.firstName} {context.user?.lastName}
                       </p>
                       <p className="text-xs text-gray-500">
                         {teacherData.department}
@@ -449,6 +416,12 @@ export default function TeacherDashboard() {
                     <DropdownMenuItem>
                       <CircuitBoard className="mr-2 h-4 w-4" />
                       Student Page
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href={"/Dashboard/ProfilePage"}>
+                    <DropdownMenuItem>
+                      <CircuitBoard className="mr-2 h-4 w-4" />
+                      My Profile
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuItem>
@@ -479,7 +452,7 @@ export default function TeacherDashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.firstName.split(" ")[0]}! 👋
+            Welcome back, {context.user?.firstName}! 👋
           </h2>
           <p className="text-gray-600">
             Manage your courses and track student progress
@@ -497,9 +470,9 @@ export default function TeacherDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {teacherData.totalStudents}
+                {context?.allUsers?.length}
               </div>
-              <p className="text-xs text-gray-600">+12 this semester</p>
+              <p className="text-xs text-gray-600">+2 this month</p>
             </CardContent>
           </Card>
 
@@ -512,7 +485,7 @@ export default function TeacherDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">
-                {teacherData.activeCourses}
+                {context.courses.length}
               </div>
               <p className="text-xs text-gray-600">2 new this month</p>
             </CardContent>
@@ -527,7 +500,7 @@ export default function TeacherDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600">
-                {teacherData.totalChallenges}
+                {context.challenges.length}
               </div>
               <p className="text-xs text-gray-600">5 pending review</p>
             </CardContent>
@@ -923,27 +896,27 @@ export default function TeacherDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {students.map((student) => (
-                    <TableRow key={student.id}>
+                  {context.allUsers.map((student) => (
+                    <TableRow key={student._id}>
                       <TableCell>
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-8 w-8">
                             <AvatarFallback>
-                              {student.name
+                              {(student.firstName+ " "+student.lastName)
                                 .split(" ")
                                 .map((n) => n[0])
                                 .join("")}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{student.name}</p>
+                            <p className="font-medium">{student.firstName}{" "}{student.lastName}</p>
                             <p className="text-sm text-gray-600">
                               {student.email}
                             </p>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{student.courses}</TableCell>
+                      <TableCell>{student.courses || 4}</TableCell>
                       <TableCell>
                         <Badge
                           variant={
@@ -954,11 +927,11 @@ export default function TeacherDashboard() {
                               : "destructive"
                           }
                         >
-                          {student.avgScore}%
+                          {student.avgScore || 50}%
                         </Badge>
                       </TableCell>
-                      <TableCell>{student.streak} days</TableCell>
-                      <TableCell>{student.lastActive}</TableCell>
+                      <TableCell>{student.streak || 7} days</TableCell>
+                      <TableCell>{student.lastActive || 5}</TableCell>
                       <TableCell>
                         <Badge
                           variant={
