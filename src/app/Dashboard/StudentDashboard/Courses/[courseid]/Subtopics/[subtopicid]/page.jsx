@@ -91,18 +91,15 @@ export default function SubjectTheoryPage() {
     }
   };
 
-  const getSubjectName = (id) => {
-    switch (id) {
-      case "mathematics":
-        return "Advanced Mathematics";
-      case "physics":
-        return "Physics Fundamentals";
-      case "chemistry":
-        return "Chemistry Basics";
-      default:
-        return id.charAt(0).toUpperCase() + id.slice(1);
-    }
-  };
+ if (!subtopic) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+      <p className="ml-2 text-gray-600">Loading theory...</p>
+    </div>
+  );
+}
+
 
   if (!contents) {
     return (
@@ -139,7 +136,7 @@ export default function SubjectTheoryPage() {
               </div>
             </Link>
             <Badge variant="secondary" className="text-sm">
-              {subtopic.title} Theory
+               {subtopic.title} Theory 
             </Badge>
           </div>
         </div>
@@ -214,8 +211,19 @@ export default function SubjectTheoryPage() {
             </CardContent>
           </Card> */}
 
+
+            <div className=" flex justify-center shadow-lg rounded-lg items-center">
+      <iframe
+        src={`https://www.chatbase.co/chatbot-iframe/${process.env.NEXT_PUBLIC_CHATBASE_ID}`}
+        width="100%"
+        height="605"
+        frameBorder="0"  // ✅ correct for React
+      ></iframe>
+    </div>
+         
+
           {/* AI Assistant */}
-          <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[82vh]">
+          {/* <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[82vh]">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <MessageCircle className="h-5 w-5 text-purple-600" />
@@ -294,7 +302,7 @@ export default function SubjectTheoryPage() {
                 </Button>
               </form>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </main>
     </div>

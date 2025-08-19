@@ -732,7 +732,7 @@ export default function StudentDashboard() {
                         </Badge> */}
                           {course.challenges.map((challenge) => {
                             return (
-                              <p className="text-sm font-medium">
+                              <p key={challenge._id} className="text-sm font-medium">
                                 {challenge?.title || "No subtopics available"}
                               </p>
                             );
