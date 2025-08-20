@@ -43,13 +43,57 @@ loadProfile()
     setIsEditing(true)
     setEditData(profileData)
   }
+const handleSave = async () => {
+  try {
+    const res = await fetch("/api/user", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName: editData.name.split(" ")[0],
+        lastName: editData.name.split(" ")[1] || "",
+        email: editData.email,
+        phoneNumber: editData.phone,
+        address: editData.address,
+        dateOfBirth: editData.dateOfBirth,
+        department: editData.department,
+        qualifications: editData.qualifications,
+        subjects: editData.subjects,
+        bio: editData.bio,
+      }),
+    });
 
-  const handleSave = () => {
-    setProfileData(editData)
-    setIsEditing(false)
-    // TODO: Send editData to backend with PUT/PATCH API
-    console.log("Profile updated:", editData)
+    let data;
+    try {
+      data = await res.json(); // ✅ protected parse
+    } catch {
+      throw new Error("Response was not valid JSON");
+    }
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Update failed");
+    }
+
+    if (data.success) {
+      setProfileData({ ...profileData, ...editData });
+      alert(data.message || "Update success");
+      setIsEditing(false);
+    } else {
+      alert(data.message || "Update failed");
+    }
+  } catch (error) {
+    console.error("Update error:", error);
+    alert(error.message || "Server error while updating profile");
   }
+};
+
+
+
+  // const handleSave = () => {
+  //   setProfileData(editData)
+  //   setIsEditing(false)
+  //   // TODO: Send editData to backend with PUT/PATCH API
+  //   console.log("Profile updated:", editData)
+  // }
 
   const handleCancel = () => {
     setIsEditing(false)

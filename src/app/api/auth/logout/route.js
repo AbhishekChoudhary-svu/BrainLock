@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 export async function POST() {
   try {
     // Clear the cookies by setting them to empty and expired
-    cookies().set("accessToken", "", {
+   await cookies().set("accessToken", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
@@ -11,7 +11,7 @@ export async function POST() {
       path: "/",
     });
 
-    cookies().set("refreshToken", "", {
+  await  cookies().set("refreshToken", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",

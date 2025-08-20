@@ -65,11 +65,70 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+
+    enrollmentNumber: {
+      type: String,
+      unique: true,
+      sparse: true, // only required for students
+    },
+    courses: [
+      {
+        courseId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Course", // Assuming you have a Course model
+        },
+        enrolledAt: {
+          type: Date,
+          default: Date.now,
+        },
+        progress: {
+          type: Number, // percentage (0–100)
+          default: 0,
+        },
+      },
+    ],
+
+    points: {
+      type: Number,
+      default: 0,
+    },
+    avgScore: {
+      type: Number,
+      default: 0,
+    },
+
+    // Profile extras
+    address: {
+      type: String,
+      default: "N/A",
+    },
+    dateOfBirth: {
+      type: Date,
+      default: "1990-01-01",
+    },
+    department: {
+      type: String,
+      default: "General",
+    },
+    bio: {
+      type: String,
+      default: "No bio provided.",
+    },
+    qualifications: {
+      type: String,
+      default: "",
+    },
+    subjects: {
+      type: [String],
+      default: [],
+    },
+
   },
   { timestamps: true }
 );
 
 // Avoid recompiling model in dev mode
-const User = mongoose.models.User || mongoose.model("User", userSchema);
+const User = mongoose.models.Users || mongoose.model("Users", userSchema);
 
 export default User;
+ 
