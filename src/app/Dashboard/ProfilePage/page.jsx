@@ -1,10 +1,11 @@
 "use client"
 
 import { useContext, useEffect, useState } from "react"
-import { ArrowLeft, Edit3, Save, X, User, Mail, Phone, MapPin, Calendar, BookOpen, Award } from "lucide-react"
+import { ArrowLeft, Edit3, Save, X, User, Mail, Phone, MapPin, Calendar, BookOpen, Award, Brain } from "lucide-react"
 import Link from "next/link"
 import MyContext from "@/context/ThemeProvider"
 import { useRouter } from "next/navigation"
+import { Badge } from "@/components/ui/badge"
 
 export default function ProfilePage() {
   const context = useContext(MyContext)
@@ -69,26 +70,54 @@ if (!profileData) {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen w-full bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Link
-                href="#"
-                onClick={() => router.back()}
-                className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5 mr-2" />
-                Back to Dashboard
-              </Link>
+       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link
+              href=""
+              onClick={() => router.back()}
+              className="flex items-center space-x-3 text-gray-900 hover:text-purple-600 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <Brain className="h-8 w-8 text-purple-600" />
+              <div>
+                <h1 className="text-xl font-bold">Brain Lock</h1>
+                <p className="text-xs text-gray-500">Profile Dashboard</p>
+              </div>
+            </Link>
+            <Badge variant="secondary" className="text-sm">
+              Edit / View Profile
+            </Badge>
+          </div>
+        </div>
+      </header>
+
+      {/* Profile Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          {/* Profile Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-8 flex justify-between items-center">
+            <div className="flex items-center space-x-6">
+              <div className="h-24 w-24 bg-white rounded-full flex items-center justify-center">
+                <User className="h-12 w-12 text-gray-600" />
+              </div>
+              <div className="text-white">
+                <h1 className="text-3xl font-bold">{profileData.name}</h1>
+                <p className="text-blue-100 text-lg capitalize">
+                  {profileData.role} - {profileData.department}
+                </p>
+                <p className="text-blue-200 text-sm">
+                  Member since {new Date(profileData.createdAt).toLocaleDateString()}
+                </p>
+              </div>
             </div>
             <div className="flex items-center space-x-3">
               {!isEditing ? (
                 <button
                   onClick={handleEdit}
-                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <Edit3 className="h-4 w-4 mr-2" />
                   Edit Profile
@@ -111,29 +140,6 @@ if (!profileData) {
                   </button>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Profile Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          {/* Profile Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-8">
-            <div className="flex items-center space-x-6">
-              <div className="h-24 w-24 bg-white rounded-full flex items-center justify-center">
-                <User className="h-12 w-12 text-gray-600" />
-              </div>
-              <div className="text-white">
-                <h1 className="text-3xl font-bold">{profileData.name}</h1>
-                <p className="text-blue-100 text-lg capitalize">
-                  {profileData.role} - {profileData.department}
-                </p>
-                <p className="text-blue-200 text-sm">
-                  Member since {new Date(profileData.createdAt).toLocaleDateString()}
-                </p>
-              </div>
             </div>
           </div>
 

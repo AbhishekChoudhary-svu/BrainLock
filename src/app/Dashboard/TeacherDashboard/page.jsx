@@ -103,7 +103,7 @@ export default function TeacherDashboard() {
   
   const isEditMode = Boolean(courseData?._id);
   const isEditModeChallenge = Boolean(challengeData?._id);
-
+const [loading, setLoading] = useState(true);
 // edit and create for both
   const handleSaveCourse = async () => {
     setLoading(true);

@@ -49,21 +49,80 @@ import {
   Medal,
   User,
   CircuitBoard,
+  Send,
+  Bot,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link"; // Import Link
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import MyContext from "@/context/ThemeProvider";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 
 export default function StudentDashboard() {
   const context = useContext(MyContext);
   const router = useRouter();
   const [currentStreak, setCurrentStreak] = useState(7);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     context.fetchCourses();
     context.fetchProfile();
   }, []);
+
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userMessage = { role: "user", content: input };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages: [...messages, userMessage] }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: "assistant", content: data.text },
+      ]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          role: "assistant",
+          content: "Sorry, I couldn't process that. Please try again.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Mock data
   const studentData = {
@@ -431,10 +490,11 @@ export default function StudentDashboard() {
 
         {/* Main Dashboard Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="courses">My Courses</TabsTrigger>
             <TabsTrigger value="challenges">Challenges</TabsTrigger>
+            <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
             <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
           </TabsList>
 
@@ -805,6 +865,92 @@ export default function StudentDashboard() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+           {/* Ai Assistant Tab */}
+          <TabsContent value="assistant" className="space-y-6">
+            
+            
+          <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[50vh] bg-gray-50">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <MessageCircle className="h-5 w-5 text-purple-600" />
+                <span>AI Assistant</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col p-4 pt-0 overflow-hidden">
+              <ScrollArea className="flex-1 pr-4 overflow-x-hidden">
+                <div className="space-y-4">
+                  {messages.length === 0 && (
+                    <div className="text-center text-gray-500 text-sm py-4">
+                      Ask me anything about you Like!
+                    </div>
+                  )}
+                  {messages.map((msg, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-start gap-3 ${
+                        msg.role === "user" ? "justify-end" : "justify-start"
+                      }`}
+                    >
+                      {msg.role === "assistant" && (
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>
+                            <Bot className="h-5 w-5" />
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div
+                        className={`max-w-[80%] p-3 rounded-lg overflow-hidden break-words ${
+                          msg.role === "user"
+                            ? "bg-blue-600 text-white rounded-br-none"
+                            : "bg-gray-200 text-gray-900 rounded-bl-none"
+                        }`}
+                      >
+                        <p className="text-sm break-words">{msg.content}</p>
+                      </div>
+                      {msg.role === "user" && (
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>
+                            <User className="h-5 w-5" />
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                    </div>
+                  ))}
+                  {isLoading && (
+                    <div className="flex items-start gap-3 justify-start">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                          <Bot className="h-5 w-5" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 text-gray-900 rounded-bl-none">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+              <form onSubmit={handleSendMessage} className="mt-4 flex gap-2">
+                <Input
+                  placeholder="Type your question..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  disabled={isLoading}
+                  className="flex-1"
+                />
+                <Button type="submit" size="icon" disabled={isLoading}>
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card> 
           </TabsContent>
 
           {/* Leaderboard Tab */}
