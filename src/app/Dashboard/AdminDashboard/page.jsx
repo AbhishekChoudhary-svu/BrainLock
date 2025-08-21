@@ -92,6 +92,16 @@ export default function AdminDashboard() {
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [isSystemSettingsOpen, setIsSystemSettingsOpen] = useState(false);
 
+  const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+      
+      context.fetchAllUsers();
+      context.fetchCourses();
+      context.fetchProfile();
+
+    }, []);
+
   // Mock data for admin (includes all teacher data plus admin-specific)
   const adminData = {
     name: "Dr. Michael Thompson",
@@ -108,16 +118,86 @@ export default function AdminDashboard() {
     activeUsers: 892,
   };
 
+  const handleDelete = async (userId) => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/user/allUsers/${userId}`, {
+        method: "DELETE",
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        
+        toast.success(data.message)
+        context.fetchAllUsers();
+      }else{
+        toast.error(data.error)
+
+      }
+    } catch (error) {
+      toast.error("Error deleting user: " + error.message)
+    }
+    setLoading(false)
+  }
+
+  
+const handleSuspend = async (userId, currentStatus) => {
+  setLoading(true)
+  try {
+    
+    const newStatus = currentStatus === "active" ? "inactive" : "active"
+
+    const res = await fetch(`/api/user/allUsers/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    })
+
+    const data = await res.json()
+    if (data.success) {
+      toast.success(`User is now ${newStatus}`)
+      context.fetchAllUsers();
+      } else {
+      toast.error(data.error || "Failed to update user status")
+    }
+  } catch (error) {
+    toast.error("Error updating user: " + error.message)
+  }
+  setLoading(false)
+}
+
+
+  
+const handleToggleRole = async (userId, currentRole) => {
+  setLoading(true)
+  try {
+    // Decide new role
+    const newRole = currentRole === "teacher" ? "student" : "teacher"
+
+    const res = await fetch(`/api/user/allUsers/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: newRole }),
+    })
+
+    const data = await res.json()
+    if (data.success) {
+      toast.success(`User role updated to ${newRole}`)
+      context.fetchAllUsers() // refresh list
+    } else {
+      toast.error(data.error || "Failed to update role")
+    }
+  } catch (error) {
+    toast.error("Error updating role: " + error.message)
+  }
+  setLoading(false)
+}
+
+
   
    
   
-    useEffect(() => {
-      
-      context.fetchAllUsers();
-      context.fetchCourses();
-      context.fetchProfile();
-
-    }, []);
+  
 
 
      const handleLogout = async ()=>{
@@ -142,54 +222,6 @@ export default function AdminDashboard() {
   }
 
   
-
-  // All users (teachers + students + admins)
-  const allUsers1 = [
-    {
-      id: 1,
-      name: "Dr. Sarah Wilson",
-      email: "sarah.wilson@school.edu",
-      role: "teacher",
-      department: "Mathematics",
-      status: "active",
-      lastLogin: "2 hours ago",
-      courses: 4,
-      students: 156,
-    },
-    {
-      id: 2,
-      name: "Prof. James Rodriguez",
-      email: "james.rodriguez@school.edu",
-      role: "teacher",
-      department: "Physics",
-      status: "active",
-      lastLogin: "1 day ago",
-      courses: 3,
-      students: 98,
-    },
-    {
-      id: 3,
-      name: "Alex Johnson",
-      email: "alex.j@student.edu",
-      role: "student",
-      department: "Grade 11",
-      status: "active",
-      lastLogin: "30 min ago",
-      courses: 6,
-      avgScore: 92,
-    },
-    {
-      id: 4,
-      name: "Emma Davis",
-      email: "emma.d@student.edu",
-      role: "student",
-      department: "Grade 12",
-      status: "inactive",
-      lastLogin: "3 days ago",
-      courses: 5,
-      avgScore: 88,
-    },
-  ];
 
   const systemStats = [
     {
@@ -797,11 +829,21 @@ export default function AdminDashboard() {
                               View Profile
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit User
+                            <DropdownMenuItem onClick={()=>handleToggleRole(user._id,user.role)}>
+                              {user.role === "student" ? (
+                                <>
+                                 <Edit className="mr-2 h-4 w-4" />
+                              Make Teacher
+                                </>
+                              ) : (
+                                <>
+                                 <Edit className="mr-2 h-4 w-4" />
+                              Make Student
+                                </>
+                              )}
+                              
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={()=>handleSuspend(user._id,user.status)}>
                               {user.status === "active" ? (
                                 <>
                                   <Lock className="mr-2 h-4 w-4" />
@@ -815,7 +857,7 @@ export default function AdminDashboard() {
                               )}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">
+                            <DropdownMenuItem onClick={()=>handleDelete(user._id)} className="text-red-600">
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete User
                             </DropdownMenuItem>

@@ -6,6 +6,8 @@ import Link from "next/link"
 import MyContext from "@/context/ThemeProvider"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
+import Loading from "./loading"
 
 export default function ProfilePage() {
   const context = useContext(MyContext)
@@ -15,27 +17,30 @@ export default function ProfilePage() {
   const [profileData, setProfileData] = useState(null)
 
 useEffect(() => {
-  async function loadProfile() {
+  // if user is not loaded yet, do nothing
+  if (!context.user) return;
 
-        setProfileData({
-          name: `${context.user.firstName} ${context.user.lastName || ""}`,
-          email: context.user.email || "",
-          phone: context.user.phoneNumber || "",
-          address: context.user.address || "N/A",
-          dateOfBirth: context.user.dateOfBirth || "1990-01-01",
-          role: context.user.role || "User",
-          department: context.user.department || "General",
-          joinDate: context.user.createdAt ? context.user.createdAt.split("T")[0] : "",
-          bio: context.user.bio || "No bio provided.",
-          qualifications: context.user.qualifications || "",
-          subjects: context.user.subjects || [],
-          createdAt: context.user.createdAt,
-       
-  })}
+  setProfileData({
+    name: `${context.user.firstName || ""} ${context.user.lastName || ""}`,
+    email: context.user.email || "",
+    phone: context.user.phoneNumber || "",
+    address: context.user.address || "N/A",
+    dateOfBirth: context.user.dateOfBirth || "1990-01-01",
+    role: context.user.role || "User",
+    department: context.user.department || "General",
+    joinDate: context.user.createdAt ? context.user.createdAt.split("T")[0] : "",
+    bio: context.user.bio || "No bio provided.",
+    qualifications: context.user.qualifications || "",
+    subjects: context.user.subjects || [],
+    createdAt: context.user.createdAt,
+  });
+}, [context.user]); // 🔑 re-run once context.user is fetched
 
-context.fetchProfile()
-loadProfile()
-}, [])
+useEffect(() => {
+  // fetch user only once on page load
+  context.fetchProfile();
+}, []);
+
 
   const [editData, setEditData] = useState(null)
 
@@ -64,7 +69,7 @@ const handleSave = async () => {
 
     let data;
     try {
-      data = await res.json(); // ✅ protected parse
+      data = await res.json(); 
     } catch {
       throw new Error("Response was not valid JSON");
     }
@@ -75,14 +80,14 @@ const handleSave = async () => {
 
     if (data.success) {
       setProfileData({ ...profileData, ...editData });
-      alert(data.message || "Update success");
+      toast.success(data.message || "Update success");
       setIsEditing(false);
     } else {
-      alert(data.message || "Update failed");
+      toast.error(data.message || "Update failed");
     }
   } catch (error) {
     console.error("Update error:", error);
-    alert(error.message || "Server error while updating profile");
+    toast.error(error.message || "Server error while updating profile");
   }
 };
 
@@ -109,7 +114,7 @@ const handleSave = async () => {
 
 
 if (!profileData) {
-  return <div className="p-8 text-center text-red-600">Failed to load profile.</div>
+  return <div className="p-8 text-center text-red-600"><Loading/></div>
 }
 
 
@@ -195,6 +200,7 @@ if (!profileData) {
                 <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">Personal Information</h2>
 
                 <div className="space-y-4">
+                  
                   {/* Email */}
                   <div className="flex items-start space-x-3">
                     <Mail className="h-5 w-5 text-gray-400 mt-1" />

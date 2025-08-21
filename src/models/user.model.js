@@ -82,7 +82,7 @@ const userSchema = new mongoose.Schema(
           default: Date.now,
         },
         progress: {
-          type: Number, // percentage (0–100)
+          type: Number, 
           default: 0,
         },
       },
@@ -96,6 +96,15 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    streaks: {
+      type: Number,
+      default: 0,
+    },
+    classRank: {
+      type: Number,
+      default: 0,
+    },
+
 
     // Profile extras
     address: {
@@ -118,17 +127,30 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    subjects: {
-      type: [String],
-      default: [],
-    },
+    achievements: [
+  {
+    title: { type: String, required: true },
+    description: { type: String },
+    badge: { type: String }, // e.g. image/icon url
+    earnedAt: { type: Date, default: Date.now },
+    points: { type: Number, default: 0 }, // reward points
+  }
+],
+
+      progressSummary: {
+  percentage: { type: Number, default: 0 }, 
+  completedModules: { type: Number, default: 0 },
+  pendingModules: { type: Number, default: 0 },
+}
+
+
 
   },
   { timestamps: true }
 );
 
 // Avoid recompiling model in dev mode
-const User = mongoose.models.Users || mongoose.model("Users", userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 
 export default User;
  

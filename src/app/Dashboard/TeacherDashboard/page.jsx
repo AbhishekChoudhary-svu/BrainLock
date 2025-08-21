@@ -79,7 +79,7 @@ import { formatDistanceToNow } from "date-fns";
 import MyContext from "@/context/ThemeProvider";
 
 export default function TeacherDashboard() {
-  const context = useContext(MyContext)
+  const context = useContext(MyContext);
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [courseData, setCourseData] = useState([]);
@@ -100,11 +100,10 @@ export default function TeacherDashboard() {
     avgPerformance: 87,
   };
 
-  
   const isEditMode = Boolean(courseData?._id);
   const isEditModeChallenge = Boolean(challengeData?._id);
-const [loading, setLoading] = useState(true);
-// edit and create for both
+  const [loading, setLoading] = useState(true);
+  // edit and create for both
   const handleSaveCourse = async () => {
     setLoading(true);
     try {
@@ -139,7 +138,9 @@ const [loading, setLoading] = useState(true);
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/teacher/challenges/${isEditModeChallenge ? challengeData?._id : ""}`,
+        `/api/teacher/challenges/${
+          isEditModeChallenge ? challengeData?._id : ""
+        }`,
         {
           method: isEditModeChallenge ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
@@ -165,13 +166,11 @@ const [loading, setLoading] = useState(true);
     setLoading(false);
   };
 
-
   useEffect(() => {
     context.fetchCourses();
     context.fetchChallenges();
     context.fetchAllUsers();
     context.fetchProfile();
-
   }, []);
 
   const openCreateDialog = () => {
@@ -192,7 +191,6 @@ const [loading, setLoading] = useState(true);
     setChallengeData(challenge);
     setIsCreateChallengeOpen(true);
   };
-
 
   const handleLogout = async () => {
     try {
@@ -398,7 +396,7 @@ const [loading, setLoading] = useState(true);
                         {context.user?.firstName} {context.user?.lastName}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {teacherData.department}
+                        {context.user?.department}
                       </p>
                     </div>
                   </Button>
@@ -446,7 +444,6 @@ const [loading, setLoading] = useState(true);
           </div>
         </div>
       </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
@@ -527,8 +524,8 @@ const [loading, setLoading] = useState(true);
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="courses">My Courses</TabsTrigger>
-            <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="challenges">Challenges</TabsTrigger>
+            <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -806,7 +803,9 @@ const [loading, setLoading] = useState(true);
                       </div>
                       <div>
                         <p className="text-gray-600">Challenges</p>
-                        <p className="font-semibold">{course.challenges.length}</p>
+                        <p className="font-semibold">
+                          {course.challenges.length}
+                        </p>
                       </div>
                       <div>
                         <p className="text-gray-600">Avg Score</p>
@@ -857,120 +856,6 @@ const [loading, setLoading] = useState(true);
                 </Card>
               ))}
             </div>
-          </TabsContent>
-
-          {/* Students Tab */}
-          <TabsContent value="students" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Student Management</h3>
-              <div className="flex space-x-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search students..."
-                    className="pl-10 w-64"
-                  />
-                </div>
-                <Button variant="outline">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filter
-                </Button>
-                <Button>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Import
-                </Button>
-              </div>
-            </div>
-
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Student</TableHead>
-                    <TableHead>Courses</TableHead>
-                    <TableHead>Avg Score</TableHead>
-                    <TableHead>Streak</TableHead>
-                    <TableHead>Last Active</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {context.allUsers.map((student) => (
-                    <TableRow key={student._id}>
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback>
-                              {(student.firstName+ " "+student.lastName)
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{student.firstName}{" "}{student.lastName}</p>
-                            <p className="text-sm text-gray-600">
-                              {student.email}
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{student.courses || 4}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            student.avgScore >= 90
-                              ? "default"
-                              : student.avgScore >= 80
-                              ? "secondary"
-                              : "destructive"
-                          }
-                        >
-                          {student.avgScore || 50}%
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{student.streak || 7} days</TableCell>
-                      <TableCell>{student.lastActive || 5}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            student.status === "active"
-                              ? "default"
-                              : "secondary"
-                          }
-                        >
-                          {student.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Profile
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <MessageCircle className="mr-2 h-4 w-4" />
-                              Send Message
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <BarChart3 className="mr-2 h-4 w-4" />
-                              View Progress
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
           </TabsContent>
 
           {/* Challenges Tab */}
@@ -1040,27 +925,31 @@ const [loading, setLoading] = useState(true);
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-gray-600">Course</p>
-                        <p className="font-semibold">{challenge.course.title}</p>
+                        <p className="font-semibold">
+                          {challenge.course.title}
+                        </p>
                       </div>
                       <div>
                         <p className="text-gray-600">Difficulty</p>
-                        <Badge variant="destructive">{challenge.difficulty}</Badge>
+                        <Badge variant="destructive">
+                          {challenge.difficulty}
+                        </Badge>
                       </div>
                       <div>
                         <p className="text-gray-600">Submissions Date</p>
-                        <p className="font-semibold">{challenge.createdAt.split("T")[0]}</p>
+                        <p className="font-semibold">
+                          {challenge.createdAt.split("T")[0]}
+                        </p>
                       </div>
                       <div>
                         <p className="text-gray-600">Status</p>
-                        <Badge >{challenge.status}</Badge>
-
+                        <Badge>{challenge.status}</Badge>
                       </div>
                     </div>
                     <Link
@@ -1074,6 +963,120 @@ const [loading, setLoading] = useState(true);
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          {/* Students Tab */}
+          <TabsContent value="students" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Student Management</h3>
+              <div className="flex space-x-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search students..."
+                    className="pl-10 w-64"
+                  />
+                </div>
+                <Button variant="outline">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                </Button>
+                <Button>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import
+                </Button>
+              </div>
+            </div>
+
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Student</TableHead>
+                    <TableHead>Courses</TableHead>
+                    <TableHead>Avg Score</TableHead>
+                    <TableHead>Streak</TableHead>
+                    <TableHead>Points</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {context.allUsers
+                    .filter((user) => user.role === "student")
+                    .map((student) => (
+                      <TableRow key={student._id}>
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback>
+                                {(student.firstName + " " + student.lastName)
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium">
+                                {student.firstName} {student.lastName}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {student.email}
+                              </p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{student.courses.length || 4}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              student.avgScore >= 90
+                                ? "default"
+                                : student.avgScore >= 80
+                                ? "secondary"
+                                : "destructive"
+                            }
+                          >
+                            {student.avgScore || 50}%
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{student.streak || 7} days</TableCell>
+                        <TableCell>{student.points || 5}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              student.status === "active"
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
+                            {student.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Profile
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <BarChart3 className="mr-2 h-4 w-4" />
+                                View Progress
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </Card>
           </TabsContent>
 
           {/* Analytics Tab */}
@@ -1142,7 +1145,6 @@ const [loading, setLoading] = useState(true);
           </TabsContent>
         </Tabs>
       </main>
-
       {/* Create Course Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
@@ -1269,132 +1271,227 @@ const [loading, setLoading] = useState(true);
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
       {/* Create Challenge Dialog */}
-     <Dialog open={isCreateChallengeOpen} onOpenChange={setIsCreateChallengeOpen}>
-  <DialogContent className="sm:max-w-[500px]">
-    <DialogHeader>
-      <DialogTitle>Create New Challenge</DialogTitle>
-      <DialogDescription>
-        Fill in the challenge details below.
-      </DialogDescription>
-    </DialogHeader>
-
-    <div className="grid gap-4 py-4">
-      {/* Title */}
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="challenge-title" className="text-right">
-          Title
-        </Label>
-        <Input
-          id="challenge-title"
-          placeholder="Challenge title"
-          value={challengeData.title}
-          onChange={(e) =>
-            setChallengeData({ ...challengeData, title: e.target.value })
-          }
-          className="col-span-3"
-        />
-      </div>
-
-      {/* Description */}
-      <div className="grid grid-cols-4 items-start gap-4">
-        <Label htmlFor="challenge-description" className="text-right">
-          Description
-        </Label>
-        <Textarea
-          id="challenge-description"
-          placeholder="Challenge description"
-          value={challengeData.description}
-          onChange={(e) =>
-            setChallengeData({
-              ...challengeData,
-              description: e.target.value,
-            })
-          }
-          className="col-span-3"
-        />
-      </div>
-
-      {/* Course */}
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="challenge-course" className="text-right">
-          Course
-        </Label>
-        <Select
-          onValueChange={(val) =>
-            setChallengeData({ ...challengeData, course: val })
-          }
-        >
-          <SelectTrigger className="col-span-3">
-            <SelectValue placeholder="Select course" />
-          </SelectTrigger>
-          <SelectContent>
-            {context.courses.map((course) => (
-              <SelectItem key={course._id} value={course._id.toString()}>
-                {course.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Status */}
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="challenge-status" className="text-right">
-          Status
-        </Label>
-        <Select
-          onValueChange={(val) =>
-            setChallengeData({ ...challengeData, status: val })
-          }
-        >
-          <SelectTrigger className="col-span-3">
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="archived">Archived</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Difficulty */}
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="challenge-difficulty" className="text-right">
-          Difficulty
-        </Label>
-        <Select
-          onValueChange={(val) =>
-            setChallengeData({ ...challengeData, difficulty: val })
-          }
-        >
-          <SelectTrigger className="col-span-3">
-            <SelectValue placeholder="Select difficulty" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="easy">Easy</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="hard">Hard</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-
-    <DialogFooter>
-      <Button
-        onClick={handleSaveChallenge}
-        disabled={!challengeData.title || !challengeData.course}
+      <Dialog
+        open={isCreateChallengeOpen}
+        onOpenChange={setIsCreateChallengeOpen}
       >
-        Create Challenge
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Create New Challenge</DialogTitle>
+            <DialogDescription>
+              Fill in the challenge details below.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            {/* Title */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="challenge-title" className="text-right">
+                Title
+              </Label>
+              <Input
+                id="challenge-title"
+                placeholder="Challenge title"
+                value={challengeData.title}
+                onChange={(e) =>
+                  setChallengeData({ ...challengeData, title: e.target.value })
+                }
+                className="col-span-3"
+              />
+            </div>
+
+            {/* Description */}
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="challenge-description" className="text-right">
+                Description
+              </Label>
+              <Textarea
+                id="challenge-description"
+                placeholder="Challenge description"
+                value={challengeData.description}
+                onChange={(e) =>
+                  setChallengeData({
+                    ...challengeData,
+                    description: e.target.value,
+                  })
+                }
+                className="col-span-3"
+              />
+            </div>
+
+            {/* Course */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="challenge-course" className="text-right">
+                Course
+              </Label>
+              <Select
+                onValueChange={(val) =>
+                  setChallengeData({ ...challengeData, course: val })
+                }
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select course" />
+                </SelectTrigger>
+                <SelectContent>
+                  {context.courses.map((course) => (
+                    <SelectItem key={course._id} value={course._id.toString()}>
+                      {course.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Status */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="challenge-status" className="text-right">
+                Status
+              </Label>
+              <Select
+                onValueChange={(val) =>
+                  setChallengeData({ ...challengeData, status: val })
+                }
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Difficulty */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="challenge-difficulty" className="text-right">
+                Difficulty
+              </Label>
+              <Select
+                onValueChange={(val) =>
+                  setChallengeData({ ...challengeData, difficulty: val })
+                }
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={handleSaveChallenge}
+              disabled={!challengeData.title || !challengeData.course}
+            >
+              Create Challenge
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* // progress card */}
+     
 
     </div>
   );
 }
+
+//  <Dialog open={false} onOpenChange={true}>
+//         <DialogContent className="sm:max-w-[500px] rounded-2xl shadow-lg">
+//           <DialogHeader>
+//             <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+//               <User className="h-5 w-5 text-blue-600" />
+//               Student Progress
+//             </DialogTitle>
+//           </DialogHeader>
+
+//           <Card className="rounded-2xl border shadow-md">
+//             <CardContent className="p-6 space-y-5">
+//               {/* Student Info */}
+//               <div className="flex items-center justify-between">
+//                 <div>
+//                   <h2 className="text-lg font-bold text-gray-900">
+//                     {student?.name || "John Doe"}
+//                   </h2>
+//                   <p className="text-sm text-gray-500">
+//                     {student?.email || "student@email.com"}
+//                   </p>
+//                 </div>
+//                 <Badge variant="outline" className="capitalize">
+//                   {student?.status || "active"}
+//                 </Badge>
+//               </div>
+
+//               {/* Course Info */}
+//               <div className="flex items-center gap-2 text-gray-700">
+//                 <BookOpen className="h-5 w-5 text-indigo-600" />
+//                 <span className="font-medium">
+//                   {student?.course || "Mathematics"}
+//                 </span>
+//               </div>
+
+//               {/* Progress Bar */}
+//               <div>
+//                 <div className="flex justify-between mb-1">
+//                   <span className="text-sm font-medium text-gray-700">
+//                     Progress
+//                   </span>
+//                   <span className="text-sm text-gray-600">
+//                     {student?.progress || 0}%
+//                   </span>
+//                 </div>
+//                 <Progress value={student?.progress || 0} className="h-2" />
+//               </div>
+
+//               {/* Extra Info */}
+//               <div className="flex justify-between text-sm text-gray-600">
+//                 <div className="flex items-center gap-1">
+//                   <CheckCircle className="h-4 w-4 text-green-600" />
+//                   Completed: {student?.completedModules || 0}
+//                 </div>
+//                 <div className="flex items-center gap-1">
+//                   <Clock className="h-4 w-4 text-yellow-600" />
+//                   Pending: {student?.pendingModules || 0}
+//                 </div>
+//               </div>
+
+//               {/* Points */}
+//               <div className="flex items-center gap-2 text-lg font-semibold text-gray-800">
+//                 <Star className="h-5 w-5 text-yellow-500" />
+//                 Points: {student?.points || 0}
+//               </div>
+
+//               {/* Achievements */}
+//               <div>
+//                 <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+//                   <Award className="h-4 w-4 text-purple-600" /> Achievements
+//                 </h3>
+//                 <div className="flex flex-wrap gap-2">
+//                   {student?.achievements && student.achievements.length > 0 ? (
+//                     student.achievements.map((ach, index) => (
+//                       <Badge
+//                         key={index}
+//                         className="bg-purple-100 text-purple-700"
+//                       >
+//                         {ach}
+//                       </Badge>
+//                     ))
+//                   ) : (
+//                     <p className="text-xs text-gray-500">No achievements yet</p>
+//                   )}
+//                 </div>
+//               </div>
+//             </CardContent>
+//           </Card>
+//         </DialogContent>
+//       </Dialog>
