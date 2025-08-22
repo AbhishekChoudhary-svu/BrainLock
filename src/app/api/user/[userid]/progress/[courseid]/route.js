@@ -5,10 +5,11 @@ import Course from "@/models/course.model";
 export async function PUT(req, { params }) {
   await dbConnect();
 
-  const { userid, courseid } = params; // ✅ lowercase folder params
+  const { userid, courseid } = params;
+  const { subtopicId } = await req.json(); // subtopicId from frontend
 
   try {
-    // 1. Get course and total subtopics
+    // 1. Get course with subtopics
     const course = await Course.findById(courseid).populate("subtopics");
     if (!course) {
       return new Response(
@@ -16,8 +17,6 @@ export async function PUT(req, { params }) {
         { status: 404, headers: { "Content-Type": "application/json" } }
       );
     }
-
-    const totalSubtopics = course.subtopics.length;
 
     // 2. Find user
     const user = await User.findById(userid);
@@ -28,7 +27,7 @@ export async function PUT(req, { params }) {
       );
     }
 
-    // 3. Find enrolled course entry
+    // 3. Find enrolled course
     const userCourse = user.courses.find(
       (c) => String(c.courseId) === String(courseid)
     );
@@ -40,15 +39,44 @@ export async function PUT(req, { params }) {
       );
     }
 
-    // 4. Update progress → (completedSubtopics / totalSubtopics) * 100
-    userCourse.progress = Math.min(
-      userCourse.progress + 50 / totalSubtopics,
-      100
-    );
+    // 4. Ensure arrays exist
+    if (!userCourse.completedSubtopics) userCourse.completedSubtopics = [];
 
-    // Update status
-    userCourse.status =
-      userCourse.progress >= 100 ? "completed" : "active";
+    // 5. Prevent duplicate
+    if (userCourse.completedSubtopics.includes(subtopicId)) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: "Subtopic already completed",
+          progress: userCourse.progress,
+          status: userCourse.status,
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // 6. Mark subtopic completed
+    userCourse.completedSubtopics.push(subtopicId);
+
+    // 7. Calculate subtopic-based progress
+    const totalSubtopics = course.subtopics.length || 1;
+    const completedSubtopics = userCourse.completedSubtopics.length;
+
+    const subtopicProgress = Math.min((completedSubtopics / totalSubtopics) * 25, 50);
+
+    // Keep challenge progress (if any)
+    const challengeProgress = userCourse.progress > 50 ? userCourse.progress - 50 : 0;
+
+    userCourse.progress = Math.min(subtopicProgress + challengeProgress, 100);
+
+    // 8. Update status
+    if (userCourse.progress >= 100) {
+      userCourse.status = "completed";
+    } else if (userCourse.progress >= 50) {
+      userCourse.status = "half-completed";
+    } else {
+      userCourse.status = "active";
+    }
 
     await user.save();
 

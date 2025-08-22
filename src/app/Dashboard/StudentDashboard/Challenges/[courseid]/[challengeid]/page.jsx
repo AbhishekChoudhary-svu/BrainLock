@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Brain, CheckCircle, XCircle, ChevronRight, ChevronLeft, Award, AlertCircle } from "lucide-react"
 import MyContext from "@/context/ThemeProvider"
+import { toast } from "sonner"
 
 
 
@@ -78,28 +79,51 @@ const questions = challenge?.mcqs || [];
     }
   }
 
-   const handleSubmitQuiz = () => {
-    let newScore = 0
-    let newCorrectCount = 0
-    let newIncorrectCount = 0
+  const handleSubmitQuiz = async () => {
+  let newScore = 0;
+  let newCorrectCount = 0;
+  let newIncorrectCount = 0;
+  const pointsPerQuestion = 5; // Each question worth 5 points
 
-    questions.forEach((q) => {
-      const selected = selectedAnswers[q._id]
-      const correctOption = q.options.find(opt => opt.isCorrect)
+  questions.forEach((q) => {
+    const selected = selectedAnswers[q._id];
+    const correctOption = q.options.find(opt => opt.isCorrect);
 
-      if (selected === correctOption?.text) {
-        newScore += 1
-        newCorrectCount += 1
-      } else {
-        newIncorrectCount += 1
-      }
-    })
+    if (selected === correctOption?.text) {
+      newScore += pointsPerQuestion; // Add 5 points for correct answer
+      newCorrectCount += 1;
+    } else {
+      newIncorrectCount += 1;
+    }
+  });
 
-    setScore(newScore)
-    setCorrectCount(newCorrectCount)
-    setIncorrectCount(newIncorrectCount)
-    setShowResults(true)
+  setScore(newScore);
+  setCorrectCount(newCorrectCount);
+  setIncorrectCount(newIncorrectCount);
+  setShowResults(true);
+
+  // Call the API to update user score
+  try {
+    const res = await fetch(`/api/user/${context.user._id}/challenge/${challenge._id}/score`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ score: newScore }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      toast.success(`Challenge completed! Score: ${newScore} points. Progress: ${data.progress.toFixed(1)}%`);
+      context.fetchProfile();
+    } else {
+      toast.error(data.message || "Failed to update score");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Server error. Score not saved.");
   }
+};
+
+
 
 
   return (
@@ -147,7 +171,7 @@ const questions = challenge?.mcqs || [];
                 <Award className="h-20 w-20 text-yellow-500 mx-auto" />
                 <h3 className="text-3xl font-bold text-gray-900">Challenge Completed!</h3>
                 <p className="text-xl text-gray-700">
-                  You scored {score} out of {totalQuestions}!
+                  You scored {score} out of {totalQuestions * 5}!
                 </p>
                 <div className="flex justify-center gap-8 text-lg font-semibold">
                   <div className="flex items-center gap-2 text-green-600">

@@ -8,7 +8,7 @@ const courseSchema = new mongoose.Schema(
     price: { type: Number, default: 0, min: 0 },
     instructor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Users",
+      ref: "User",
     },
     published: { type: Boolean, default: false },
     subtopics: [
@@ -20,7 +20,7 @@ const courseSchema = new mongoose.Schema(
     studentsEnrolled: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Users",
+        ref: "User",
       },
     ],
     challenges: [

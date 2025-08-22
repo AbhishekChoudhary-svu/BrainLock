@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Brain, Search, Filter, ChevronRight, AlertCircle } from "lucide-react"
 import { useContext, useEffect, useState } from "react"
 import MyContext from "@/context/ThemeProvider"
+import { toast } from "sonner"
 
 // Mock data for challenges
 const mockChallenges = [
@@ -108,12 +109,14 @@ const getDifficultyColor = (difficulty) => {
 }
 
 export default function SubjectChallengesPage() {
+  const router = useRouter()
   const context = useContext(MyContext)
   const params = useParams()
   const { courseid } = params
 
   useEffect(()=>{
     context.fetchCourses();
+    context.fetchProfile()
   },[])
 
 
@@ -138,6 +141,36 @@ const challengesForSubject = course?.challenges || [];
     const matchesStatus = filterStatus === "all" || challenge.status.toLowerCase() === filterStatus
     return matchesSearch && matchesDifficulty && matchesStatus
   })
+
+const handleStartChallenge = async (challenge) => {
+  try {
+    const res = await fetch(
+      `/api/user/${context?.user?._id}/challenge/${challenge._id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      // Update local challenge status
+      challenge.status = "active";
+      toast.success("Challenge started successfully!");
+      // Optionally refetch profile or challenges
+      context.fetchProfile();
+      router.push(`/Dashboard/StudentDashboard/Challenges/${courseid}/${challenge._id}`);
+
+    } else {
+      toast.error(data.message || "Failed to start challenge");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to start challenge");
+  }
+};
+
 
 
   if (challengesForSubject.length === 0) {
@@ -225,7 +258,7 @@ const challengesForSubject = course?.challenges || [];
           {filteredChallenges.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredChallenges.map((challenge) => (
-                <Card key={challenge.id} className="hover:shadow-lg transition-shadow">
+                <Card key={challenge._id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg">{challenge.title}</CardTitle>
@@ -240,7 +273,7 @@ const challengesForSubject = course?.challenges || [];
                     </div>
                     <div className="flex justify-between items-center">
                       <Badge variant="secondary">+{challenge.points || 50} pts</Badge>
-                      <Link href={`/Dashboard/StudentDashboard/Challenges/${courseid}/${challenge._id}`}>
+                      <Link href="" onClick={()=>handleStartChallenge(challenge)}>
                         <Button size="sm" disabled={challenge.status === "completed"}>
                           {challenge.status === "completed" ? "Completed" : "Start Challenge"}
                           {challenge.status !== "completed" && <ChevronRight className="ml-1 h-4 w-4" />}

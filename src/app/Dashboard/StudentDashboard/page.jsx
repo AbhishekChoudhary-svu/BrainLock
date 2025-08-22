@@ -480,7 +480,7 @@ const continueCourse = async (course) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">
-                {context?.user?.points.toLocaleString()}
+                {context?.user?.points?.toLocaleString()}
               </div>
               <p className="text-xs text-gray-600">+150 this week</p>
             </CardContent>

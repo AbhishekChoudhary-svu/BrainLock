@@ -255,9 +255,16 @@ export default function SubjectCoursePage() {
                               `/api/user/${context?.user?._id}/progress/${course?._id}`,
                               {
                                 method: "PUT",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                  subtopicId: subtopic._id, // ✅ pass the clicked subtopic id
+                                }),
                               }
                             );
-                            context.fetchProfile(); 
+
+                            context.fetchProfile();
                           }}
                           size="sm"
                         >

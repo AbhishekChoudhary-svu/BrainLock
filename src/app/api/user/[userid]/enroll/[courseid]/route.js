@@ -30,7 +30,7 @@ export async function PUT(req, { params }) {
     if (courseIndex !== -1) {
       // Update progress
       user.courses[courseIndex].progress = Math.min(
-        (user.courses[courseIndex].progress || 0) + 5,
+        (user.courses[courseIndex].progress || 0) + 0,
         100
       );
       user.courses[courseIndex].enrolledAt = new Date();

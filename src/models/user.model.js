@@ -41,6 +41,8 @@ const userSchema = new mongoose.Schema(
         courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },
         enrolledAt: { type: Date, default: Date.now },
         progress: { type: Number, default: 0 },
+        completedSubtopics: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subtopic" }],
+         completedChallenges: [{ type: mongoose.Schema.Types.ObjectId, ref: "SubjectChallenge" }],
         status: {
           type: String,
           enum: ["active", "inactive", "completed"],
@@ -52,7 +54,7 @@ const userSchema = new mongoose.Schema(
     // --- CHALLENGES ---
     challenges: [
       {
-        challengeId: { type: mongoose.Schema.Types.ObjectId, ref: "Challenge" },
+        challengeId: { type: mongoose.Schema.Types.ObjectId, ref: "SubjectChallenge" },
         status: {
           type: String,
           enum: ["active", "completed", "failed"],
@@ -96,5 +98,5 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.models.Users || mongoose.model("Users", userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 export default User;
