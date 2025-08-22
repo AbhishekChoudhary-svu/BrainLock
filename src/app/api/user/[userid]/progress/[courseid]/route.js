@@ -5,7 +5,7 @@ import Course from "@/models/course.model";
 export async function PUT(req, { params }) {
   await dbConnect();
 
-  const { userid, courseid } = params;
+  const { userid, courseid } = await params;
   const { subtopicId } = await req.json();
 
   try {
@@ -37,7 +37,7 @@ export async function PUT(req, { params }) {
         JSON.stringify({ success: false, message: "User not enrolled in this course" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
-    }
+    } 
 
     // 4. Ensure arrays exist
     if (!userCourse.completedSubtopics) userCourse.completedSubtopics = [];
@@ -48,8 +48,6 @@ export async function PUT(req, { params }) {
         JSON.stringify({
           success: false,
           message: "Subtopic already completed",
-          progress: userCourse.progress,
-          status: userCourse.status,
         }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       );
@@ -58,26 +56,22 @@ export async function PUT(req, { params }) {
     // 6. Mark subtopic completed
     userCourse.completedSubtopics.push(subtopicId);
 
-    // 7. Calculate subtopic-based progress
+    const totalChallenges = course.challenges.length || 1;
+    const completedChallenges = userCourse.completedChallenges.length || 0;
+
+    // Recalculate total progress
     const totalSubtopics = course.subtopics.length || 1;
-    const completedSubtopics = userCourse.completedSubtopics.length;
+    const completedSubtopics = userCourse.completedSubtopics?.length || 0;
 
-    // Each subtopic worth (25 / totalSubtopics) percent
-    const subtopicProgress = Math.min(
-      (completedSubtopics / totalSubtopics) * 25,
-      25
-    );
+    const subtopicProgress = (completedSubtopics / totalSubtopics) * 25;
+    const challengeProgress = (completedChallenges / totalChallenges) * 25;
 
-    // Keep other progress (e.g., challenges)
-    const otherProgress = userCourse.progress > 25 ? userCourse.progress - 25 : 0;
-
-    userCourse.progress = Math.min(subtopicProgress + otherProgress, 100);
+    userCourse.progress = Math.min(subtopicProgress + challengeProgress, 100);
+    
 
     // 8. Update status
     if (userCourse.progress >= 100) {
       userCourse.status = "completed";
-    } else if (userCourse.progress >= 50) {
-      userCourse.status = "half-completed";
     } else {
       userCourse.status = "active";
     }
@@ -96,7 +90,7 @@ export async function PUT(req, { params }) {
   } catch (error) {
     console.error("❌ API error:", error);
     return new Response(
-      JSON.stringify({ success: false, message: "Server error" }),
+      JSON.stringify({ success: false, message: error.message }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

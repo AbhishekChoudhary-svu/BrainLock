@@ -6,7 +6,7 @@ import { generateEnrollmentNumber } from "@/utils/generateEnrollmentNumber";
 export async function PUT(req, { params }) {
   await dbConnect();
 
-  const { userid, courseid } = params; // ✅ lowercase because folder names are lowercase
+  const { userid, courseid } = await params; 
 
   try {
     const user = await User.findById(userid);

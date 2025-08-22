@@ -5,7 +5,7 @@ import SubjectChallenge from "@/models/subjectChallenge.model";
 
 export async function PUT(req, { params }) {
   await dbConnect();
-  const { userid, challengeid } = params;
+  const { userid, challengeid } = await params;
   const { score } = await req.json();
 
   try {

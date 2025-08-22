@@ -72,7 +72,7 @@ const userSchema = new mongoose.Schema(
     avgScore: { type: Number, default: 0 },
     classRank: { type: Number, default: 0 },
     streaks: { type: Number, default: 1 },
-lastActive: { type: Date, default: null },
+    lastActive: { type: Date, default: null },
 
     address: { type: String, default: "N/A" },
     dateOfBirth: { type: Date, default: "1990-01-01" },
