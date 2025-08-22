@@ -70,8 +70,9 @@ const userSchema = new mongoose.Schema(
 
     points: { type: Number, default: 0 },
     avgScore: { type: Number, default: 0 },
-    streaks: { type: Number, default: 0 },
     classRank: { type: Number, default: 0 },
+    streaks: { type: Number, default: 1 },
+lastActive: { type: Date, default: null },
 
     address: { type: String, default: "N/A" },
     dateOfBirth: { type: Date, default: "1990-01-01" },
@@ -98,5 +99,5 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.models.User || mongoose.model("User", userSchema);
+const User = mongoose.models.Users || mongoose.model("Users", userSchema);
 export default User;

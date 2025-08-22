@@ -6,7 +6,7 @@ export async function PUT(req, { params }) {
   await dbConnect();
 
   const { userid, courseid } = params;
-  const { subtopicId } = await req.json(); // subtopicId from frontend
+  const { subtopicId } = await req.json();
 
   try {
     // 1. Get course with subtopics
@@ -62,12 +62,16 @@ export async function PUT(req, { params }) {
     const totalSubtopics = course.subtopics.length || 1;
     const completedSubtopics = userCourse.completedSubtopics.length;
 
-    const subtopicProgress = Math.min((completedSubtopics / totalSubtopics) * 25, 50);
+    // Each subtopic worth (25 / totalSubtopics) percent
+    const subtopicProgress = Math.min(
+      (completedSubtopics / totalSubtopics) * 25,
+      25
+    );
 
-    // Keep challenge progress (if any)
-    const challengeProgress = userCourse.progress > 50 ? userCourse.progress - 50 : 0;
+    // Keep other progress (e.g., challenges)
+    const otherProgress = userCourse.progress > 25 ? userCourse.progress - 25 : 0;
 
-    userCourse.progress = Math.min(subtopicProgress + challengeProgress, 100);
+    userCourse.progress = Math.min(subtopicProgress + otherProgress, 100);
 
     // 8. Update status
     if (userCourse.progress >= 100) {

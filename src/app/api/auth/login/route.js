@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { generateAccessToken } from "@/utils/generatedAccessToken";
 import { generateRefreshToken } from "@/utils/generatedRefreshToken";
 import { cookies } from "next/headers";
+import { updateDailyStreak } from "@/lib/streakService"; 
 
 export async function POST(req) {
   try {
@@ -42,6 +43,9 @@ export async function POST(req) {
         { status: 403 }
       );
     }
+
+    const streak = await updateDailyStreak(user._id);
+
 
     // Generate tokens
     const accessToken = generateAccessToken(user._id);

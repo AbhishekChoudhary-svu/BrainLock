@@ -36,7 +36,7 @@ async function handler1(req, userId) {
     if (req.method === "PUT") {
       const body = await req.json();
 
-      // 1️⃣ Find user first
+      
       const user = await User.findById(userId).select("-password");
       if (!user) {
         return new Response(
@@ -57,10 +57,10 @@ async function handler1(req, userId) {
       user.subjects = body.subjects ?? user.subjects;
       user.bio = body.bio ?? user.bio;
 
-      // 3️⃣ Save updated user
+     
       const updatedUser = await user.save();
 
-      // 4️⃣ Return response
+     
       return new Response(
         JSON.stringify({ success: true, user: updatedUser }),
         { status: 200, headers: { "Content-Type": "application/json" } }
