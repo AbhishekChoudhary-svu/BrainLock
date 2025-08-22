@@ -2,53 +2,27 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: {
-      type: String,
-      required: [true, "Please enter your first name"],
-      trim: true,
-    },
-    lastName: {
-      type: String,
-      required: [true, "Please enter your last name"],
-      trim: true,
-    },
-    phoneNumber: {
-      type: String,
-      required: [true, "Please enter your phone number"],
-      trim: true,
-    },
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
+    phoneNumber: { type: String, required: true, trim: true },
     email: {
       type: String,
-      required: [true, "Please enter your email"],
+      required: true,
       unique: true,
       lowercase: true,
       trim: true,
     },
-    password: {
-      type: String,
-      required: [true, "Please create a password"],
-      minlength: [8, "Password must be at least 8 characters"],
-    },
+    password: { type: String, required: true, minlength: 8 },
+
     role: {
       type: String,
       enum: ["student", "teacher", "admin"],
       default: "student",
     },
-    
 
-    // Email verification
-    emailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    otp: {
-      type: String,
-      default: null,
-    },
-    otpExpires: {
-      type: Date,
-      default: null,
-    },
+    emailVerified: { type: Boolean, default: false },
+    otp: { type: String, default: null },
+    otpExpires: { type: Date, default: null },
 
     status: {
       type: String,
@@ -56,101 +30,71 @@ const userSchema = new mongoose.Schema(
       default: "active",
     },
 
-     // Auth tokens
-    access_token: {
-      type: String,
-      default: null,
-    },
-    refresh_token: {
-      type: String,
-      default: null,
-    },
+    access_token: { type: String, default: null },
+    refresh_token: { type: String, default: null },
 
-    enrollmentNumber: {
-      type: String,
-      unique: true,
-      sparse: true, // only required for students
-    },
+    enrollmentNumber: { type: String, unique: true, sparse: true },
+
+    // --- COURSES ---
     courses: [
       {
-        courseId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Course", // Assuming you have a Course model
-        },
-        enrolledAt: {
-          type: Date,
-          default: Date.now,
-        },
-        progress: {
-          type: Number, 
-          default: 0,
+        courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },
+        enrolledAt: { type: Date, default: Date.now },
+        progress: { type: Number, default: 0 },
+        status: {
+          type: String,
+          enum: ["active", "inactive", "completed"],
+          default: "inactive",
         },
       },
     ],
 
-    points: {
-      type: Number,
-      default: 0,
-    },
-    avgScore: {
-      type: Number,
-      default: 0,
-    },
-    streaks: {
-      type: Number,
-      default: 0,
-    },
-    classRank: {
-      type: Number,
-      default: 0,
-    },
+    // --- CHALLENGES ---
+    challenges: [
+      {
+        challengeId: { type: mongoose.Schema.Types.ObjectId, ref: "Challenge" },
+        status: {
+          type: String,
+          enum: ["active", "completed", "failed"],
+          default: "active",
+        },
+        progress: { type: Number, default: 0 }, // percentage
+        score: { type: Number, default: 0 }, // points earned
+        attempts: { type: Number, default: 0 },
+        startedAt: { type: Date, default: Date.now },
+        completedAt: { type: Date, default: null },
+      },
+    ],
 
+    points: { type: Number, default: 0 },
+    avgScore: { type: Number, default: 0 },
+    streaks: { type: Number, default: 0 },
+    classRank: { type: Number, default: 0 },
 
-    // Profile extras
-    address: {
-      type: String,
-      default: "N/A",
-    },
-    dateOfBirth: {
-      type: Date,
-      default: "1990-01-01",
-    },
-    department: {
-      type: String,
-      default: "General",
-    },
-    bio: {
-      type: String,
-      default: "No bio provided.",
-    },
-    qualifications: {
-      type: String,
-      default: "",
-    },
+    address: { type: String, default: "N/A" },
+    dateOfBirth: { type: Date, default: "1990-01-01" },
+    department: { type: String, default: "General" },
+    bio: { type: String, default: "No bio provided." },
+    qualifications: { type: String, default: "" },
+
     achievements: [
-  {
-    title: { type: String, required: true },
-    description: { type: String },
-    badge: { type: String }, // e.g. image/icon url
-    earnedAt: { type: Date, default: Date.now },
-    points: { type: Number, default: 0 }, // reward points
-  }
-],
+      {
+        title: { type: String, required: true },
+        description: { type: String },
+        badge: { type: String },
+        earnedAt: { type: Date, default: Date.now },
+        points: { type: Number, default: 0 },
+      },
+    ],
 
-      progressSummary: {
-  percentage: { type: Number, default: 0 }, 
-  completedModules: { type: Number, default: 0 },
-  pendingModules: { type: Number, default: 0 },
-}
-
-
-
+    progressSummary: {
+      percentage: { type: Number, default: 0 },
+      completedModules: { type: Number, default: 0 },
+      pendingModules: { type: Number, default: 0 },
+    },
   },
   { timestamps: true }
 );
 
-// Avoid recompiling model in dev mode
-const User = mongoose.models.User || mongoose.model("User", userSchema);
-
+const User = mongoose.models.Users || mongoose.model("Users", userSchema);
 export default User;
- 

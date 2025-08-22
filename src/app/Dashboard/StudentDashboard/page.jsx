@@ -139,6 +139,33 @@ export default function StudentDashboard() {
   };
 
 
+const continueCourse = async (course) => {
+  try {
+    const res = await fetch(`/api/user/${context.user?._id}/enroll/${course._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message);
+
+    toast.success(`You enrolled in ${course.title}`);
+    router.push(`/Dashboard/StudentDashboard/Courses/${course._id}`);
+
+    return data;
+  } catch (err) {
+    console.error("❌ Continue course error:", err);
+    toast.error(err.message || "Something went wrong");
+  }
+};
+
+
+
+
+
+
+
   // const courses = [
   //   {
   //     id: 1,
@@ -322,6 +349,8 @@ export default function StudentDashboard() {
     return () => clearInterval(intervalRef.current);
   }, [studyTimer.isRunning]);
 
+  
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -436,7 +465,7 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-orange-600">
-                {studentData.streak} days
+                {context?.user?.streaks} days
               </div>
               <p className="text-xs text-gray-600">Keep it up!</p>
             </CardContent>
@@ -451,7 +480,7 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">
-                {studentData.totalPoints.toLocaleString()}
+                {context?.user?.points.toLocaleString()}
               </div>
               <p className="text-xs text-gray-600">+150 this week</p>
             </CardContent>
@@ -679,91 +708,103 @@ export default function StudentDashboard() {
           </TabsContent>
 
           {/* Courses Tab */}
-          <TabsContent value="courses" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {context.courses.map((course, idx) => (
-                <Card
-                  key={course._id}
-                  className="hover:shadow-lg transition-shadow"
-                >
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-lg">{course.title}</CardTitle>
-                      <Badge
-                        variant={
-                          course.status === "completed"
-                            ? "default"
-                            : "secondary"
-                        }
-                        className={
-                          course.status === "completed"
-                            ? "bg-green-100 text-green-800"
-                            : ""
-                        }
-                      >
-                        {course.status === "completed" ? "Completed" : "Active"}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Progress</span>
-                        <span>{course.progress || 50}%</span>
-                      </div>
-                      <Progress value={course.progress || 50} className="h-2" />
-                    </div>
+        <TabsContent value="courses" className="space-y-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {context.courses.map((course) => {
+      // Check enrollment in user.courses
+      const userCourse = context?.user?.courses?.find(
+        (uc) => String(uc.courseId) === String(course._id)
+      );
 
-                    <div className="space-y-2">
-                      {course.challenges.length > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">
-                            Next Challenge:
-                          </span>
-                          {/* <Badge
-                          className={getDifficultyColor(course.difficulty)}
-                        >
-                          {course.difficulty}
-                        </Badge> */}
-                          {course.challenges.map((challenge) => {
-                            return (
-                              <p key={challenge._id} className="text-sm font-medium">
-                                {challenge?.title || "No subtopics available"}
-                              </p>
-                            );
-                          })}
-                        </div>
-                      )}
-                      <p className="text-xs font-bold pt-2 text-gray-800">
-                        Due: {course.createdAt.split("T")[0]}
-                      </p>
-                    </div>
+      const isEnrolled = !!userCourse;
+      const status = userCourse?.status || "not-enrolled";
+      const progress = userCourse?.progress || 0;
 
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">
-                        Points: {course.points || 50}
-                      </span>
-                      <Link
-                        href={`/Dashboard/StudentDashboard/Courses/${course._id}`}
-                      >
-                        {" "}
-                        {/* Link to new course page */}
-                        <Button
-                          size="sm"
-                          disabled={course.status === "completed"}
-                        >
-                          {course.status === "completed"
-                            ? "Completed"
-                            : "Continue"}
-                          <ChevronRight className="ml-1 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+      return (
+        <Card key={course._id} className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <CardTitle className="text-lg">{course.title}</CardTitle>
+              <Badge
+                variant={status === "completed" ? "default" : "secondary"}
+                className={
+                  status === "completed"
+                    ? "bg-green-100 text-green-800"
+                    : ""
+                }
+              >
+                {status === "completed"
+                  ? "Completed"
+                  : isEnrolled
+                  ? "Enrolled"
+                  : "Not Enrolled"}
+              </Badge>
             </div>
-          </TabsContent>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Progress</span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+
+            {/* Challenges Preview */}
+            {course.challenges.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Next Challenge:</span>
+                  {course.challenges.map((challenge) => (
+                    <p
+                      key={challenge._id}
+                      className="text-sm font-medium"
+                    >
+                      {challenge?.title || "No subtopics available"}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Footer Section */}
+            <div className="flex justify-between items-center">
+              <p className="text-xs font-bold pt-2 text-gray-800">
+                Due: {userCourse?.enrolledAt?.split("T")[0] || "Not Yet"}
+              </p>
+
+              {/* Action Button */}
+              {status === "completed" ? (
+                <Link href={`/Dashboard/StudentDashboard/Courses/${course._id}`}>
+                  <Button size="sm" >
+                    View Course<ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </Link>
+                // <Button size="sm" disabled>
+                //   Completed
+                // </Button>
+              ) : isEnrolled ? (
+                <Link href={`/Dashboard/StudentDashboard/Courses/${course._id}`}>
+                  <Button size="sm" >
+                    View Course<ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </Link>
+              ) : (
+                <Button size="sm" onClick={() => continueCourse(course)}>
+                  Enroll <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      );
+    })}
+  </div>
+</TabsContent>
+
+
 
           {/* Challenges Tab */}
           <TabsContent value="challenges" className="space-y-6">

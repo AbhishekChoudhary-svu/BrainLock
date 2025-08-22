@@ -44,11 +44,16 @@ export default function SubjectCoursePage() {
 
   useEffect(() => {
     context.fetchCourses();
+    context.fetchProfile();
   }, []);
 
+  const userCourse = context?.user?.courses?.find(
+    (c) => String(c.courseId) === String(courseid)
+  );
 
-  const course = context?.courses?.find(c => String(c._id) === String(courseid));
-
+  const course = context?.courses?.find(
+    (c) => String(c._id) === String(courseid)
+  );
 
   // Subtopics for this course
   const challengesForSubject = course?.subtopics || [];
@@ -115,9 +120,9 @@ export default function SubjectCoursePage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Progress</span>
-                  <span>{course.progress || 50}%</span>
+                  <span>{userCourse?.progress}%</span>
                 </div>
-                <Progress value={course.progress || 50} className="h-2" />
+                <Progress value={userCourse?.progress} className="h-2" />
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
@@ -137,13 +142,15 @@ export default function SubjectCoursePage() {
                 </div>
                 <div>
                   <p className="text-gray-600">Difficulty</p>
-                  <Badge className={getDifficultyColor(course.difficulty || "Hard")}>
+                  <Badge
+                    className={getDifficultyColor(course.difficulty || "Hard")}
+                  >
                     {course.difficulty || "Hard"}
                   </Badge>
                 </div>
                 <div>
                   <p className="text-gray-600">Points Earned</p>
-                  <p className="font-semibold">{course.points || 50}</p>
+                  <p className="font-semibold">{userCourse?.points || 50}</p>
                 </div>
                 <div>
                   <p className="text-gray-600">Next Challenge</p>
@@ -216,7 +223,9 @@ export default function SubjectCoursePage() {
                         {subtopic.title}
                       </CardTitle>
                       <Badge
-                        className={getDifficultyColor(subtopic.difficulty) || "Hard"}
+                        className={
+                          getDifficultyColor(subtopic.difficulty) || "Hard"
+                        }
                       >
                         {subtopic.difficulty || "Hard"}
                       </Badge>
@@ -229,17 +238,29 @@ export default function SubjectCoursePage() {
                         ⏱️ {subtopic.estimatedTime || "4 Days"}
                       </span>
                       <span className="text-gray-500">
-                        📅 Due: {subtopic.dueDate || subtopic.updatedAt.split("T")[0]}
+                        📅 Due:{" "}
+                        {subtopic.dueDate || subtopic.updatedAt.split("T")[0]}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <Badge variant="secondary">+{subtopic.points || 50} pts</Badge>
+                      <Badge variant="secondary">
+                        +{subtopic.points || 50} pts
+                      </Badge>
                       <Link
-                        href={`/Dashboard/StudentDashboard/Courses/${
-                          course._id
-                        }/Subtopics/${subtopic._id}`}
+                        href={`/Dashboard/StudentDashboard/Courses/${course._id}/Subtopics/${subtopic._id}`}
                       >
-                        <Button size="sm">
+                        <Button
+                          onClick={async () => {
+                            await fetch(
+                              `/api/user/${context?.user?._id}/progress/${course?._id}`,
+                              {
+                                method: "PUT",
+                              }
+                            );
+                            context.fetchProfile(); 
+                          }}
+                          size="sm"
+                        >
                           Open Theory
                           <ChevronRight className="ml-1 h-4 w-4" />
                         </Button>
