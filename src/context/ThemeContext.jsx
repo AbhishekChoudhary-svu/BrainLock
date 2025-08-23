@@ -11,6 +11,8 @@ const ThemeProvider = ({ children }) => {
   const [challenges, setChallenges] = useState([]);
   const [user, setUser] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+
   
   const [loading, setLoading] = useState(true);
 
@@ -79,6 +81,19 @@ const ThemeProvider = ({ children }) => {
     setLoading(false);
   }
   }
+  async function fetchLeaderboard() {
+      const res = await fetch("/api/leaderboard/classRank");
+      const data = await res.json();
+      if (data.success) {
+        const formatted = data.leaderboard.map((student) => ({
+          ...student,
+          rank: student.classRank,
+          isCurrentUser: student._id === user._id,
+        }));
+        setLeaderboard(formatted);
+      }
+    }
+
 
 
 
@@ -95,6 +110,10 @@ const ThemeProvider = ({ children }) => {
     user, 
     setUser,
     fetchProfile,
+    leaderboard, 
+    setLeaderboard,
+    fetchLeaderboard
+
 
   };
 

@@ -69,6 +69,7 @@ export default function StudentDashboard() {
   useEffect(() => {
     context.fetchCourses();
     context.fetchProfile();
+    context.fetchLeaderboard()
   }, []);
 
   const [input, setInput] = useState("");
@@ -138,33 +139,29 @@ export default function StudentDashboard() {
     activeCourses: 2,
   };
 
+  const continueCourse = async (course) => {
+    try {
+      const res = await fetch(
+        `/api/user/${context.user?._id}/enroll/${course._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
-const continueCourse = async (course) => {
-  try {
-    const res = await fetch(`/api/user/${context.user?._id}/enroll/${course._id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-    });
+      const data = await res.json();
 
-    const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
 
-    if (!res.ok) throw new Error(data.message);
+      toast.success(`You enrolled in ${course.title}`);
+      router.push(`/Dashboard/StudentDashboard/Courses/${course._id}`);
 
-    toast.success(`You enrolled in ${course.title}`);
-    router.push(`/Dashboard/StudentDashboard/Courses/${course._id}`);
-
-    return data;
-  } catch (err) {
-    console.error("❌ Continue course error:", err);
-    toast.error(err.message || "Something went wrong");
-  }
-};
-
-
-
-
-
-
+      return data;
+    } catch (err) {
+      console.error("❌ Continue course error:", err);
+      toast.error(err.message || "Something went wrong");
+    }
+  };
 
   // const courses = [
   //   {
@@ -278,7 +275,6 @@ const continueCourse = async (course) => {
     },
   ];
 
-
   const getDifficultyColor = (difficulty) => {
     switch (difficulty.toLowerCase()) {
       case "easy":
@@ -305,7 +301,7 @@ const continueCourse = async (course) => {
     }
   };
 
-   const [studyTimer, setStudyTimer] = useState({
+  const [studyTimer, setStudyTimer] = useState({
     minutes: 25, // Default Pomodoro session
     seconds: 0,
     isRunning: false,
@@ -349,7 +345,25 @@ const continueCourse = async (course) => {
     return () => clearInterval(intervalRef.current);
   }, [studyTimer.isRunning]);
 
-  
+  const enrolledCourses =
+  context?.user?.courses
+    ?.filter((c) => c.status === "active")
+    ?.map((c) => {
+      const courseDetails = context?.courses?.find(
+        (course) => String(course._id) === String(c.courseId) // force both to string
+      );
+      return {
+        ...c,
+        course: courseDetails || null, // attach full course details
+      };
+    }) || [];
+
+
+
+  useEffect(()=>{
+    
+  },[context.courses])
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -394,7 +408,9 @@ const continueCourse = async (course) => {
                       <p className="text-sm font-medium">
                         {context.user?.firstName} {context.user?.lastName}
                       </p>
-                      <p className="text-xs text-gray-500">{context.user?.email}</p>
+                      <p className="text-xs text-gray-500">
+                        {context.user?.email}
+                      </p>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
@@ -482,7 +498,9 @@ const continueCourse = async (course) => {
               <div className="text-2xl font-bold text-yellow-600">
                 {context?.user?.points?.toLocaleString()}
               </div>
-              <p className="text-xs text-gray-600">+150 this week</p>
+              <p className="text-xs text-gray-600">
+                +{context?.user?.points?.toLocaleString()} this week
+              </p>
             </CardContent>
           </Card>
 
@@ -508,10 +526,12 @@ const continueCourse = async (course) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">
-                {studentData.activeCourses}
+                {context.user?.courses?.length}
               </div>
               <p className="text-xs text-gray-600">
-                {studentData.completedCourses} completed
+                {context?.user?.courses?.filter((c) => c.status === "completed")
+                  .length || 0}{" "}
+                completed
               </p>
             </CardContent>
           </Card>
@@ -533,40 +553,46 @@ const continueCourse = async (course) => {
               {/* Left Column */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Current Progress */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <TrendingUp className="h-5 w-5 text-green-600" />
-                      <span>Current Progress</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {context.courses
-                      .filter((course) => course.status === "active")
-                      .map((course) => (
-                        <div key={course._id} className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <h4 className="font-medium">{course.title}</h4>
-                            {/* <Badge
-                              className={getDifficultyColor(course.difficulty) || ""}
-                            >
-                              {course.difficulty || ""}
-                            </Badge> */}
-                          </div>
-                          <Progress
-                            value={course.progress || 50}
-                            className="h-2"
-                          />
-                          <div className="flex justify-between text-sm text-gray-600">
-                            <span>{course.progress || 50}% complete</span>
-                            <span className="font-[500] text-black">
-                              Next: {course.challenges?.[0].title}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                  </CardContent>
-                </Card>
+               <Card>
+  <CardHeader>
+    <CardTitle className="flex items-center space-x-2">
+      <TrendingUp className="h-5 w-5 text-green-600" />
+      <span>Current Progress</span>
+    </CardTitle>
+  </CardHeader>
+
+  <CardContent className="space-y-4">
+    {enrolledCourses.length > 0 ? (
+      enrolledCourses.map((enrolled) => (
+        <div key={enrolled._id} className="space-y-2">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium">{enrolled.course?.title}</h4>
+            {/* <Badge
+              className={getDifficultyColor(enrolled.course.difficulty) || ""}
+            >
+              {enrolled.course.difficulty || ""}
+            </Badge> */}
+          </div>
+
+          <Progress
+            value={enrolled.progress || 0}
+            className="h-2"
+          />
+
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>{enrolled.progress || 0}% complete</span>
+            <span className="font-[500] text-black">
+              Next: {enrolled.course?.challenges?.[0]?.title || "No challenges"}
+            </span>
+          </div>
+        </div>
+      ))
+    ) : (
+      <p className="text-gray-500 text-sm italic">No enrolled courses yet</p>
+    )}
+  </CardContent>
+</Card>
+
 
                 {/* Recent Activity */}
                 <Card>
@@ -654,7 +680,6 @@ const continueCourse = async (course) => {
                     <CardTitle>Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    
                     <Button
                       className="w-full justify-start bg-transparent"
                       variant="outline"
@@ -708,103 +733,120 @@ const continueCourse = async (course) => {
           </TabsContent>
 
           {/* Courses Tab */}
-        <TabsContent value="courses" className="space-y-6">
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {context.courses.map((course) => {
-      // Check enrollment in user.courses
-      const userCourse = context?.user?.courses?.find(
-        (uc) => String(uc.courseId) === String(course._id)
-      );
+          <TabsContent value="courses" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {context.courses.map((course) => {
+                // Check enrollment in user.courses
+                const userCourse = context?.user?.courses?.find(
+                  (uc) => String(uc.courseId) === String(course._id)
+                );
 
-      const isEnrolled = !!userCourse;
-      const status = userCourse?.status || "not-enrolled";
-      const progress = userCourse?.progress || 0;
+                const isEnrolled = !!userCourse;
+                const status = userCourse?.status || "not-enrolled";
+                const progress = userCourse?.progress || 0;
 
-      return (
-        <Card key={course._id} className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <CardTitle className="text-lg">{course.title}</CardTitle>
-              <Badge
-                variant={status === "completed" ? "default" : "secondary"}
-                className={
-                  status === "completed"
-                    ? "bg-green-100 text-green-800"
-                    : ""
-                }
-              >
-                {status === "completed"
-                  ? "Completed"
-                  : isEnrolled
-                  ? "Enrolled"
-                  : "Not Enrolled"}
-              </Badge>
+                return (
+                  <Card
+                    key={course._id}
+                    className="hover:shadow-lg transition-shadow"
+                  >
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-lg">
+                          {course.title}
+                        </CardTitle>
+                        <Badge
+                          variant={
+                            status === "completed" ? "default" : "secondary"
+                          }
+                          className={
+                            status === "completed"
+                              ? "bg-green-100 text-green-800"
+                              : ""
+                          }
+                        >
+                          {status === "completed"
+                            ? "Completed"
+                            : isEnrolled
+                            ? "Enrolled"
+                            : "Not Enrolled"}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="space-y-4">
+                      {/* Progress Bar */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Progress</span>
+                          <span>{progress}%</span>
+                        </div>
+                        <Progress value={progress} className="h-2" />
+                      </div>
+
+                      {/* Challenges Preview */}
+                      {course.challenges.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">
+                              Next Challenge:
+                            </span>
+                            {course.challenges.map((challenge) => (
+                              <p
+                                key={challenge._id}
+                                className="text-sm font-medium"
+                              >
+                                {challenge?.title || "No subtopics available"}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Footer Section */}
+                      <div className="flex justify-between items-center">
+                        <p className="text-xs font-bold pt-2 text-gray-800">
+                          Due:{" "}
+                          {userCourse?.enrolledAt?.split("T")[0] || "Not Yet"}
+                        </p>
+
+                        {/* Action Button */}
+                        {status === "completed" ? (
+                          <Link
+                            href={`/Dashboard/StudentDashboard/Courses/${course._id}`}
+                          >
+                            <Button size="sm">
+                              View Course
+                              <ChevronRight className="ml-1 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        ) : // <Button size="sm" disabled>
+                        //   Completed
+                        // </Button>
+                        isEnrolled ? (
+                          <Link
+                            href={`/Dashboard/StudentDashboard/Courses/${course._id}`}
+                          >
+                            <Button size="sm">
+                              View Course
+                              <ChevronRight className="ml-1 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => continueCourse(course)}
+                          >
+                            Enroll <ChevronRight className="ml-1 h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Progress</span>
-                <span>{progress}%</span>
-              </div>
-              <Progress value={progress} className="h-2" />
-            </div>
-
-            {/* Challenges Preview */}
-            {course.challenges.length > 0 && (
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Next Challenge:</span>
-                  {course.challenges.map((challenge) => (
-                    <p
-                      key={challenge._id}
-                      className="text-sm font-medium"
-                    >
-                      {challenge?.title || "No subtopics available"}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Footer Section */}
-            <div className="flex justify-between items-center">
-              <p className="text-xs font-bold pt-2 text-gray-800">
-                Due: {userCourse?.enrolledAt?.split("T")[0] || "Not Yet"}
-              </p>
-
-              {/* Action Button */}
-              {status === "completed" ? (
-                <Link href={`/Dashboard/StudentDashboard/Courses/${course._id}`}>
-                  <Button size="sm" >
-                    View Course<ChevronRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </Link>
-                // <Button size="sm" disabled>
-                //   Completed
-                // </Button>
-              ) : isEnrolled ? (
-                <Link href={`/Dashboard/StudentDashboard/Courses/${course._id}`}>
-                  <Button size="sm" >
-                    View Course<ChevronRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </Link>
-              ) : (
-                <Button size="sm" onClick={() => continueCourse(course)}>
-                  Enroll <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      );
-    })}
-  </div>
-</TabsContent>
-
-
+          </TabsContent>
 
           {/* Challenges Tab */}
           <TabsContent value="challenges" className="space-y-6">
@@ -908,90 +950,88 @@ const continueCourse = async (course) => {
             </div>
           </TabsContent>
 
-           {/* Ai Assistant Tab */}
+          {/* Ai Assistant Tab */}
           <TabsContent value="assistant" className="space-y-6">
-            
-            
-          <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[50vh] bg-gray-50">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <MessageCircle className="h-5 w-5 text-purple-600" />
-                <span>AI Assistant</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-4 pt-0 overflow-hidden">
-              <ScrollArea className="flex-1 pr-4 overflow-x-hidden">
-                <div className="space-y-4">
-                  {messages.length === 0 && (
-                    <div className="text-center text-gray-500 text-sm py-4">
-                      Ask me anything about you Like!
-                    </div>
-                  )}
-                  {messages.map((msg, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-start gap-3 ${
-                        msg.role === "user" ? "justify-end" : "justify-start"
-                      }`}
-                    >
-                      {msg.role === "assistant" && (
+            <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[50vh] bg-gray-50">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <MessageCircle className="h-5 w-5 text-purple-600" />
+                  <span>AI Assistant</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col p-4 pt-0 overflow-hidden">
+                <ScrollArea className="flex-1 pr-4 overflow-x-hidden">
+                  <div className="space-y-4">
+                    {messages.length === 0 && (
+                      <div className="text-center text-gray-500 text-sm py-4">
+                        Ask me anything about you Like!
+                      </div>
+                    )}
+                    {messages.map((msg, index) => (
+                      <div
+                        key={index}
+                        className={`flex items-start gap-3 ${
+                          msg.role === "user" ? "justify-end" : "justify-start"
+                        }`}
+                      >
+                        {msg.role === "assistant" && (
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>
+                              <Bot className="h-5 w-5" />
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                        <div
+                          className={`max-w-[80%] p-3 rounded-lg overflow-hidden break-words ${
+                            msg.role === "user"
+                              ? "bg-blue-600 text-white rounded-br-none"
+                              : "bg-gray-200 text-gray-900 rounded-bl-none"
+                          }`}
+                        >
+                          <p className="text-sm break-words">{msg.content}</p>
+                        </div>
+                        {msg.role === "user" && (
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>
+                              <User className="h-5 w-5" />
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                      </div>
+                    ))}
+                    {isLoading && (
+                      <div className="flex items-start gap-3 justify-start">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
                             <Bot className="h-5 w-5" />
                           </AvatarFallback>
                         </Avatar>
-                      )}
-                      <div
-                        className={`max-w-[80%] p-3 rounded-lg overflow-hidden break-words ${
-                          msg.role === "user"
-                            ? "bg-blue-600 text-white rounded-br-none"
-                            : "bg-gray-200 text-gray-900 rounded-bl-none"
-                        }`}
-                      >
-                        <p className="text-sm break-words">{msg.content}</p>
+                        <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 text-gray-900 rounded-bl-none">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
                       </div>
-                      {msg.role === "user" && (
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback>
-                            <User className="h-5 w-5" />
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                    </div>
-                  ))}
-                  {isLoading && (
-                    <div className="flex items-start gap-3 justify-start">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>
-                          <Bot className="h-5 w-5" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 text-gray-900 rounded-bl-none">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      </div>
-                    </div>
-                  )}
-                  <div ref={messagesEndRef} />
-                </div>
-              </ScrollArea>
-              <form onSubmit={handleSendMessage} className="mt-4 flex gap-2">
-                <Input
-                  placeholder="Type your question..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  disabled={isLoading}
-                  className="flex-1"
-                />
-                <Button type="submit" size="icon" disabled={isLoading}>
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card> 
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </ScrollArea>
+                <form onSubmit={handleSendMessage} className="mt-4 flex gap-2">
+                  <Input
+                    placeholder="Type your question..."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    disabled={isLoading}
+                    className="flex-1"
+                  />
+                  <Button type="submit" size="icon" disabled={isLoading}>
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Leaderboard Tab */}
@@ -1008,7 +1048,7 @@ const continueCourse = async (course) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {leaderboard.map((student) => (
+                  {context.leaderboard.map((student) => (
                     <div
                       key={student.rank}
                       className={`flex items-center space-x-4 p-3 rounded-lg ${
@@ -1036,10 +1076,10 @@ const continueCourse = async (course) => {
                       <Avatar className="h-10 w-10">
                         <AvatarImage
                           src={student.avatar || "/placeholder.svg"}
-                          alt={student.name}
+                          alt={student.firstName}
                         />
                         <AvatarFallback>
-                          {student.name
+                          {(student.firstName+ " "+ student.lastName)
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
@@ -1053,7 +1093,7 @@ const continueCourse = async (course) => {
                               : "text-gray-900"
                           }`}
                         >
-                          {student.name} {student.isCurrentUser && "(You)"}
+                          {(student.firstName+ " "+ student.lastName)} {student.isCurrentUser && "(You)"}
                         </p>
                         <p className="text-sm text-gray-600">
                           {student.points.toLocaleString()} points

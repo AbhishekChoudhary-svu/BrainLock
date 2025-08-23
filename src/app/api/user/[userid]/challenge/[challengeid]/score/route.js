@@ -5,41 +5,95 @@ import SubjectChallenge from "@/models/subjectChallenge.model";
 
 export async function PUT(req, { params }) {
   await dbConnect();
-  const { userid, challengeid } = await params;
+  const { userid, challengeid } = params;
   const { score } = await req.json();
 
   try {
     const user = await User.findById(userid);
-    if (!user) 
-      return new Response(JSON.stringify({ success: false, message: "User not found" }), { status: 404 });
+    if (!user)
+      return new Response(
+        JSON.stringify({ success: false, message: "User not found" }),
+        { status: 404 }
+      );
 
-    const challengeEntry = user.challenges.find(c => String(c.challengeId) === challengeid);
-    if (!challengeEntry) 
-      return new Response(JSON.stringify({ success: false, message: "Challenge not started" }), { status: 400 });
+    const challengeEntry = user.challenges.find(
+      (c) => String(c.challengeId) === challengeid
+    );
+    if (!challengeEntry)
+      return new Response(
+        JSON.stringify({ success: false, message: "Challenge not started" }),
+        { status: 400 }
+      );
 
     // Get challenge with populated MCQs
     const challenge = await SubjectChallenge.findById(challengeid).populate("mcqs");
-    if (!challenge) 
-      return new Response(JSON.stringify({ success: false, message: "Challenge not found" }), { status: 404 });
+    if (!challenge)
+      return new Response(
+        JSON.stringify({ success: false, message: "Challenge not found" }),
+        { status: 404 }
+      );
 
     const totalPoints = challenge.mcqs.length * 5; // 5 points per question
+    const newProgress = Math.min((score / totalPoints) * 100, 100);
 
-    // Calculate progress percentage
-    const progress = Math.min((score / totalPoints) * 100, 100);
+    // --- Prevent duplicate increments ---
+    const oldScore = challengeEntry.score || 0;
+    const oldProgress = challengeEntry.progress || 0;
 
-    challengeEntry.score = score;
-    challengeEntry.progress = progress;
-    challengeEntry.status = progress === 100 ? "completed" : "active";
-    challengeEntry.completedAt = progress === 100 ? new Date() : null;
+    // Update challenge entry (keep max values)
+    challengeEntry.score = Math.max(score, oldScore);
+    challengeEntry.progress = Math.max(newProgress, oldProgress);
+    challengeEntry.status =
+      challengeEntry.progress === 100 ? "completed" : "active";
+    challengeEntry.completedAt =
+      challengeEntry.progress === 100 ? new Date() : null;
+
+    // 1️⃣ Update user points only for score difference
+    if (score > oldScore) {
+      user.points += score - oldScore;
+    }
+
+    // 2️⃣ Update related course progress only for difference
+    if (newProgress > oldProgress && challenge.course) {
+      const courseEntry = user.courses.find(
+        (c) => String(c.courseId) === String(challenge.course)
+      );
+
+      if (courseEntry) {
+        // Contribution weight (example: each challenge = max 50%)
+        const newContribution = (newProgress / 100) * 50;
+        const oldContribution = (oldProgress / 100) * 50;
+
+        const diff = newContribution - oldContribution;
+
+        if (diff > 0) {
+          courseEntry.progress = Math.min(courseEntry.progress + diff, 100);
+
+          if (courseEntry.progress === 100) {
+            courseEntry.status = "completed";
+          } else {
+            courseEntry.status = "active";
+          }
+        }
+      }
+    }
 
     await user.save();
 
     return new Response(
-      JSON.stringify({ success: true, message: "Score updated", progress }),
+      JSON.stringify({
+        success: true,
+        message: "Score updated",
+        progress: challengeEntry.progress,
+        totalPoints: user.points,
+      }),
       { status: 200 }
     );
   } catch (error) {
     console.error(error);
-    return new Response(JSON.stringify({ success: false, message: "Server error" }), { status: 500 });
+    return new Response(
+      JSON.stringify({ success: false, message: "Server error" }),
+      { status: 500 }
+    );
   }
 }

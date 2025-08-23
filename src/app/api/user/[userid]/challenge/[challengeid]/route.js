@@ -47,7 +47,7 @@ export async function PUT(req, { params }) {
    if (userCourse.completedChallenges.includes(challengeid)) {
   return new Response(
         JSON.stringify({ success: true, message: "Challenge already started" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 200, headers: { "Content-Type": "application/json" } }
       );
 }
     

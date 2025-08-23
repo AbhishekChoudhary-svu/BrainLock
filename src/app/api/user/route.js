@@ -1,12 +1,14 @@
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/user.model";
+import Course from "@/models/course.model";
 import { withAuth } from "@/middlewares/auth";
 
 async function handler(req, userId) {
   await dbConnect();
 
   try {
-    const user = await User.findById(userId).select("-password" );
+    const user = await User.findById(userId).select("-password" )
+  
     if (!user) {
       return new Response(
         JSON.stringify({ success: false, message: "User not found" }),

@@ -157,10 +157,10 @@ const handleStartChallenge = async (challenge) => {
     if (data.success) {
       // Update local challenge status
       challenge.status = "active";
-      toast.success("Challenge started successfully!");
+      toast.success(data.message || "Challenge started successfully!");
       // Optionally refetch profile or challenges
-      context.fetchProfile();
       router.push(`/Dashboard/StudentDashboard/Challenges/${courseid}/${challenge._id}`);
+      context.fetchProfile();
 
     } else {
       toast.error(data.message || "Failed to start challenge");

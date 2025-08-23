@@ -57,6 +57,36 @@ export default function SubjectCoursePage() {
 
   // Subtopics for this course
   const challengesForSubject = course?.subtopics || [];
+
+
+  // Get user’s challenges for this course
+const userChallengesForCourse = context?.user?.challenges?.filter((uc) =>
+  course?.challenges?.some((sub) => String(sub._id) === String(uc.challengeId))
+) || [];
+
+// Total challenges in this course
+const totalChallenges = course?.challenges?.length || 0;
+
+// Completed challenges count
+const completedChallenges = userChallengesForCourse.filter(
+  (c) => c.status === "completed"
+).length;
+
+// Average challenge progress (0 if none)
+const avgChallengeProgress =
+  userChallengesForCourse.length > 0
+    ? Math.round(
+        userChallengesForCourse.reduce((sum, c) => sum + (c.progress || 0), 0) /
+          userChallengesForCourse.length
+      )
+    : 0;
+
+      const totalPoints = userChallengesForCourse.reduce(
+  (sum, c) => sum + (c.score || 0),
+  0
+);
+
+
   if (!course) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
@@ -150,7 +180,7 @@ export default function SubjectCoursePage() {
                 </div>
                 <div>
                   <p className="text-gray-600">Points Earned</p>
-                  <p className="font-semibold">{userCourse?.points || 50}</p>
+                  <p className="font-semibold">{totalPoints || 0}</p>
                 </div>
                 <div>
                   <p className="text-gray-600">Next Challenge</p>
@@ -184,10 +214,9 @@ export default function SubjectCoursePage() {
               <CardContent>
                 <div className="text-2xl font-bold">
                   {
-                    challengesForSubject.filter((c) => c.status === "completed")
-                      .length
+                   completedChallenges
                   }{" "}
-                  / {challengesForSubject.length}
+                  / {totalChallenges}
                 </div>
                 <p className="text-xs text-gray-600">for this course</p>
               </CardContent>
@@ -200,7 +229,7 @@ export default function SubjectCoursePage() {
                 <BarChart3 className="h-4 w-4 text-purple-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">85%</div>{" "}
+                <div className="text-2xl font-bold">{avgChallengeProgress}%</div>{" "}
                 {/* Mock average score */}
                 <p className="text-xs text-gray-600">across all challenges</p>
               </CardContent>
