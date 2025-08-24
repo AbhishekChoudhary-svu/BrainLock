@@ -63,15 +63,15 @@ import { Input } from "@/components/ui/input";
 export default function StudentDashboard() {
   const context = useContext(MyContext);
   const router = useRouter();
-  const [currentStreak, setCurrentStreak] = useState(7);
-  const [messages, setMessages] = useState([]);
+  const [tabValue, setTabValue] = useState("overview"); 
+  
 
   useEffect(() => {
     context.fetchCourses();
     context.fetchProfile();
-    context.fetchLeaderboard()
+    context.fetchLeaderboard();
   }, []);
-
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
@@ -125,20 +125,6 @@ export default function StudentDashboard() {
     }
   };
 
-  // Mock data
-  const studentData = {
-    name: "Alex Johnson",
-    email: "alex.johnson@student.edu",
-    grade: "Grade 11",
-    institution: "Lincoln High School",
-    avatar: "/placeholder.svg?height=40&width=40",
-    totalPoints: 2450,
-    rank: 12,
-    streak: currentStreak,
-    completedCourses: 3,
-    activeCourses: 2,
-  };
-
   const continueCourse = async (course) => {
     try {
       const res = await fetch(
@@ -162,42 +148,6 @@ export default function StudentDashboard() {
       toast.error(err.message || "Something went wrong");
     }
   };
-
-  // const courses = [
-  //   {
-  //     id: 1,
-  //     title: "Advanced Mathematics",
-  //     subjectId: "mathematics", // Added subjectId for routing
-  //     progress: 78,
-  //     nextChallenge: "Calculus Derivatives",
-  //     dueDate: "Tomorrow",
-  //     difficulty: "Hard",
-  //     points: 150,
-  //     status: "active",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Physics Fundamentals",
-  //     subjectId: "physics", // Added subjectId for routing
-  //     progress: 45,
-  //     nextChallenge: "Newton's Laws Quiz",
-  //     dueDate: "In 3 days",
-  //     difficulty: "Medium",
-  //     points: 120,
-  //     status: "active",
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Chemistry Basics",
-  //     subjectId: "chemistry", // Added subjectId for routing
-  //     progress: 100,
-  //     nextChallenge: "Course Completed",
-  //     dueDate: "Completed",
-  //     difficulty: "Easy",
-  //     points: 200,
-  //     status: "completed",
-  //   },
-  // ];
 
   const recentActivities = [
     {
@@ -246,34 +196,6 @@ export default function StudentDashboard() {
       toast.error("Something went wrong");
     }
   };
-
-  const leaderboard = [
-    {
-      rank: 1,
-      name: "Sarah Chen",
-      points: 3200,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      rank: 2,
-      name: "Mike Rodriguez",
-      points: 2890,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      rank: 3,
-      name: "Emma Wilson",
-      points: 2750,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      rank: 12,
-      name: "Alex Johnson",
-      points: 2450,
-      avatar: "/placeholder.svg?height=32&width=32",
-      isCurrentUser: true,
-    },
-  ];
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty.toLowerCase()) {
@@ -346,24 +268,48 @@ export default function StudentDashboard() {
   }, [studyTimer.isRunning]);
 
   const enrolledCourses =
-  context?.user?.courses
-    ?.filter((c) => c.status === "active")
-    ?.map((c) => {
-      const courseDetails = context?.courses?.find(
-        (course) => String(course._id) === String(c.courseId) // force both to string
-      );
-      return {
-        ...c,
-        course: courseDetails || null, // attach full course details
-      };
-    }) || [];
+    context?.user?.courses
+      ?.filter((c) => c.status === "active")
+      ?.map((c) => {
+        const courseDetails = context?.courses?.find(
+          (course) => String(course._id) === String(c.courseId) // force both to string
+        );
+        return {
+          ...c,
+          course: courseDetails || null, // attach full course details
+        };
+      }) || [];
+
+  useEffect(() => {
+    console.log(successRateChallenges)
+  }, [context.courses]);
+
+  const completedChallenges = context.user?.challenges?.filter(
+    (c) => c.status === "completed"
+  ).length || 0;
 
 
+  const activeChallenges = context.user?.challenges?.filter(
+    (c) => c.status === "active"
+  ).length || 0;
 
-  useEffect(()=>{
-    
-  },[context.courses])
+  
 
+  const successRateChallenges = context.user?.challenges?.filter(
+  (c) => c.status === "active" || c.status === "completed"
+) || [];
+
+const averageProgress =
+  successRateChallenges.length > 0
+    ? successRateChallenges.reduce((sum, c) => sum + c.progress, 0) /
+      successRateChallenges.length
+    : 0;
+
+
+    const perfectScore =
+  successRateChallenges.length > 0
+    ? Math.max(...successRateChallenges.map((c) => c.score))
+    : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -398,10 +344,7 @@ export default function StudentDashboard() {
                     className="flex items-center space-x-2"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={studentData.avatar || "/placeholder.svg"}
-                        alt={studentData.name}
-                      />
+                      <AvatarImage src={"/placeholder.svg"} alt={""} />
                       <AvatarFallback>AJ</AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
@@ -511,9 +454,11 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600">
-                #{studentData.rank}
+                #{context?.user?.classRank?.toLocaleString()}
               </div>
-              <p className="text-xs text-gray-600">↑ 3 positions</p>
+              <p className="text-xs text-gray-600">
+                ↑ {context?.user?.classRank?.toLocaleString()} positions
+              </p>
             </CardContent>
           </Card>
 
@@ -538,7 +483,7 @@ export default function StudentDashboard() {
         </div>
 
         {/* Main Dashboard Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs value={tabValue} onValueChange={setTabValue} className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="courses">My Courses</TabsTrigger>
@@ -553,46 +498,51 @@ export default function StudentDashboard() {
               {/* Left Column */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Current Progress */}
-               <Card>
-  <CardHeader>
-    <CardTitle className="flex items-center space-x-2">
-      <TrendingUp className="h-5 w-5 text-green-600" />
-      <span>Current Progress</span>
-    </CardTitle>
-  </CardHeader>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <TrendingUp className="h-5 w-5 text-green-600" />
+                      <span>Current Progress</span>
+                    </CardTitle>
+                  </CardHeader>
 
-  <CardContent className="space-y-4">
-    {enrolledCourses.length > 0 ? (
-      enrolledCourses.map((enrolled) => (
-        <div key={enrolled._id} className="space-y-2">
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium">{enrolled.course?.title}</h4>
-            {/* <Badge
+                  <CardContent className="space-y-4">
+                    {enrolledCourses.length > 0 ? (
+                      enrolledCourses.map((enrolled) => (
+                        <div key={enrolled._id} className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <h4 className="font-medium">
+                              {enrolled.course?.title}
+                            </h4>
+                            {/* <Badge
               className={getDifficultyColor(enrolled.course.difficulty) || ""}
             >
               {enrolled.course.difficulty || ""}
             </Badge> */}
-          </div>
+                          </div>
 
-          <Progress
-            value={enrolled.progress || 0}
-            className="h-2"
-          />
+                          <Progress
+                            value={enrolled.progress || 0}
+                            className="h-2"
+                          />
 
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>{enrolled.progress || 0}% complete</span>
-            <span className="font-[500] text-black">
-              Next: {enrolled.course?.challenges?.[0]?.title || "No challenges"}
-            </span>
-          </div>
-        </div>
-      ))
-    ) : (
-      <p className="text-gray-500 text-sm italic">No enrolled courses yet</p>
-    )}
-  </CardContent>
-</Card>
-
+                          <div className="flex justify-between text-sm text-gray-600">
+                            <span>{enrolled.progress || 0}% complete</span>
+                            <span className="font-[500] text-black">
+                              Next:{" "}
+                              {enrolled.course?.challenges?.[0]?.title ||
+                                "No challenges"}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-sm italic">
+                        No enrolled courses yet
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
 
                 {/* Recent Activity */}
                 <Card>
@@ -683,9 +633,10 @@ export default function StudentDashboard() {
                     <Button
                       className="w-full justify-start bg-transparent"
                       variant="outline"
+                      onClick={() => setTabValue("assistant")}
                     >
                       <Calendar className="mr-2 h-4 w-4" />
-                      View Schedule
+                      AI Assistant
                     </Button>
                     <Button
                       className="w-full justify-start bg-transparent"
@@ -862,24 +813,26 @@ export default function StudentDashboard() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-4 gap-4">
                     <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">24</div>
+                      <div className="text-2xl font-bold text-blue-600">
+                        {completedChallenges}
+                      </div>
                       <div className="text-sm text-gray-600">Completed</div>
                     </div>
                     <div className="text-center p-4 bg-green-50 rounded-lg">
                       <div className="text-2xl font-bold text-green-600">
-                        92%
+                       {averageProgress}%
                       </div>
                       <div className="text-sm text-gray-600">Success Rate</div>
                     </div>
                     <div className="text-center p-4 bg-yellow-50 rounded-lg">
                       <div className="text-2xl font-bold text-yellow-600">
-                        18
+                        {activeChallenges}
                       </div>
-                      <div className="text-sm text-gray-600">This Week</div>
+                      <div className="text-sm text-gray-600">Active Challenges</div>
                     </div>
                     <div className="text-center p-4 bg-purple-50 rounded-lg">
                       <div className="text-2xl font-bold text-purple-600">
-                        5
+                        {perfectScore}
                       </div>
                       <div className="text-sm text-gray-600">
                         Perfect Scores
@@ -1079,7 +1032,7 @@ export default function StudentDashboard() {
                           alt={student.firstName}
                         />
                         <AvatarFallback>
-                          {(student.firstName+ " "+ student.lastName)
+                          {(student.firstName + " " + student.lastName)
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
@@ -1093,7 +1046,8 @@ export default function StudentDashboard() {
                               : "text-gray-900"
                           }`}
                         >
-                          {(student.firstName+ " "+ student.lastName)} {student.isCurrentUser && "(You)"}
+                          {student.firstName + " " + student.lastName}{" "}
+                          {student.isCurrentUser && "(You)"}
                         </p>
                         <p className="text-sm text-gray-600">
                           {student.points.toLocaleString()} points

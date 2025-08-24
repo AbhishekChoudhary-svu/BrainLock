@@ -2,6 +2,7 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/user.model";
 import Course from "@/models/course.model";
 import { withAuth } from "@/middlewares/auth";
+import { updateAverageCourseProgress } from "@/lib/avgScoreService";
 
 async function handler(req, userId) {
   await dbConnect();
@@ -15,6 +16,7 @@ async function handler(req, userId) {
         { status: 404, headers: { "Content-Type": "application/json" } }
       );
     }
+     await updateAverageCourseProgress(userId);
 
     return new Response(
       JSON.stringify({ success: true, user:user }),

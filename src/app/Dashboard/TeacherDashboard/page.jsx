@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -71,12 +71,18 @@ import {
   MoreHorizontal,
   User,
   CircuitBoard,
+  Crown,
+  Medal,
+  Sun,
+  Send,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import MyContext from "@/context/ThemeProvider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function TeacherDashboard() {
   const context = useContext(MyContext);
@@ -85,24 +91,70 @@ export default function TeacherDashboard() {
   const [courseData, setCourseData] = useState([]);
   const [challengeData, setChallengeData] = useState([]);
   const [isCreateChallengeOpen, setIsCreateChallengeOpen] = useState(false);
+  const [tabValue, setTabValue] = useState("overview"); 
 
-  // Mock data for teacher
-  const teacherData = {
-    name: "Dr. Sarah Wilson",
-    email: "sarah.wilson@school.edu",
-    role: "teacher",
-    department: "Mathematics",
-    institution: "Lincoln High School",
-    avatar: "/placeholder.svg?height=40&width=40",
-    totalStudents: 156,
-    activeCourses: 4,
-    totalChallenges: 28,
-    avgPerformance: 87,
-  };
+
+
+   const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const messagesEndRef = useRef(null);
+  
+    const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+  
+    useEffect(() => {
+      scrollToBottom();
+    }, [messages]);
+  
+    const handleSendMessage = async (e) => {
+      e.preventDefault();
+      if (!input.trim()) return;
+  
+      const userMessage = { role: "user", content: input };
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
+      setInput("");
+      setIsLoading(true);
+  
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ messages: [...messages, userMessage] }),
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { role: "assistant", content: data.text },
+        ]);
+      } catch (error) {
+        console.error("Error sending message:", error);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            role: "assistant",
+            content: "Sorry, I couldn't process that. Please try again.",
+          },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
 
   const isEditMode = Boolean(courseData?._id);
   const isEditModeChallenge = Boolean(challengeData?._id);
   const [loading, setLoading] = useState(true);
+
+
   // edit and create for both
   const handleSaveCourse = async () => {
     setLoading(true);
@@ -171,6 +223,7 @@ export default function TeacherDashboard() {
     context.fetchChallenges();
     context.fetchAllUsers();
     context.fetchProfile();
+    context.fetchLeaderboard();
   }, []);
 
   const openCreateDialog = () => {
@@ -213,48 +266,6 @@ export default function TeacherDashboard() {
     }
   };
 
-  const students = [
-    {
-      id: 1,
-      name: "Alex Johnson",
-      email: "alex.j@student.edu",
-      courses: 3,
-      avgScore: 92,
-      streak: 7,
-      lastActive: "2 hours ago",
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "Emma Davis",
-      email: "emma.d@student.edu",
-      courses: 2,
-      avgScore: 88,
-      streak: 12,
-      lastActive: "1 day ago",
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Michael Chen",
-      email: "michael.c@student.edu",
-      courses: 4,
-      avgScore: 95,
-      streak: 15,
-      lastActive: "30 min ago",
-      status: "active",
-    },
-    {
-      id: 4,
-      name: "Sofia Rodriguez",
-      email: "sofia.r@student.edu",
-      courses: 2,
-      avgScore: 76,
-      streak: 3,
-      lastActive: "3 days ago",
-      status: "inactive",
-    },
-  ];
 
   const recentActivities = [
     {
@@ -277,25 +288,6 @@ export default function TeacherDashboard() {
       title: "Updated course materials for Statistics",
       course: "Statistics Fundamentals",
       time: "1 day ago",
-    },
-  ];
-
-  const pendingReviews = [
-    {
-      id: 1,
-      student: "Emma Davis",
-      challenge: "Calculus Integration",
-      course: "Advanced Calculus",
-      submittedAt: "2 hours ago",
-      score: null,
-    },
-    {
-      id: 2,
-      student: "Michael Chen",
-      challenge: "Matrix Operations",
-      course: "Linear Algebra",
-      submittedAt: "1 day ago",
-      score: null,
     },
   ];
 
@@ -346,6 +338,14 @@ export default function TeacherDashboard() {
     }
   };
 
+ 
+ const allUserAvgScore =
+  context.allUsers.length > 0
+    ? context.allUsers.reduce((sum, e) => sum + e.avgScore, 0) /
+      context.allUsers.length
+    : 0;
+
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -363,11 +363,6 @@ export default function TeacherDashboard() {
 
             {/* Header Actions */}
             <div className="flex items-center space-x-4">
-              {/* Quick Actions */}
-              <Button size="sm" onClick={() => openCreateDialog(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                New Course
-              </Button>
 
               {/* Notifications */}
               <Button variant="ghost" size="sm" className="relative">
@@ -386,8 +381,8 @@ export default function TeacherDashboard() {
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage
-                        src={teacherData.avatar || "/placeholder.svg"}
-                        alt={teacherData.name}
+                        src={ "/placeholder.svg"}
+                        alt={""}
                       />
                       <AvatarFallback>SW</AvatarFallback>
                     </Avatar>
@@ -512,7 +507,7 @@ export default function TeacherDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">
-                {teacherData.avgPerformance}%
+                {allUserAvgScore}%
               </div>
               <p className="text-xs text-gray-600">↑ 3% from last month</p>
             </CardContent>
@@ -520,13 +515,13 @@ export default function TeacherDashboard() {
         </div>
 
         {/* Main Dashboard Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs value={tabValue} onValueChange={setTabValue} className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="courses">My Courses</TabsTrigger>
             <TabsTrigger value="challenges">Challenges</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -621,50 +616,20 @@ export default function TeacherDashboard() {
 
               {/* Right Column */}
               <div className="space-y-6">
-                {/* Pending Reviews */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <FileText className="h-5 w-5 text-orange-600" />
-                      <span>Pending Reviews</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {pendingReviews.map((review) => (
-                      <div
-                        key={review.id}
-                        className="border rounded-lg p-3 space-y-2"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-medium text-sm">
-                              {review.student}
-                            </p>
-                            <p className="text-xs text-gray-600">
-                              {review.challenge}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {review.course}
-                            </p>
-                          </div>
-                          <Badge variant="outline" className="text-xs">
-                            {review.submittedAt}
-                          </Badge>
-                        </div>
-                        <Button size="sm" className="w-full">
-                          Review Submission
-                        </Button>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
                 {/* Quick Actions */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
+                    <Button
+                      className="w-full justify-start bg-transparent"
+                      variant="outline"
+                      onClick={() => openCreateDialog(true)}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Create Course
+                    </Button>
                     <Button
                       className="w-full justify-start bg-transparent"
                       variant="outline"
@@ -676,20 +641,7 @@ export default function TeacherDashboard() {
                     <Button
                       className="w-full justify-start bg-transparent"
                       variant="outline"
-                    >
-                      <Upload className="mr-2 h-4 w-4" />
-                      Import Students
-                    </Button>
-                    <Button
-                      className="w-full justify-start bg-transparent"
-                      variant="outline"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Export Grades
-                    </Button>
-                    <Button
-                      className="w-full justify-start bg-transparent"
-                      variant="outline"
+                      onClick={() => setTabValue("assistant")}
                     >
                       <MessageCircle className="mr-2 h-4 w-4" />
                       AI Assistant
@@ -705,36 +657,78 @@ export default function TeacherDashboard() {
                       <span>Top Performers</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    {students
-                      .sort((a, b) => b.avgScore - a.avgScore)
-                      .slice(0, 3)
-                      .map((student, index) => (
+                  <CardContent>
+                    <div className="space-y-3">
+                      {context.leaderboard.map((student) => (
                         <div
-                          key={student.id}
-                          className="flex items-center space-x-3"
+                          key={student.rank}
+                          className={`flex items-center space-x-4 p-3 rounded-lg ${
+                            student.isCurrentUser
+                              ? "bg-purple-50 border border-purple-200"
+                              : "bg-gray-50"
+                          }`}
                         >
-                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold">
-                            {index + 1}
+                          {/* Rank */}
+                          <div className="flex items-center justify-center w-8 h-8">
+                            {student.rank === 1 && (
+                              <Crown className="h-6 w-6 text-yellow-500" />
+                            )}
+                            {student.rank === 2 && (
+                              <Medal className="h-6 w-6 text-gray-400" />
+                            )}
+                            {student.rank === 3 && (
+                              <Medal className="h-6 w-6 text-amber-600" />
+                            )}
+                            {student.rank > 3 && (
+                              <span className="text-lg font-bold text-gray-600">
+                                #{student.rank}
+                              </span>
+                            )}
                           </div>
-                          <Avatar className="h-8 w-8">
+
+                          {/* Avatar */}
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage
+                              src={student.avatar || "/placeholder.svg"}
+                              alt={student.firstName}
+                            />
                             <AvatarFallback>
-                              {student.name
+                              {(student.firstName + " " + student.lastName)
                                 .split(" ")
                                 .map((n) => n[0])
                                 .join("")}
                             </AvatarFallback>
                           </Avatar>
+
+                          {/* Name & Points */}
                           <div className="flex-1">
-                            <p className="text-sm font-medium">
-                              {student.name}
+                            <p
+                              className={`font-medium ${
+                                student.isCurrentUser
+                                  ? "text-purple-900"
+                                  : "text-gray-900"
+                              }`}
+                            >
+                              {student.firstName + " " + student.lastName}{" "}
+                              {student.isCurrentUser && "(You)"}
                             </p>
-                            <p className="text-xs text-gray-600">
-                              {student.avgScore}% avg
+                            <p className="text-sm text-gray-600">
+                              {student.points.toLocaleString()} points
                             </p>
                           </div>
+
+                          {/* Current User Badge */}
+                          {student.isCurrentUser && (
+                            <Badge
+                              variant="secondary"
+                              className="bg-purple-100 text-purple-800"
+                            >
+                              Your Rank
+                            </Badge>
+                          )}
                         </div>
                       ))}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -869,20 +863,7 @@ export default function TeacherDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="border-dashed border-2 border-gray-300 hover:border-gray-400 transition-colors">
-                <CardContent className="flex flex-col items-center justify-center h-48 text-center">
-                  <Plus className="h-12 w-12 text-gray-400 mb-4" />
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    Create New Challenge
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Design engaging challenges for your students
-                  </p>
-                  <Button onClick={() => openCreateChallengeDialog()}>
-                    Get Started
-                  </Button>
-                </CardContent>
-              </Card>
+              
 
               {/* Sample challenges would be mapped here */}
               {context.challenges.map((challenge) => (
@@ -1003,7 +984,7 @@ export default function TeacherDashboard() {
                 </TableHeader>
                 <TableBody>
                   {context.allUsers
-                    .filter((user) => user.role === "student")
+                    .filter((user) => user.role === "student" || "admin" || "teacher")
                     .map((student) => (
                       <TableRow key={student._id}>
                         <TableCell>
@@ -1040,7 +1021,7 @@ export default function TeacherDashboard() {
                             {student.avgScore || 50}%
                           </Badge>
                         </TableCell>
-                        <TableCell>{student.streak || 7} days</TableCell>
+                        <TableCell>{student.streaks || 7} days</TableCell>
                         <TableCell>{student.points || 5}</TableCell>
                         <TableCell>
                           <Badge
@@ -1079,69 +1060,88 @@ export default function TeacherDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Total Engagement
-                  </CardTitle>
-                  <TrendingUp className="h-4 w-4 text-green-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">94%</div>
-                  <p className="text-xs text-gray-600">↑ 12% from last month</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Completion Rate
-                  </CardTitle>
-                  <CheckCircle className="h-4 w-4 text-blue-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">89%</div>
-                  <p className="text-xs text-gray-600">↑ 5% from last month</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Avg Study Time
-                  </CardTitle>
-                  <Clock className="h-4 w-4 text-purple-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">2.4h</div>
-                  <p className="text-xs text-gray-600">per student/day</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Success Rate
-                  </CardTitle>
-                  <Award className="h-4 w-4 text-yellow-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">92%</div>
-                  <p className="text-xs text-gray-600">challenges passed</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Alert>
-              <BarChart3 className="h-4 w-4" />
-              <AlertDescription>
-                Detailed analytics and reporting features are coming soon.
-                Export current data using the buttons above.
-              </AlertDescription>
-            </Alert>
+            {/* Assistant Tab */}
+          <TabsContent value="assistant" className="space-y-6">
+            <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[50vh] bg-gray-50">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <MessageCircle className="h-5 w-5 text-purple-600" />
+                  <span>AI Assistant</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col p-4 pt-0 overflow-hidden">
+                <ScrollArea className="flex-1 pr-4 overflow-x-hidden">
+                  <div className="space-y-4">
+                    {messages.length === 0 && (
+                      <div className="text-center text-gray-500 text-sm py-4">
+                        Ask me anything about you Like!
+                      </div>
+                    )}
+                    {messages.map((msg, index) => (
+                      <div
+                        key={index}
+                        className={`flex items-start gap-3 ${
+                          msg.role === "user" ? "justify-end" : "justify-start"
+                        }`}
+                      >
+                        {msg.role === "assistant" && (
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>
+                              <Bot className="h-5 w-5" />
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                        <div
+                          className={`max-w-[80%] p-3 rounded-lg overflow-hidden break-words ${
+                            msg.role === "user"
+                              ? "bg-blue-600 text-white rounded-br-none"
+                              : "bg-gray-200 text-gray-900 rounded-bl-none"
+                          }`}
+                        >
+                          <p className="text-sm break-words">{msg.content}</p>
+                        </div>
+                        {msg.role === "user" && (
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>
+                              <User className="h-5 w-5" />
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                      </div>
+                    ))}
+                    {isLoading && (
+                      <div className="flex items-start gap-3 justify-start">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>
+                            <Bot className="h-5 w-5" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 text-gray-900 rounded-bl-none">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </ScrollArea>
+                <form onSubmit={handleSendMessage} className="mt-4 flex gap-2">
+                  <Input
+                    placeholder="Type your question..."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    disabled={isLoading}
+                    className="flex-1"
+                  />
+                  <Button type="submit" size="icon" disabled={isLoading}>
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>
@@ -1400,8 +1400,6 @@ export default function TeacherDashboard() {
       </Dialog>
 
       {/* // progress card */}
-     
-
     </div>
   );
 }

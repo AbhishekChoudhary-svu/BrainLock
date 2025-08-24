@@ -12,6 +12,8 @@ const ThemeProvider = ({ children }) => {
   const [user, setUser] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [stats, setStats] = useState([]);
+
 
   
   const [loading, setLoading] = useState(true);
@@ -92,7 +94,19 @@ const ThemeProvider = ({ children }) => {
         }));
         setLeaderboard(formatted);
       }
+  }
+  const fetchStats = async () => {
+    try {
+      const res = await fetch("/api/system");
+      const data = await res.json();
+      setStats(data);
+    } catch (err) {
+      console.error("Error fetching stats:", err);
+    } finally {
+      setLoading(false);
     }
+  };
+
 
 
 
@@ -112,9 +126,10 @@ const ThemeProvider = ({ children }) => {
     fetchProfile,
     leaderboard, 
     setLeaderboard,
-    fetchLeaderboard
-
-
+    fetchLeaderboard,
+    stats, 
+    setStats,
+    fetchStats,
   };
 
   return <MyContext.Provider value={values}>{children}</MyContext.Provider>;

@@ -86,21 +86,18 @@ import { useRouter } from "next/navigation";
 import MyContext from "@/context/ThemeProvider";
 
 export default function AdminDashboard() {
-  const context = useContext(MyContext)
+  const context = useContext(MyContext);
   const router = useRouter();
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [isSystemSettingsOpen, setIsSystemSettingsOpen] = useState(false);
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-      
-      context.fetchAllUsers();
-      context.fetchCourses();
-      context.fetchProfile();
-
-    }, []);
+  useEffect(() => {
+    context.fetchAllUsers();
+    context.fetchCourses();
+    context.fetchChallenges();
+    context.fetchProfile();
+  }, []);
 
   // Mock data for admin (includes all teacher data plus admin-specific)
   const adminData = {
@@ -119,88 +116,75 @@ export default function AdminDashboard() {
   };
 
   const handleDelete = async (userId) => {
-    setLoading(true)
+    setLoading(true);
     try {
       const res = await fetch(`/api/user/allUsers/${userId}`, {
         method: "DELETE",
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
       if (data.success) {
-        
-        toast.success(data.message)
+        toast.success(data.message);
         context.fetchAllUsers();
-      }else{
-        toast.error(data.error)
-
+      } else {
+        toast.error(data.error);
       }
     } catch (error) {
-      toast.error("Error deleting user: " + error.message)
+      toast.error("Error deleting user: " + error.message);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
-  
-const handleSuspend = async (userId, currentStatus) => {
-  setLoading(true)
-  try {
-    
-    const newStatus = currentStatus === "active" ? "inactive" : "active"
+  const handleSuspend = async (userId, currentStatus) => {
+    setLoading(true);
+    try {
+      const newStatus = currentStatus === "active" ? "inactive" : "active";
 
-    const res = await fetch(`/api/user/allUsers/${userId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    })
+      const res = await fetch(`/api/user/allUsers/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
-    const data = await res.json()
-    if (data.success) {
-      toast.success(`User is now ${newStatus}`)
-      context.fetchAllUsers();
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`User is now ${newStatus}`);
+        context.fetchAllUsers();
       } else {
-      toast.error(data.error || "Failed to update user status")
+        toast.error(data.error || "Failed to update user status");
+      }
+    } catch (error) {
+      toast.error("Error updating user: " + error.message);
     }
-  } catch (error) {
-    toast.error("Error updating user: " + error.message)
-  }
-  setLoading(false)
-}
+    setLoading(false);
+  };
 
+  const handleToggleRole = async (userId, currentRole) => {
+    setLoading(true);
+    try {
+      // Decide new role
+      const newRole = currentRole === "teacher" ? "student" : "teacher";
 
-  
-const handleToggleRole = async (userId, currentRole) => {
-  setLoading(true)
-  try {
-    // Decide new role
-    const newRole = currentRole === "teacher" ? "student" : "teacher"
+      const res = await fetch(`/api/user/allUsers/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: newRole }),
+      });
 
-    const res = await fetch(`/api/user/allUsers/${userId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role: newRole }),
-    })
-
-    const data = await res.json()
-    if (data.success) {
-      toast.success(`User role updated to ${newRole}`)
-      context.fetchAllUsers() // refresh list
-    } else {
-      toast.error(data.error || "Failed to update role")
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`User role updated to ${newRole}`);
+        context.fetchAllUsers(); // refresh list
+      } else {
+        toast.error(data.error || "Failed to update role");
+      }
+    } catch (error) {
+      toast.error("Error updating role: " + error.message);
     }
-  } catch (error) {
-    toast.error("Error updating role: " + error.message)
-  }
-  setLoading(false)
-}
+    setLoading(false);
+  };
 
-
-  
-   
-  
-  
-
-
-     const handleLogout = async ()=>{
+  const handleLogout = async () => {
     try {
       const res = await fetch("/api/auth/logout", {
         method: "POST",
@@ -219,35 +203,52 @@ const handleToggleRole = async (userId, currentRole) => {
     } catch (error) {
       toast.error("Something went wrong");
     }
-  }
+  };
+  function parseUptimeToPercent(uptimeStr) {
+  const regex = /(?:(\d+)d)?\s*(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:(\d+)s)?/;
+  const match = uptimeStr?.match(regex);
 
-  
+  if (!match) return 0;
+
+  const days = parseInt(match[1] || 0);
+  const hours = parseInt(match[2] || 0);
+  const minutes = parseInt(match[3] || 0);
+  const seconds = parseInt(match[4] || 0);
+
+  const totalSeconds =
+    days * 86400 + hours * 3600 + minutes * 60 + seconds;
+
+  // percentage of 24h (86400s)
+  return ((totalSeconds / 86400) * 100).toFixed(2);
+}
+
 
   const systemStats = [
     {
       title: "Server Status",
-      value: "Online",
+      value: context.stats?.dbOnline ? "Online" : "Offline",
       icon: Server,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
+      color: context.stats?.dbOnline ? "text-green-600" : "text-red-600" ,
+      bgColor: context.stats?.dbOnline ? "bg-green-100" : "bg-red-100" ,
     },
     {
       title: "Database Health",
-      value: "Optimal",
+      value: context.stats?.dbHealth,
       icon: Database,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
+      color: context.stats?.dbHealth === "Healthy" ? "text-green-600" : "text-red-600",
+      bgColor: context.stats?.dbHealth === "Healthy" ? "bg-green-50" : "bg-red-50",
+
     },
     {
-      title: "Active Sessions",
-      value: "892",
+      title: "DB Load",
+      value:`${context.stats?.dbLoad}%`,
       icon: Activity,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
     },
     {
-      title: "System Load",
-      value: "23%",
+      title: "System uptime",
+      value: `${parseUptimeToPercent(context.stats?.uptime)}%`,
       icon: BarChart3,
       color: "text-yellow-600",
       bgColor: "bg-yellow-100",
@@ -280,6 +281,18 @@ const handleToggleRole = async (userId, currentRole) => {
       time: "1 day ago",
     },
   ];
+ useEffect(() => {
+  // Run once on mount
+  context.fetchStats();
+
+  // Run every 10 seconds
+  const interval = setInterval(() => {
+    context.fetchStats();
+  }, 60000 * 15);
+
+  return () => clearInterval(interval);
+}, []);
+
 
   const getRoleColor = (role) => {
     switch (role) {
@@ -293,6 +306,8 @@ const handleToggleRole = async (userId, currentRole) => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  
 
   const getActivityIcon = (type) => {
     switch (type) {
@@ -327,10 +342,6 @@ const handleToggleRole = async (userId, currentRole) => {
             {/* Header Actions */}
             <div className="flex items-center space-x-4">
               {/* Quick Actions */}
-              <Button size="sm" onClick={() => setIsCreateUserOpen(true)}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Add User
-              </Button>
 
               <Button
                 size="sm"
@@ -364,7 +375,9 @@ const handleToggleRole = async (userId, currentRole) => {
                       <AvatarFallback>MT</AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
-                      <p className="text-sm font-medium">{context.user?.firstName}{" "}{context.user?.lastName}</p>
+                      <p className="text-sm font-medium">
+                        {context.user?.firstName} {context.user?.lastName}
+                      </p>
                       <p className="text-xs text-gray-500">System Admin</p>
                     </div>
                   </Button>
@@ -403,7 +416,10 @@ const handleToggleRole = async (userId, currentRole) => {
                     Support
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-red-600"
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
@@ -480,7 +496,7 @@ const handleToggleRole = async (userId, currentRole) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600">
-                {adminData.systemUptime}
+                {context.stats?.uptime}
               </div>
               <p className="text-xs text-gray-600">Last 30 days</p>
             </CardContent>
@@ -489,12 +505,11 @@ const handleToggleRole = async (userId, currentRole) => {
 
         {/* Main Dashboard Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
             <TabsTrigger value="courses">Course Oversight</TabsTrigger>
-            <TabsTrigger value="system">System Health</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -549,12 +564,14 @@ const handleToggleRole = async (userId, currentRole) => {
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium">Students</span>
                         <span className="text-sm text-gray-600">
-                          {adminData.totalStudents}
+                          {
+                            context.allUsers.filter((c)=>c.role=== "student").length || 0
+                          }
                         </span>
                       </div>
                       <Progress
                         value={
-                          (adminData.totalStudents / adminData.totalUsers) * 100
+                          (context.allUsers.filter((c)=>c.role=== "student").length || 0) * 100
                         }
                         className="h-2"
                       />
@@ -563,12 +580,12 @@ const handleToggleRole = async (userId, currentRole) => {
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium">Teachers</span>
                         <span className="text-sm text-gray-600">
-                          {adminData.totalTeachers}
+                          {context.allUsers.filter((c)=>c.role=== "teacher").length || 0}
                         </span>
                       </div>
                       <Progress
                         value={
-                          (adminData.totalTeachers / adminData.totalUsers) * 100
+                          (context.allUsers.filter((c)=>c.role=== "teacher").length || 0) * 100
                         }
                         className="h-2"
                       />
@@ -576,10 +593,10 @@ const handleToggleRole = async (userId, currentRole) => {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium">Admins</span>
-                        <span className="text-sm text-gray-600">46</span>
+                        <span className="text-sm text-gray-600">{context.allUsers.filter((c)=>c.role=== "admin").length || 0}</span>
                       </div>
                       <Progress
-                        value={(46 / adminData.totalUsers) * 100}
+                        value={(context.allUsers.filter((c)=>c.role=== "admin").length || 0) * 100}
                         className="h-2"
                       />
                     </div>
@@ -627,14 +644,6 @@ const handleToggleRole = async (userId, currentRole) => {
                     <CardTitle>Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <Button
-                      className="w-full justify-start bg-transparent"
-                      variant="outline"
-                      onClick={() => setIsCreateUserOpen(true)}
-                    >
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Add New User
-                    </Button>
                     <Button
                       className="w-full justify-start bg-transparent"
                       variant="outline"
@@ -696,7 +705,7 @@ const handleToggleRole = async (userId, currentRole) => {
                     <div className="grid grid-cols-2 gap-4 text-center">
                       <div className="p-3 bg-blue-50 rounded-lg">
                         <div className="text-lg font-bold text-blue-600">
-                          2.4M
+                          {context.challenges.length}
                         </div>
                         <div className="text-xs text-gray-600">
                           Total Challenges
@@ -704,7 +713,17 @@ const handleToggleRole = async (userId, currentRole) => {
                       </div>
                       <div className="p-3 bg-green-50 rounded-lg">
                         <div className="text-lg font-bold text-green-600">
-                          94%
+                          {(() => {
+                          const courses = context.user?.courses || [];
+                          if (!courses.length) return "0%";
+
+                          const completed = courses.filter(
+                            (c) => c.progress === 100
+                          ).length;
+                          const successRate =
+                            (completed / courses.length) * 100;
+                          return `${successRate.toFixed(2)}%`; // e.g. 33.33%
+                        })()}
                         </div>
                         <div className="text-xs text-gray-600">
                           Success Rate
@@ -720,7 +739,7 @@ const handleToggleRole = async (userId, currentRole) => {
                       </div>
                       <div className="p-3 bg-yellow-50 rounded-lg">
                         <div className="text-lg font-bold text-yellow-600">
-                          98%
+                          {parseUptimeToPercent(context.stats?.uptime)}%
                         </div>
                         <div className="text-xs text-gray-600">Uptime</div>
                       </div>
@@ -743,10 +762,6 @@ const handleToggleRole = async (userId, currentRole) => {
                 <Button variant="outline">
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
-                </Button>
-                <Button onClick={() => setIsCreateUserOpen(true)}>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Add User
                 </Button>
               </div>
             </div>
@@ -778,7 +793,9 @@ const handleToggleRole = async (userId, currentRole) => {
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{user.firstName + " " + user.lastName}</p>
+                            <p className="font-medium">
+                              {user.firstName + " " + user.lastName}
+                            </p>
                             <p className="text-sm text-gray-600">
                               {user.email}
                             </p>
@@ -804,11 +821,13 @@ const handleToggleRole = async (userId, currentRole) => {
                       <TableCell>
                         {user.role === "teacher" ? (
                           <span className="text-sm text-gray-600">
-                            {user.courses || 4} courses, {user.students || 50} students
+                            {user.courses || 4} courses, {user.students || 50}{" "}
+                            students
                           </span>
                         ) : user.role === "student" ? (
                           <span className="text-sm text-gray-600">
-                            {user.courses || 4} courses, {user.avgScore || 50}% avg
+                            {user.courses || 4} courses, {user.avgScore || 50}%
+                            avg
                           </span>
                         ) : (
                           <span className="text-sm text-gray-600">
@@ -829,21 +848,28 @@ const handleToggleRole = async (userId, currentRole) => {
                               View Profile
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem onClick={()=>handleToggleRole(user._id,user.role)}>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleToggleRole(user._id, user.role)
+                              }
+                            >
                               {user.role === "student" ? (
                                 <>
-                                 <Edit className="mr-2 h-4 w-4" />
-                              Make Teacher
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Make Teacher
                                 </>
                               ) : (
                                 <>
-                                 <Edit className="mr-2 h-4 w-4" />
-                              Make Student
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Make Student
                                 </>
                               )}
-                              
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={()=>handleSuspend(user._id,user.status)}>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleSuspend(user._id, user.status)
+                              }
+                            >
                               {user.status === "active" ? (
                                 <>
                                   <Lock className="mr-2 h-4 w-4" />
@@ -857,7 +883,10 @@ const handleToggleRole = async (userId, currentRole) => {
                               )}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={()=>handleDelete(user._id)} className="text-red-600">
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(user._id)}
+                              className="text-red-600"
+                            >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete User
                             </DropdownMenuItem>
@@ -876,67 +905,75 @@ const handleToggleRole = async (userId, currentRole) => {
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Course Oversight</h3>
               <div className="flex space-x-2">
-                <Button variant="outline">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filter Courses
-                </Button>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Approve Pending
-                </Button>
+                
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="border-yellow-200 bg-yellow-50">
+              <Card>
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">Pending Approval</CardTitle>
-                    <Badge
-                      variant="outline"
-                      className="bg-yellow-100 text-yellow-800"
-                    >
-                      12 Courses
+                    <CardTitle className="text-lg">Active Courses</CardTitle>
+                    <Badge className="bg-green-100 text-green-800">
+                      {
+                        context.courses.filter((c) => c.status === "active")
+                          .length
+                      }{" "}
+                      Courses
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Review and approve new courses submitted by teachers
-                  </p>
-                  <Button size="sm" className="w-full">
-                    Review Pending
-                  </Button>
+                  <div className="space-y-2 text-sm">
+                    {context.courses
+                      .filter((course) => course.status === "active")
+                      .map((course) => (
+                        <div
+                          key={course._id}
+                          className="flex justify-between border-b last:border-b-0 pb-1"
+                        >
+                          <span>{course.title}</span>
+                          <span>{course.subtopics?.length || 0} subtopics</span>
+                        </div>
+                      ))}
+                  </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">Active Courses</CardTitle>
+                    <CardTitle className="text-lg">Active Challenges</CardTitle>
                     <Badge className="bg-green-100 text-green-800">
-                      89 Courses
+                      {
+                        context.challenges.filter((c) => c.status === "active")
+                          .length
+                      }{" "}
+                      Challenges
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Mathematics</span>
-                      <span>23 courses</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Science</span>
-                      <span>31 courses</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Languages</span>
-                      <span>18 courses</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Others</span>
-                      <span>17 courses</span>
-                    </div>
+                    {context.challenges
+                      .filter((challenge) => challenge.status === "active")
+                      .map((challenge) => (
+                        <div
+                          key={challenge._id}
+                          className="flex justify-between border-b last:border-b-0 pb-1"
+                        >
+                          {/* Challenge Title */}
+                          <span>
+                            {challenge.title}{" "}
+                            <span className="text-xs text-gray-500">
+                              ({challenge.course?.title})
+                            </span>
+                          </span>
+
+                          {/* Number of MCQs */}
+                          <span>{challenge.mcqs?.length || 0} MCQs</span>
+                        </div>
+                      ))}
                   </div>
                 </CardContent>
               </Card>
@@ -954,148 +991,88 @@ const handleToggleRole = async (userId, currentRole) => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
+                    {/* Avg Completion */}
                     <div className="text-center p-3 bg-blue-50 rounded-lg">
-                      <div className="text-lg font-bold text-blue-600">87%</div>
+                      <div className="text-lg font-bold text-blue-600">
+                        {(() => {
+                          const courses = context.user?.courses || [];
+                          if (!courses.length) return "0%";
+
+                          const totalProgress = courses.reduce(
+                            (sum, c) => sum + (c.progress || 0),
+                            0
+                          );
+                          const avg = totalProgress / courses.length;
+                          return `${avg.toFixed(2)}%`; // e.g. 56.25%
+                        })()}
+                      </div>
                       <div className="text-xs text-gray-600">
                         Avg Completion
                       </div>
                     </div>
-                    <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <div className="text-lg font-bold text-green-600">
-                        92%
+
+                    {/* Student Success Rate */}
+                    <div className="text-center p-3 bg-purple-50 rounded-lg">
+                      <div className="text-lg font-bold text-purple-600">
+                        {(() => {
+                          const courses = context.user?.courses || [];
+                          if (!courses.length) return "0%";
+
+                          const completed = courses.filter(
+                            (c) => c.progress === 100
+                          ).length;
+                          const successRate =
+                            (completed / courses.length) * 100;
+                          return `${successRate.toFixed(2)}%`; // e.g. 33.33%
+                        })()}
                       </div>
                       <div className="text-xs text-gray-600">
-                        Student Satisfaction
+                        Student Success Rate
                       </div>
                     </div>
+
+                    {/* Student Satisfaction (placeholder) */}
+                    {/* <div className="text-center p-3 bg-green-50 rounded-lg">
+        <div className="text-lg font-bold text-green-600">92%</div>
+        <div className="text-xs text-gray-600">Student Satisfaction</div>
+      </div> */}
                   </div>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          {/* System Health Tab */}
-          <TabsContent value="system" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Activity Tab */}
+          <TabsContent value="activity" className="space-y-6">
+            <div className="">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Server className="h-5 w-5 text-green-600" />
-                    <span>Server Status</span>
+                    <Clock className="h-5 w-5 text-orange-600" />
+                    <span>Recent Admin Activities</span>
                   </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>CPU Usage</span>
-                    <span className="text-green-600">23%</span>
-                  </div>
-                  <Progress value={23} className="h-2" />
-
-                  <div className="flex justify-between items-center">
-                    <span>Memory Usage</span>
-                    <span className="text-yellow-600">67%</span>
-                  </div>
-                  <Progress value={67} className="h-2" />
-
-                  <div className="flex justify-between items-center">
-                    <span>Disk Usage</span>
-                    <span className="text-blue-600">45%</span>
-                  </div>
-                  <Progress value={45} className="h-2" />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Database className="h-5 w-5 text-blue-600" />
-                    <span>Database Health</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div className="p-3 bg-green-50 rounded-lg">
-                      <div className="text-lg font-bold text-green-600">
-                        Online
-                      </div>
-                      <div className="text-xs text-gray-600">Status</div>
-                    </div>
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <div className="text-lg font-bold text-blue-600">
-                        2.3GB
-                      </div>
-                      <div className="text-xs text-gray-600">Size</div>
-                    </div>
-                    <div className="p-3 bg-purple-50 rounded-lg">
-                      <div className="text-lg font-bold text-purple-600">
-                        1.2M
-                      </div>
-                      <div className="text-xs text-gray-600">Records</div>
-                    </div>
-                    <div className="p-3 bg-yellow-50 rounded-lg">
-                      <div className="text-lg font-bold text-yellow-600">
-                        12ms
-                      </div>
-                      <div className="text-xs text-gray-600">Avg Query</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Platform Growth
-                  </CardTitle>
-                  <TrendingUp className="h-4 w-4 text-green-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+23%</div>
-                  <p className="text-xs text-gray-600">vs last month</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    User Engagement
-                  </CardTitle>
-                  <Activity className="h-4 w-4 text-blue-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">89%</div>
-                  <p className="text-xs text-gray-600">daily active users</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Course Completion
-                  </CardTitle>
-                  <CheckCircle className="h-4 w-4 text-purple-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">94%</div>
-                  <p className="text-xs text-gray-600">average rate</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Revenue Growth
-                  </CardTitle>
-                  <Award className="h-4 w-4 text-yellow-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">+18%</div>
-                  <p className="text-xs text-gray-600">this quarter</p>
+                  <div className="space-y-4">
+                    {recentAdminActivities.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className="flex items-start space-x-3"
+                      >
+                        <div className="flex-shrink-0 mt-1">
+                          {getActivityIcon(activity.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900">
+                            {activity.title}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {activity.time}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -1103,8 +1080,8 @@ const handleToggleRole = async (userId, currentRole) => {
             <Alert>
               <BarChart3 className="h-4 w-4" />
               <AlertDescription>
-                Advanced analytics dashboard with detailed reports and insights
-                is coming soon.
+                Here we can see the all recent activities of all user like Admin
+                , Teacher and Student also ..
               </AlertDescription>
             </Alert>
           </TabsContent>
@@ -1193,69 +1170,6 @@ const handleToggleRole = async (userId, currentRole) => {
           </TabsContent>
         </Tabs>
       </main>
-
-      {/* Create User Dialog */}
-      <Dialog open={isCreateUserOpen} onOpenChange={setIsCreateUserOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
-            <DialogDescription>
-              Create a new user account for the platform.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="user-name" className="text-right">
-                Full Name
-              </Label>
-              <Input
-                id="user-name"
-                placeholder="Enter full name"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="user-email" className="text-right">
-                Email
-              </Label>
-              <Input
-                id="user-email"
-                type="email"
-                placeholder="Enter email"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="user-role" className="text-right">
-                Role
-              </Label>
-              <Select>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="student">Student</SelectItem>
-                  <SelectItem value="teacher">Teacher</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="user-department" className="text-right">
-                Department
-              </Label>
-              <Input
-                id="user-department"
-                placeholder="Enter department"
-                className="col-span-3"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Create User</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* System Settings Dialog */}
       <Dialog
