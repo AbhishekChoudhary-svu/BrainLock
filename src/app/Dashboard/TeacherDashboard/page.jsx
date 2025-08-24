@@ -224,6 +224,7 @@ export default function TeacherDashboard() {
     context.fetchAllUsers();
     context.fetchProfile();
     context.fetchLeaderboard();
+    context.fetchActivities();
   }, []);
 
   const openCreateDialog = () => {
@@ -267,30 +268,6 @@ export default function TeacherDashboard() {
   };
 
 
-  const recentActivities = [
-    {
-      id: 1,
-      type: "challenge_created",
-      title: "Created new challenge: Derivatives Practice",
-      course: "Advanced Calculus",
-      time: "2 hours ago",
-    },
-    {
-      id: 2,
-      type: "student_completed",
-      title: "Alex Johnson completed Linear Systems Quiz",
-      course: "Linear Algebra",
-      time: "4 hours ago",
-    },
-    {
-      id: 3,
-      type: "course_updated",
-      title: "Updated course materials for Statistics",
-      course: "Statistics Fundamentals",
-      time: "1 day ago",
-    },
-  ];
-
   const handleDeleteCourse = async (id) => {
     try {
       const res = await fetch(`/api/teacher/courses/${id}`, {
@@ -325,18 +302,31 @@ export default function TeacherDashboard() {
     }
   };
 
-  const getActivityIcon = (type) => {
-    switch (type) {
-      case "challenge_created":
-        return <Plus className="h-4 w-4 text-green-600" />;
-      case "student_completed":
-        return <CheckCircle className="h-4 w-4 text-blue-600" />;
-      case "course_updated":
-        return <Edit className="h-4 w-4 text-orange-600" />;
+  const getRoleColor = (role) => {
+    switch (role) {
+      case "admin":
+        return "bg-red-100 text-red-800";
+      case "teacher":
+        return "bg-green-100 text-green-800";
+      case "student":
+        return "bg-blue-100 text-blue-800";
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-600" />;
+        return "bg-gray-100 text-gray-800";
     }
   };
+  
+  function getActivityIcon(type) {
+    switch (type) {
+      case "CREATE_COURSE":
+        return <Clock className="h-5 w-5 text-green-600" />;
+      case "ENROLL_COURSE":
+        return <Clock className="h-5 w-5 text-blue-600" />;
+      case "COMPLETE_CHALLENGE":
+        return <Clock className="h-5 w-5 text-purple-600" />;
+      default:
+        return <Clock className="h-5 w-5 text-gray-400" />;
+    }
+  }
 
  
  const allUserAvgScore =
@@ -600,31 +590,52 @@ export default function TeacherDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {recentActivities.map((activity) => (
+                   <div className="space-y-4">
+                    {context.activities.length > 0 ? (
+                      context.activities.filter((c)=>c.role==="teacher" || c.role==="student").map((activity) => (
                         <div
-                          key={activity.id}
+                          key={activity._id}
                           className="flex items-start space-x-3"
                         >
                           <div className="flex-shrink-0 mt-1">
-                            {getActivityIcon(activity.type)}
+                            {getActivityIcon(activity.action)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900">
-                              {activity.title}
+                              {activity.action}
+                              {activity.courseId
+                                ? `: ${activity.courseId.title}`
+                                : ""}
+                              {activity.challengeId
+                                ? ` → ${activity.challengeId.title}`
+                                : ""}{" "}
+                              <Badge className={getRoleColor(activity.role)}>
+                                {activity.role}
+                              </Badge>{" "}
+                              <span className="font-semibold">
+                                {activity.userId?.firstName}{" "}
+                                {activity.userId?.lastName}
+                              </span>
                             </p>
-                            {activity.course && (
-                              <p className="text-sm text-gray-600">
-                                {activity.course}
+                            {activity.details && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                {activity.details.score !== undefined
+                                  ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
+                                  : typeof activity.details === "string"
+                                  ? activity.details
+                                  : JSON.stringify(activity.details)}
                               </p>
                             )}
-                            <p className="text-xs text-gray-500 mt-1">
-                              {activity.time}
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(activity.createdAt).toLocaleString()}
                             </p>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 ">No recent admin activities</p>
+                    )}
+                  </div>
                   </CardContent>
                 </Card>
               </div>

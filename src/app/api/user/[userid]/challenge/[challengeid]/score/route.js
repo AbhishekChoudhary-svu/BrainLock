@@ -87,7 +87,7 @@ export async function PUT(req, { params }) {
       
     const action =
       challengeEntry.progress === 100
-        ? "Completed Challenge"
+        ? "COMPLETE_CHALLENGE"
         : "Updated Challenge Progress";
 
     await logActivity(user._id, user.role, action, challenge.course, challenge._id, {

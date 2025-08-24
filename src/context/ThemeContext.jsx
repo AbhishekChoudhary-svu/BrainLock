@@ -13,6 +13,9 @@ const ThemeProvider = ({ children }) => {
   const [allUsers, setAllUsers] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
   const [stats, setStats] = useState([]);
+  const [activities, setActivities] = useState([]);
+  const [userActivities, setUserActivities] = useState([]);
+
 
 
   
@@ -106,6 +109,44 @@ const ThemeProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  async function fetchActivities() {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/activity", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          setActivities(data.data);
+        } else {
+          alert(data.message || "Failed to fetch activities");
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+  }
+  async function fetchUserActivities() {
+      try {
+        const res = await fetch(`/api/activity/me`); // your API
+        const data = await res.json();
+        if (data.success) {
+          setUserActivities(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch activities:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+  
+
 
 
 
@@ -130,6 +171,12 @@ const ThemeProvider = ({ children }) => {
     stats, 
     setStats,
     fetchStats,
+    activities, 
+    setActivities,
+    fetchActivities,
+    userActivities, 
+    setUserActivities,
+    fetchUserActivities,
   };
 
   return <MyContext.Provider value={values}>{children}</MyContext.Provider>;

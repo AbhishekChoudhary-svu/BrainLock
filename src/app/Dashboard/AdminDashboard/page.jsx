@@ -98,6 +98,7 @@ export default function AdminDashboard() {
     context.fetchCourses();
     context.fetchChallenges();
     context.fetchProfile();
+    context.fetchActivities();
   }, []);
 
   // Mock data for admin (includes all teacher data plus admin-specific)
@@ -206,43 +207,44 @@ export default function AdminDashboard() {
     }
   };
   function parseUptimeToPercent(uptimeStr) {
-  const regex = /(?:(\d+)d)?\s*(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:(\d+)s)?/;
-  const match = uptimeStr?.match(regex);
+    const regex = /(?:(\d+)d)?\s*(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:(\d+)s)?/;
+    const match = uptimeStr?.match(regex);
 
-  if (!match) return 0;
+    if (!match) return 0;
 
-  const days = parseInt(match[1] || 0);
-  const hours = parseInt(match[2] || 0);
-  const minutes = parseInt(match[3] || 0);
-  const seconds = parseInt(match[4] || 0);
+    const days = parseInt(match[1] || 0);
+    const hours = parseInt(match[2] || 0);
+    const minutes = parseInt(match[3] || 0);
+    const seconds = parseInt(match[4] || 0);
 
-  const totalSeconds =
-    days * 86400 + hours * 3600 + minutes * 60 + seconds;
+    const totalSeconds = days * 86400 + hours * 3600 + minutes * 60 + seconds;
 
-  // percentage of 24h (86400s)
-  return ((totalSeconds / 86400) * 100).toFixed(2);
-}
-
+    // percentage of 24h (86400s)
+    return ((totalSeconds / 86400) * 100).toFixed(2);
+  }
 
   const systemStats = [
     {
       title: "Server Status",
       value: context.stats?.dbOnline ? "Online" : "Offline",
       icon: Server,
-      color: context.stats?.dbOnline ? "text-green-600" : "text-red-600" ,
-      bgColor: context.stats?.dbOnline ? "bg-green-100" : "bg-red-100" ,
+      color: context.stats?.dbOnline ? "text-green-600" : "text-red-600",
+      bgColor: context.stats?.dbOnline ? "bg-green-100" : "bg-red-100",
     },
     {
       title: "Database Health",
       value: context.stats?.dbHealth,
       icon: Database,
-      color: context.stats?.dbHealth === "Healthy" ? "text-green-600" : "text-red-600",
-      bgColor: context.stats?.dbHealth === "Healthy" ? "bg-green-50" : "bg-red-50",
-
+      color:
+        context.stats?.dbHealth === "Healthy"
+          ? "text-green-600"
+          : "text-red-600",
+      bgColor:
+        context.stats?.dbHealth === "Healthy" ? "bg-green-50" : "bg-red-50",
     },
     {
       title: "DB Load",
-      value:`${context.stats?.dbLoad}%`,
+      value: `${context.stats?.dbLoad}%`,
       icon: Activity,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
@@ -282,18 +284,17 @@ export default function AdminDashboard() {
       time: "1 day ago",
     },
   ];
- useEffect(() => {
-  // Run once on mount
-  context.fetchStats();
-
-  // Run every 10 seconds
-  const interval = setInterval(() => {
+  useEffect(() => {
+    // Run once on mount
     context.fetchStats();
-  }, 60000 * 15);
 
-  return () => clearInterval(interval);
-}, []);
+    // Run every 10 seconds
+    const interval = setInterval(() => {
+      context.fetchStats();
+    }, 60000 * 15);
 
+    return () => clearInterval(interval);
+  }, []);
 
   const getRoleColor = (role) => {
     switch (role) {
@@ -308,22 +309,18 @@ export default function AdminDashboard() {
     }
   };
 
-  
-
-  const getActivityIcon = (type) => {
+  function getActivityIcon(type) {
     switch (type) {
-      case "user_created":
-        return <UserPlus className="h-4 w-4 text-green-600" />;
-      case "system_update":
-        return <Settings className="h-4 w-4 text-blue-600" />;
-      case "course_approved":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "user_suspended":
-        return <UserMinus className="h-4 w-4 text-red-600" />;
+      case "CREATE_COURSE":
+        return <Clock className="h-5 w-5 text-green-600" />;
+      case "ENROLL_COURSE":
+        return <Clock className="h-5 w-5 text-blue-600" />;
+      case "COMPLETE_CHALLENGE":
+        return <Clock className="h-5 w-5 text-purple-600" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-600" />;
+        return <Clock className="h-5 w-5 text-gray-400" />;
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -565,14 +562,14 @@ export default function AdminDashboard() {
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium">Students</span>
                         <span className="text-sm text-gray-600">
-                          {
-                            context.allUsers.filter((c)=>c.role=== "student").length || 0
-                          }
+                          {context.allUsers.filter((c) => c.role === "student")
+                            .length || 0}
                         </span>
                       </div>
                       <Progress
                         value={
-                          (context.allUsers.filter((c)=>c.role=== "student").length || 0) * 100
+                          (context.allUsers.filter((c) => c.role === "student")
+                            .length || 0) * 100
                         }
                         className="h-2"
                       />
@@ -581,12 +578,14 @@ export default function AdminDashboard() {
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium">Teachers</span>
                         <span className="text-sm text-gray-600">
-                          {context.allUsers.filter((c)=>c.role=== "teacher").length || 0}
+                          {context.allUsers.filter((c) => c.role === "teacher")
+                            .length || 0}
                         </span>
                       </div>
                       <Progress
                         value={
-                          (context.allUsers.filter((c)=>c.role=== "teacher").length || 0) * 100
+                          (context.allUsers.filter((c) => c.role === "teacher")
+                            .length || 0) * 100
                         }
                         className="h-2"
                       />
@@ -594,10 +593,16 @@ export default function AdminDashboard() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium">Admins</span>
-                        <span className="text-sm text-gray-600">{context.allUsers.filter((c)=>c.role=== "admin").length || 0}</span>
+                        <span className="text-sm text-gray-600">
+                          {context.allUsers.filter((c) => c.role === "admin")
+                            .length || 0}
+                        </span>
                       </div>
                       <Progress
-                        value={(context.allUsers.filter((c)=>c.role=== "admin").length || 0) * 100}
+                        value={
+                          (context.allUsers.filter((c) => c.role === "admin")
+                            .length || 0) * 100
+                        }
                         className="h-2"
                       />
                     </div>
@@ -613,26 +618,52 @@ export default function AdminDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {recentAdminActivities.map((activity) => (
+                   <div className="space-y-4">
+                    {context.activities.length > 0 ? (
+                      context.activities.filter((c)=>c.role==="admin").map((activity) => (
                         <div
-                          key={activity.id}
+                          key={activity._id}
                           className="flex items-start space-x-3"
                         >
                           <div className="flex-shrink-0 mt-1">
-                            {getActivityIcon(activity.type)}
+                            {getActivityIcon(activity.action)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900">
-                              {activity.title}
+                              {activity.action}
+                              {activity.courseId
+                                ? `: ${activity.courseId.title}`
+                                : ""}
+                              {activity.challengeId
+                                ? ` → ${activity.challengeId.title}`
+                                : ""}{" "}
+                              <Badge className={getRoleColor(activity.role)}>
+                                {activity.role}
+                              </Badge>{" "}
+                              <span className="font-semibold">
+                                {activity.userId?.firstName}{" "}
+                                {activity.userId?.lastName}
+                              </span>
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {activity.time}
+                            {activity.details && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                {activity.details.score !== undefined
+                                  ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
+                                  : typeof activity.details === "string"
+                                  ? activity.details
+                                  : JSON.stringify(activity.details)}
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(activity.createdAt).toLocaleString()}
                             </p>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 ">No recent admin activities</p>
+                    )}
+                  </div>
                   </CardContent>
                 </Card>
               </div>
@@ -715,16 +746,16 @@ export default function AdminDashboard() {
                       <div className="p-3 bg-green-50 rounded-lg">
                         <div className="text-lg font-bold text-green-600">
                           {(() => {
-                          const courses = context.user?.courses || [];
-                          if (!courses.length) return "0%";
+                            const courses = context.user?.courses || [];
+                            if (!courses.length) return "0%";
 
-                          const completed = courses.filter(
-                            (c) => c.progress === 100
-                          ).length;
-                          const successRate =
-                            (completed / courses.length) * 100;
-                          return `${successRate.toFixed(2)}%`; // e.g. 33.33%
-                        })()}
+                            const completed = courses.filter(
+                              (c) => c.progress === 100
+                            ).length;
+                            const successRate =
+                              (completed / courses.length) * 100;
+                            return `${successRate.toFixed(2)}%`; // e.g. 33.33%
+                          })()}
                         </div>
                         <div className="text-xs text-gray-600">
                           Success Rate
@@ -818,9 +849,11 @@ export default function AdminDashboard() {
                           {user.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>{formatDistanceToNow(new Date(user.lastActive), {
-                                      addSuffix: true,
-                                    })}</TableCell>
+                      <TableCell>
+                        {formatDistanceToNow(new Date(user.lastActive), {
+                          addSuffix: true,
+                        })}
+                      </TableCell>
                       <TableCell>
                         {user.role === "teacher" ? (
                           <span className="text-sm text-gray-600">
@@ -829,8 +862,8 @@ export default function AdminDashboard() {
                           </span>
                         ) : user.role === "student" ? (
                           <span className="text-sm text-gray-600">
-                            {user.courses.length || 4} courses, {user.avgScore || 50}%
-                            avg
+                            {user.courses.length || 4} courses,{" "}
+                            {user.avgScore || 50}% avg
                           </span>
                         ) : (
                           <span className="text-sm text-gray-600">
@@ -907,9 +940,7 @@ export default function AdminDashboard() {
           <TabsContent value="courses" className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Course Oversight</h3>
-              <div className="flex space-x-2">
-                
-              </div>
+              <div className="flex space-x-2"></div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1052,29 +1083,55 @@ export default function AdminDashboard() {
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Clock className="h-5 w-5 text-orange-600" />
-                    <span>Recent Admin Activities</span>
+                    <span>Recent Activities</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {recentAdminActivities.map((activity) => (
-                      <div
-                        key={activity.id}
-                        className="flex items-start space-x-3"
-                      >
-                        <div className="flex-shrink-0 mt-1">
-                          {getActivityIcon(activity.type)}
+                    {context.activities.length > 0 ? (
+                      context.activities.map((activity) => (
+                        <div
+                          key={activity._id}
+                          className="flex items-start space-x-3"
+                        >
+                          <div className="flex-shrink-0 mt-1">
+                            {getActivityIcon(activity.action)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900">
+                              {activity.action}
+                              {activity.courseId
+                                ? `: ${activity.courseId.title}`
+                                : ""}
+                              {activity.challengeId
+                                ? ` → ${activity.challengeId.title}`
+                                : ""}{" "}
+                              <Badge className={getRoleColor(activity.role)}>
+                                {activity.role}
+                              </Badge>{" "}
+                              <span className="font-semibold">
+                                {activity.userId?.firstName}{" "}
+                                {activity.userId?.lastName}
+                              </span>
+                            </p>
+                            {activity.details && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                {activity.details.score !== undefined
+                                  ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
+                                  : typeof activity.details === "string"
+                                  ? activity.details
+                                  : JSON.stringify(activity.details)}
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(activity.createdAt).toLocaleString()}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">
-                            {activity.title}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {activity.time}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-gray-400 ">No recent activities</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>

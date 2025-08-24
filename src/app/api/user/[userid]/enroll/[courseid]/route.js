@@ -44,7 +44,7 @@ export async function PUT(req, { params }) {
         enrolledAt: new Date(),
       });
     }
-    await logActivity(user._id,user.role, "Enrolled in course", courseid);
+    await logActivity(user._id,user.role, "ENROLL_COURSE", courseid);
 
 
     await user.save();

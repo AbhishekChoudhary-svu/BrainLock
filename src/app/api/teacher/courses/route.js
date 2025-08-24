@@ -21,12 +21,13 @@ async function createCourse(req, userId) {
       instructor: userId, // teacher ID automatically from middleware
     });
 
+    const savedCourse = await course.save();
     const user = await User.findById(userId)
      if (!user) {
       return new Response(JSON.stringify({ success: false, message: "Unauthorized" }), { status: 401 });
     }
 
-     await logActivity(user._id,user.role,"Course Created" , course._id
+     await logActivity(user._id,user.role,"CREATE_COURSE" , savedCourse._id
       );
 
     return new Response(
