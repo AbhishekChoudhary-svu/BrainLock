@@ -2,11 +2,14 @@
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/user.model";
 import SubjectChallenge from "@/models/subjectChallenge.model";
+import { logActivity } from "@/lib/logActivity";
 
 export async function PUT(req, { params }) {
   await dbConnect();
   const { userid, challengeid } = params;
   const { score } = await req.json();
+
+  console.log(userid)
 
   try {
     const user = await User.findById(userid);
@@ -48,12 +51,12 @@ export async function PUT(req, { params }) {
     challengeEntry.completedAt =
       challengeEntry.progress === 100 ? new Date() : null;
 
-    // 1️⃣ Update user points only for score difference
+    
     if (score > oldScore) {
       user.points += score - oldScore;
     }
 
-    // 2️⃣ Update related course progress only for difference
+    
     if (newProgress > oldProgress && challenge.course) {
       const courseEntry = user.courses.find(
         (c) => String(c.courseId) === String(challenge.course)
@@ -71,6 +74,7 @@ export async function PUT(req, { params }) {
 
           if (courseEntry.progress === 100) {
             courseEntry.status = "completed";
+            await logActivity(user._id, user.role, "Course Completed", courseEntry._id);
           } else {
             courseEntry.status = "active";
           }
@@ -79,6 +83,18 @@ export async function PUT(req, { params }) {
     }
 
     await user.save();
+
+      
+    const action =
+      challengeEntry.progress === 100
+        ? "Completed Challenge"
+        : "Updated Challenge Progress";
+
+    await logActivity(user._id, user.role, action, challenge.course, challenge._id, {
+      score: challengeEntry.score,
+      progress: challengeEntry.progress,
+      totalPoints: user.points,
+    });
 
     return new Response(
       JSON.stringify({
@@ -92,7 +108,7 @@ export async function PUT(req, { params }) {
   } catch (error) {
     console.error(error);
     return new Response(
-      JSON.stringify({ success: false, message: "Server error" }),
+      JSON.stringify({ success: false, message: error.message }),
       { status: 500 }
     );
   }

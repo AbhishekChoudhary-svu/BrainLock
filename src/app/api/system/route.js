@@ -15,28 +15,29 @@ function formatUptime(seconds) {
 
 export async function GET() {
   try {
-    
     const dbOnline = mongoose.connection.readyState === 1;
     const dbHealth = dbOnline ? "Healthy" : "Down";
 
-   
     const dbLoad = mongoose.connections.reduce(
       (acc, conn) => acc + (conn.readyState === 1 ? 1 : 0),
       0
     );
 
-   
     const uptime = formatUptime(os.uptime());
 
-   
-    const stat = await SystemStat.create({
-      dbOnline,
-      dbHealth,
-      dbLoad,
-      uptime,
-    });
+    // ✅ Update existing record, or create one if not exists
+    const stat = await SystemStat.findOneAndUpdate(
+      {}, // no filter → applies to the only document
+      {
+        dbOnline,
+        dbHealth,
+        dbLoad,
+        uptime,
+        updatedAt: new Date(),
+      },
+      { new: true, upsert: true } // new:true returns updated doc, upsert:true creates if none exists
+    );
 
-    
     return new Response(JSON.stringify(stat), {
       status: 200,
       headers: { "Content-Type": "application/json" },

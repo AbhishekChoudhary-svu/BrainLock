@@ -84,6 +84,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import MyContext from "@/context/ThemeProvider";
+import { formatDistanceToNow } from "date-fns";
 
 export default function AdminDashboard() {
   const context = useContext(MyContext);
@@ -817,7 +818,9 @@ export default function AdminDashboard() {
                           {user.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>{user.lastLogin || " 2 Days Ago"}</TableCell>
+                      <TableCell>{formatDistanceToNow(new Date(user.lastActive), {
+                                      addSuffix: true,
+                                    })}</TableCell>
                       <TableCell>
                         {user.role === "teacher" ? (
                           <span className="text-sm text-gray-600">
@@ -826,7 +829,7 @@ export default function AdminDashboard() {
                           </span>
                         ) : user.role === "student" ? (
                           <span className="text-sm text-gray-600">
-                            {user.courses || 4} courses, {user.avgScore || 50}%
+                            {user.courses.length || 4} courses, {user.avgScore || 50}%
                             avg
                           </span>
                         ) : (

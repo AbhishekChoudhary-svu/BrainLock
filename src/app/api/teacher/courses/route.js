@@ -4,14 +4,30 @@ import Subtopic from "@/models/subtopic.model";
 import Content from "@/models/content.model";
 import SubjectChallenge from "@/models/subjectChallenge.model";
 import MCQ from "@/models/mcq.model";
+import { logActivity } from "@/lib/logActivity";
+import { withAuth } from "@/middlewares/auth"; 
+import User from "@/models/user.model";
 
-// Create a new course (POST) & Get all courses (GET)
-export async function POST(req) {
+// Original handler
+async function createCourse(req, userId) {
   try {
     await dbConnect();
 
     const body = await req.json();
-    const course = await Course.create(body);
+
+    // Optionally attach instructor = userId
+    const course = await Course.create({
+      ...body,
+      instructor: userId, // teacher ID automatically from middleware
+    });
+
+    const user = await User.findById(userId)
+     if (!user) {
+      return new Response(JSON.stringify({ success: false, message: "Unauthorized" }), { status: 401 });
+    }
+
+     await logActivity(user._id,user.role,"Course Created" , course._id
+      );
 
     return new Response(
       JSON.stringify({ success: true, data: course }),
@@ -26,28 +42,20 @@ export async function POST(req) {
   }
 }
 
-export async function GET() {
+// GET handler remains public (or you can protect it if needed)
+export async function GET(req) {
   try {
     await dbConnect();
 
-    const courses = await Course.find() 
-      // .populate("instructor", "firstName lastName email")
-       .populate({
+    const courses = await Course.find()
+      .populate({
         path: "subtopics",
-        populate: {
-          path: "contents",
-          model: "Content",
-        },
+        populate: { path: "contents", model: "Content" },
       })
       .populate({
         path: "challenges",
-        populate: {
-          path: "mcqs",
-          model: "MCQ",
-        },
-      })
-      // // .populate("studentsEnrolled", "firstName lastName")
-       
+        populate: { path: "mcqs", model: "MCQ" },
+      });
 
     return new Response(
       JSON.stringify({ success: true, data: courses }),
@@ -61,3 +69,6 @@ export async function GET() {
     );
   }
 }
+
+
+export const POST = withAuth(createCourse);

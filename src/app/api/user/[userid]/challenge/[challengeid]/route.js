@@ -2,6 +2,7 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/user.model";
 import SubjectChallenge from "@/models/subjectChallenge.model";
 import Course from "@/models/course.model";
+import { logActivity } from "@/lib/logActivity";
 
 export async function PUT(req, { params }) {
   await dbConnect();
@@ -45,6 +46,7 @@ export async function PUT(req, { params }) {
 
     // 3. Check if already started
    if (userCourse.completedChallenges.includes(challengeid)) {
+    await logActivity(user._id, user.role, " Challenge Restarted", challengeid);
   return new Response(
         JSON.stringify({ success: true, message: "Challenge already started" }),
         { status: 200, headers: { "Content-Type": "application/json" } }
@@ -60,6 +62,8 @@ export async function PUT(req, { params }) {
       attempts: 0,
       startedAt: new Date(),
     });
+
+    await logActivity(user._id, user.role, "Enrolled in Challenge", challengeid);
 
     await user.save();
 

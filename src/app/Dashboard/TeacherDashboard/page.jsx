@@ -538,42 +538,57 @@ export default function TeacherDashboard() {
                     </CardTitle>
                   </CardHeader>
 
-                  <CardContent className="space-y-4">
-                    {context.courses
-                      .filter((course) => course.status === "active")
-                      .map((course) => (
-                        <div key={course._id} className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <h4 className="font-medium">{course.title}</h4>
-                            <div className="flex items-center space-x-2">
-                              <Badge variant="secondary">
-                                {course.studentsEnrolled?.length || 0} students
-                              </Badge>
-                              <span className="text-sm text-gray-600">
-                                {course.avgScore}% avg
-                              </span>
-                            </div>
-                          </div>
+                 <CardContent className="space-y-4">
+  {context.courses
+    .filter((course) => course.status === "active")
+    .map((course) => {
+      // Find users enrolled in this course
+      const enrolledUsers = context?.allUsers?.filter((user) =>
+        user.courses.some((uc) => uc.courseId === course._id)
+      );
 
-                          <Progress
-                            value={course.completion === 0 ? 50 : 100}
-                            className="h-2"
-                          />
+      // Count students
+      const studentsCount = enrolledUsers.length || 0;
 
-                          <div className="flex justify-between text-sm text-gray-600">
-                            <span>
-                              {course.completion === 0 ? 50 : 100}% complete
-                            </span>
-                            <span>
-                              Updated{" "}
-                              {formatDistanceToNow(new Date(course.updatedAt), {
-                                addSuffix: true,
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                  </CardContent>
+      // Average progress of enrolled users
+      const avgProgress =
+        studentsCount > 0
+          ? (
+              enrolledUsers.reduce((sum, user) => {
+                const uCourse = user.courses.find(
+                  (uc) => uc.courseId === course._id
+                );
+                return sum + (uCourse?.progress || 0);
+              }, 0) / studentsCount
+            ).toFixed(1)
+          : 0;
+
+      return (
+        <div key={course._id} className="space-y-2">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium">{course.title}</h4>
+            <div className="flex items-center space-x-2">
+              <Badge variant="secondary">{studentsCount} students</Badge>
+              <span className="text-sm text-gray-600">{avgProgress}% avg</span>
+            </div>
+          </div>
+
+          <Progress value={avgProgress} className="h-2" />
+
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>{avgProgress}% complete</span>
+            <span>
+              Updated{" "}
+              {formatDistanceToNow(new Date(course.updatedAt), {
+                addSuffix: true,
+              })}
+            </span>
+          </div>
+        </div>
+      );
+    })}
+</CardContent>
+
                 </Card>
 
                 {/* Recent Activity */}
