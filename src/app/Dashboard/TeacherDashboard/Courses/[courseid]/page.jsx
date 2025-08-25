@@ -313,7 +313,7 @@ export default function CourseSubtopicManagePage() {
                         {subtopic.title}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        ID: {subtopic._id}
+                        Description : {subtopic.description}
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">

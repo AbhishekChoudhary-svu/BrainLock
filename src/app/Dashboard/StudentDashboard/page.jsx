@@ -63,8 +63,7 @@ import { Input } from "@/components/ui/input";
 export default function StudentDashboard() {
   const context = useContext(MyContext);
   const router = useRouter();
-  const [tabValue, setTabValue] = useState("overview"); 
-  
+  const [tabValue, setTabValue] = useState("overview");
 
   useEffect(() => {
     context.fetchCourses();
@@ -211,7 +210,6 @@ export default function StudentDashboard() {
     }
   };
 
-  
   const getRoleColor = (role) => {
     switch (role) {
       case "admin":
@@ -296,35 +294,31 @@ export default function StudentDashboard() {
       }) || [];
 
   useEffect(() => {
-    console.log(successRateChallenges)
+    console.log(successRateChallenges);
   }, [context.courses]);
 
-  const completedChallenges = context.user?.challenges?.filter(
-    (c) => c.status === "completed"
-  ).length || 0;
+  const completedChallenges =
+    context.user?.challenges?.filter((c) => c.status === "completed").length ||
+    0;
 
+  const activeChallenges =
+    context.user?.challenges?.filter((c) => c.status === "active").length || 0;
 
-  const activeChallenges = context.user?.challenges?.filter(
-    (c) => c.status === "active"
-  ).length || 0;
+  const successRateChallenges =
+    context.user?.challenges?.filter(
+      (c) => c.status === "active" || c.status === "completed"
+    ) || [];
 
-  
+  const averageProgress =
+    successRateChallenges.length > 0
+      ? successRateChallenges.reduce((sum, c) => sum + c.progress, 0) /
+        successRateChallenges.length
+      : 0;
 
-  const successRateChallenges = context.user?.challenges?.filter(
-  (c) => c.status === "active" || c.status === "completed"
-) || [];
-
-const averageProgress =
-  successRateChallenges.length > 0
-    ? successRateChallenges.reduce((sum, c) => sum + c.progress, 0) /
-      successRateChallenges.length
-    : 0;
-
-
-    const perfectScore =
-  successRateChallenges.length > 0
-    ? Math.max(...successRateChallenges.map((c) => c.score))
-    : 0;
+  const perfectScore =
+    successRateChallenges.length > 0
+      ? Math.max(...successRateChallenges.map((c) => c.score))
+      : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -498,7 +492,11 @@ const averageProgress =
         </div>
 
         {/* Main Dashboard Tabs */}
-        <Tabs value={tabValue} onValueChange={setTabValue} className="space-y-6">
+        <Tabs
+          value={tabValue}
+          onValueChange={setTabValue}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="courses">My Courses</TabsTrigger>
@@ -568,52 +566,52 @@ const averageProgress =
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                     <div className="space-y-4">
-                    {context.userActivities.length > 0 ? (
-                      context.userActivities.map((activity) => (
-                        <div
-                          key={activity._id}
-                          className="flex items-start space-x-3"
-                        >
-                          <div className="flex-shrink-0 mt-1">
-                            {getActivityIcon(activity.action)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">
-                              {activity.action}
-                              {activity.courseId
-                                ? `: ${activity.courseId.title}`
-                                : ""}
-                              {activity.challengeId
-                                ? ` → ${activity.challengeId.title}`
-                                : ""}{" "}
-                              <Badge className={getRoleColor(activity.role)}>
-                                {activity.role}
-                              </Badge>{" "}
-                              <span className="font-semibold">
-                                {activity.userId?.firstName}{" "}
-                                {activity.userId?.lastName}
-                              </span>
-                            </p>
-                            {activity.details && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                {activity.details.score !== undefined
-                                  ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
-                                  : typeof activity.details === "string"
-                                  ? activity.details
-                                  : JSON.stringify(activity.details)}
+                    <div className="space-y-4">
+                      {context.userActivities.length > 0 ? (
+                        context.userActivities.map((activity) => (
+                          <div
+                            key={activity._id}
+                            className="flex items-start space-x-3"
+                          >
+                            <div className="flex-shrink-0 mt-1">
+                              {getActivityIcon(activity.action)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900">
+                                {activity.action}
+                                {activity.courseId
+                                  ? `: ${activity.courseId.title}`
+                                  : ""}
+                                {activity.challengeId
+                                  ? ` → ${activity.challengeId.title}`
+                                  : ""}{" "}
+                                <Badge className={getRoleColor(activity.role)}>
+                                  {activity.role}
+                                </Badge>{" "}
+                                <span className="font-semibold">
+                                  {activity.userId?.firstName}{" "}
+                                  {activity.userId?.lastName}
+                                </span>
                               </p>
-                            )}
-                            <p className="text-xs text-gray-400 mt-1">
-                              {new Date(activity.createdAt).toLocaleString()}
-                            </p>
+                              {activity.details && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  {activity.details.score !== undefined
+                                    ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
+                                    : typeof activity.details === "string"
+                                    ? activity.details
+                                    : JSON.stringify(activity.details)}
+                                </p>
+                              )}
+                              <p className="text-xs text-gray-400 mt-1">
+                                {new Date(activity.createdAt).toLocaleString()}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-400 ">No recent activities</p>
-                    )}
-                  </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-400 ">No recent activities</p>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -773,14 +771,10 @@ const averageProgress =
                             <span className="text-sm text-gray-600">
                               Next Challenge:
                             </span>
-                            {course.challenges.map((challenge) => (
-                              <p
-                                key={challenge._id}
-                                className="text-sm font-medium"
-                              >
-                                {challenge?.title || "No subtopics available"}
-                              </p>
-                            ))}
+                            <p className="text-sm font-medium">
+                              {course.challenges[0]?.title ||
+                                "No challenges available"}
+                            </p>
                           </div>
                         </div>
                       )}
@@ -851,7 +845,7 @@ const averageProgress =
                     </div>
                     <div className="text-center p-4 bg-green-50 rounded-lg">
                       <div className="text-2xl font-bold text-green-600">
-                       {averageProgress}%
+                        {averageProgress}%
                       </div>
                       <div className="text-sm text-gray-600">Success Rate</div>
                     </div>
@@ -859,7 +853,9 @@ const averageProgress =
                       <div className="text-2xl font-bold text-yellow-600">
                         {activeChallenges}
                       </div>
-                      <div className="text-sm text-gray-600">Active Challenges</div>
+                      <div className="text-sm text-gray-600">
+                        Active Challenges
+                      </div>
                     </div>
                     <div className="text-center p-4 bg-purple-50 rounded-lg">
                       <div className="text-2xl font-bold text-purple-600">

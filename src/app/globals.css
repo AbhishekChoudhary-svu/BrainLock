@@ -125,3 +125,12 @@
   width: 90%;
   margin: auto;
 }
+
+/* Hide scrollbar for all browsers */
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, Opera */
+}

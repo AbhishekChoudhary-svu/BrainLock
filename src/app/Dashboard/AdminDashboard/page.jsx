@@ -975,42 +975,38 @@ export default function AdminDashboard() {
               </Card>
 
               <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">Active Challenges</CardTitle>
-                    <Badge className="bg-green-100 text-green-800">
-                      {
-                        context.challenges.filter((c) => c.status === "active")
-                          .length
-                      }{" "}
-                      Challenges
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    {context.challenges
-                      .filter((challenge) => challenge.status === "active")
-                      .map((challenge) => (
-                        <div
-                          key={challenge._id}
-                          className="flex justify-between border-b last:border-b-0 pb-1"
-                        >
-                          {/* Challenge Title */}
-                          <span>
-                            {challenge.title}{" "}
-                            <span className="text-xs text-gray-500">
-                              ({challenge.course?.title})
-                            </span>
-                          </span>
+  <CardHeader>
+    <div className="flex justify-between items-start">
+      <CardTitle className="text-lg">Active Challenges</CardTitle>
+      <Badge className="bg-green-100 text-green-800">
+        {context.challenges.filter((c) => c.status === "active").length}{" "}
+        Challenges
+      </Badge>
+    </div>
+  </CardHeader>
+  <CardContent className="max-h-[200px] overflow-y-auto space-y-2 text-sm scrollbar-none">
+    {context.challenges
+      .filter((challenge) => challenge.status === "active")
+      .map((challenge) => (
+        <div
+          key={challenge._id}
+          className="flex justify-between border-b last:border-b-0 pb-1"
+        >
+          {/* Challenge Title */}
+          <div className="flex-col flex">
+            <span>{challenge.title}</span>
+            <span className="text-xs text-gray-500">
+              ({challenge.course?.title})
+            </span>
+          </div>
 
-                          {/* Number of MCQs */}
-                          <span>{challenge.mcqs?.length || 0} MCQs</span>
-                        </div>
-                      ))}
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Number of MCQs */}
+          <span>{challenge.mcqs?.length || 0} MCQs</span>
+        </div>
+      ))}
+  </CardContent>
+</Card>
+
 
               <Card>
                 <CardHeader>

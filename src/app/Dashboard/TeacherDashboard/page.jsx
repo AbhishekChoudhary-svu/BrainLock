@@ -91,69 +91,65 @@ export default function TeacherDashboard() {
   const [courseData, setCourseData] = useState([]);
   const [challengeData, setChallengeData] = useState([]);
   const [isCreateChallengeOpen, setIsCreateChallengeOpen] = useState(false);
-  const [tabValue, setTabValue] = useState("overview"); 
+  const [tabValue, setTabValue] = useState("overview");
 
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-   const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const messagesEndRef = useRef(null);
-  
-    const scrollToBottom = () => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-  
-    useEffect(() => {
-      scrollToBottom();
-    }, [messages]);
-  
-    const handleSendMessage = async (e) => {
-      e.preventDefault();
-      if (!input.trim()) return;
-  
-      const userMessage = { role: "user", content: input };
-      setMessages((prevMessages) => [...prevMessages, userMessage]);
-      setInput("");
-      setIsLoading(true);
-  
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ messages: [...messages, userMessage] }),
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { role: "assistant", content: data.text },
-        ]);
-      } catch (error) {
-        console.error("Error sending message:", error);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            role: "assistant",
-            content: "Sorry, I couldn't process that. Please try again.",
-          },
-        ]);
-      } finally {
-        setIsLoading(false);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userMessage = { role: "user", content: input };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages: [...messages, userMessage] }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
 
+      const data = await response.json();
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: "assistant", content: data.text },
+      ]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          role: "assistant",
+          content: "Sorry, I couldn't process that. Please try again.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const isEditMode = Boolean(courseData?._id);
   const isEditModeChallenge = Boolean(challengeData?._id);
   const [loading, setLoading] = useState(true);
-
 
   // edit and create for both
   const handleSaveCourse = async () => {
@@ -267,7 +263,6 @@ export default function TeacherDashboard() {
     }
   };
 
-
   const handleDeleteCourse = async (id) => {
     try {
       const res = await fetch(`/api/teacher/courses/${id}`, {
@@ -314,7 +309,7 @@ export default function TeacherDashboard() {
         return "bg-gray-100 text-gray-800";
     }
   };
-  
+
   function getActivityIcon(type) {
     switch (type) {
       case "CREATE_COURSE":
@@ -328,13 +323,11 @@ export default function TeacherDashboard() {
     }
   }
 
- 
- const allUserAvgScore =
-  context.allUsers.length > 0
-    ? context.allUsers.reduce((sum, e) => sum + e.avgScore, 0) /
-      context.allUsers.length
-    : 0;
-
+  const allUserAvgScore =
+    context.allUsers.length > 0
+      ? context.allUsers.reduce((sum, e) => sum + e.avgScore, 0) /
+        context.allUsers.length
+      : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -353,7 +346,6 @@ export default function TeacherDashboard() {
 
             {/* Header Actions */}
             <div className="flex items-center space-x-4">
-
               {/* Notifications */}
               <Button variant="ghost" size="sm" className="relative">
                 <Bell className="h-5 w-5" />
@@ -370,10 +362,7 @@ export default function TeacherDashboard() {
                     className="flex items-center space-x-2"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={ "/placeholder.svg"}
-                        alt={""}
-                      />
+                      <AvatarImage src={"/placeholder.svg"} alt={""} />
                       <AvatarFallback>SW</AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
@@ -505,7 +494,11 @@ export default function TeacherDashboard() {
         </div>
 
         {/* Main Dashboard Tabs */}
-        <Tabs value={tabValue} onValueChange={setTabValue} className="space-y-6">
+        <Tabs
+          value={tabValue}
+          onValueChange={setTabValue}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="courses">My Courses</TabsTrigger>
@@ -528,57 +521,66 @@ export default function TeacherDashboard() {
                     </CardTitle>
                   </CardHeader>
 
-                 <CardContent className="space-y-4">
-  {context.courses
-    .filter((course) => course.status === "active")
-    .map((course) => {
-      // Find users enrolled in this course
-      const enrolledUsers = context?.allUsers?.filter((user) =>
-        user.courses.some((uc) => uc.courseId === course._id)
-      );
+                  <CardContent className="space-y-4">
+                    {context.courses
+                      .filter((course) => course.status === "active")
+                      .map((course) => {
+                        // Find users enrolled in this course
+                        const enrolledUsers = context?.allUsers?.filter(
+                          (user) =>
+                            user.courses.some(
+                              (uc) => uc.courseId === course._id
+                            )
+                        );
 
-      // Count students
-      const studentsCount = enrolledUsers.length || 0;
+                        // Count students
+                        const studentsCount = enrolledUsers.length || 0;
 
-      // Average progress of enrolled users
-      const avgProgress =
-        studentsCount > 0
-          ? (
-              enrolledUsers.reduce((sum, user) => {
-                const uCourse = user.courses.find(
-                  (uc) => uc.courseId === course._id
-                );
-                return sum + (uCourse?.progress || 0);
-              }, 0) / studentsCount
-            ).toFixed(1)
-          : 0;
+                        // Average progress of enrolled users
+                        const avgProgress =
+                          studentsCount > 0
+                            ? (
+                                enrolledUsers.reduce((sum, user) => {
+                                  const uCourse = user.courses.find(
+                                    (uc) => uc.courseId === course._id
+                                  );
+                                  return sum + (uCourse?.progress || 0);
+                                }, 0) / studentsCount
+                              ).toFixed(1)
+                            : 0;
 
-      return (
-        <div key={course._id} className="space-y-2">
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium">{course.title}</h4>
-            <div className="flex items-center space-x-2">
-              <Badge variant="secondary">{studentsCount} students</Badge>
-              <span className="text-sm text-gray-600">{avgProgress}% avg</span>
-            </div>
-          </div>
+                        return (
+                          <div key={course._id} className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <h4 className="font-medium">{course.title}</h4>
+                              <div className="flex items-center space-x-2">
+                                <Badge variant="secondary">
+                                  {studentsCount} students
+                                </Badge>
+                                <span className="text-sm text-gray-600">
+                                  {avgProgress}% avg
+                                </span>
+                              </div>
+                            </div>
 
-          <Progress value={avgProgress} className="h-2" />
+                            <Progress value={avgProgress} className="h-2" />
 
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>{avgProgress}% complete</span>
-            <span>
-              Updated{" "}
-              {formatDistanceToNow(new Date(course.updatedAt), {
-                addSuffix: true,
-              })}
-            </span>
-          </div>
-        </div>
-      );
-    })}
-</CardContent>
-
+                            <div className="flex justify-between text-sm text-gray-600">
+                              <span>{avgProgress}% complete</span>
+                              <span>
+                                Updated{" "}
+                                {formatDistanceToNow(
+                                  new Date(course.updatedAt),
+                                  {
+                                    addSuffix: true,
+                                  }
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </CardContent>
                 </Card>
 
                 {/* Recent Activity */}
@@ -590,52 +592,62 @@ export default function TeacherDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                   <div className="space-y-4">
-                    {context.activities.length > 0 ? (
-                      context.activities.filter((c)=>c.role==="teacher" || c.role==="student").map((activity) => (
-                        <div
-                          key={activity._id}
-                          className="flex items-start space-x-3"
-                        >
-                          <div className="flex-shrink-0 mt-1">
-                            {getActivityIcon(activity.action)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">
-                              {activity.action}
-                              {activity.courseId
-                                ? `: ${activity.courseId.title}`
-                                : ""}
-                              {activity.challengeId
-                                ? ` → ${activity.challengeId.title}`
-                                : ""}{" "}
-                              <Badge className={getRoleColor(activity.role)}>
-                                {activity.role}
-                              </Badge>{" "}
-                              <span className="font-semibold">
-                                {activity.userId?.firstName}{" "}
-                                {activity.userId?.lastName}
-                              </span>
-                            </p>
-                            {activity.details && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                {activity.details.score !== undefined
-                                  ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
-                                  : typeof activity.details === "string"
-                                  ? activity.details
-                                  : JSON.stringify(activity.details)}
-                              </p>
-                            )}
-                            <p className="text-xs text-gray-400 mt-1">
-                              {new Date(activity.createdAt).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-400 ">No recent admin activities</p>
-                    )}
-                  </div>
+                    <div className="space-y-4">
+                      {context.activities.length > 0 ? (
+                        context.activities
+                          .filter(
+                            (c) => c.role === "teacher" || c.role === "student"
+                          )
+                          .map((activity) => (
+                            <div
+                              key={activity._id}
+                              className="flex items-start space-x-3"
+                            >
+                              <div className="flex-shrink-0 mt-1">
+                                {getActivityIcon(activity.action)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {activity.action}
+                                  {activity.courseId
+                                    ? `: ${activity.courseId.title}`
+                                    : ""}
+                                  {activity.challengeId
+                                    ? ` → ${activity.challengeId.title}`
+                                    : ""}{" "}
+                                  <Badge
+                                    className={getRoleColor(activity.role)}
+                                  >
+                                    {activity.role}
+                                  </Badge>{" "}
+                                  <span className="font-semibold">
+                                    {activity.userId?.firstName}{" "}
+                                    {activity.userId?.lastName}
+                                  </span>
+                                </p>
+                                {activity.details && (
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {activity.details.score !== undefined
+                                      ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
+                                      : typeof activity.details === "string"
+                                      ? activity.details
+                                      : JSON.stringify(activity.details)}
+                                  </p>
+                                )}
+                                <p className="text-xs text-gray-400 mt-1">
+                                  {new Date(
+                                    activity.createdAt
+                                  ).toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                          ))
+                      ) : (
+                        <p className="text-gray-400 ">
+                          No recent admin activities
+                        </p>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -772,109 +784,141 @@ export default function TeacherDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {context.courses.map((course) => (
-                <Card
-                  key={course._id}
-                  className="hover:shadow-lg transition-shadow"
-                >
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-lg">{course.title}</CardTitle>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => openEditDialog(course)}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Course
-                          </DropdownMenuItem>
+              {context.courses.map((course) => {
+                // Find enrolled users dynamically
+                const enrolledUsers = context?.allUsers?.filter((user) =>
+                  user.courses.some((uc) => uc.courseId === course._id)
+                );
 
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
+                const studentsCount = enrolledUsers.length || 0;
 
-                          <DropdownMenuItem>
-                            <Download className="mr-2 h-4 w-4" />
-                            Export Data
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteCourse(course._id)}
-                            className="text-red-600"
+                // Calculate average progress
+                const avgProgress =
+                  studentsCount > 0
+                    ? (
+                        enrolledUsers.reduce((sum, user) => {
+                          const uCourse = user.courses.find(
+                            (uc) => uc.courseId === course._id
+                          );
+                          return sum + (uCourse?.progress || 0);
+                        }, 0) / studentsCount
+                      ).toFixed(1)
+                    : 0;
+
+                // First challenge
+                const firstChallenge =
+                  course.challenges[0]?.title || "No challenges";
+
+                return (
+                  <Card
+                    key={course._id}
+                    className="hover:shadow-lg transition-shadow"
+                  >
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-lg">
+                          {course.title}
+                        </CardTitle>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => openEditDialog(course)}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit Course
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem>
+                              <Download className="mr-2 h-4 w-4" />
+                              Export Data
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteCourse(course._id)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Course
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-gray-600">Students</p>
+                          <p className="font-semibold">{studentsCount}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Challenges</p>
+                          <p className="font-semibold">
+                            {course.challenges.length}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Avg Score</p>
+                          <p className="font-semibold">{course.avgScore}%</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Status</p>
+                          <Badge
+                            variant={
+                              course.status === "active"
+                                ? "default"
+                                : "secondary"
+                            }
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Course
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-600">Students</p>
-                        <p className="font-semibold">{course.students || 50}</p>
+                            {course.status}
+                          </Badge>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-gray-600">Challenges</p>
-                        <p className="font-semibold">
-                          {course.challenges.length}
-                        </p>
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Progress</span>
+                          <span>{avgProgress}%</span>
+                        </div>
+                        <Progress value={avgProgress} className="h-2" />
                       </div>
-                      <div>
-                        <p className="text-gray-600">Avg Score</p>
-                        <p className="font-semibold">{course.avgScore}%</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Status</p>
-                        <Badge
-                          variant={
-                            course.status === "active" ? "default" : "secondary"
-                          }
+
+                      {course.challenges.length > 0 && (
+                        <div className="text-sm text-gray-700">
+                          <span className="font-medium">Next Challenge: </span>
+                          {firstChallenge}
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center pt-2">
+                        <span className="text-sm text-gray-600">
+                          {formatDistanceToNow(new Date(course.updatedAt), {
+                            addSuffix: true,
+                          })}
+                        </span>
+                        <Link
+                          href={`/Dashboard/TeacherDashboard/Courses/${course._id}`}
                         >
-                          {course.status}
-                        </Badge>
+                          <Button size="sm">
+                            Manage
+                            <ChevronRight className="ml-1 h-4 w-4" />
+                          </Button>
+                        </Link>
                       </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Progress</span>
-                        <span>{course.completion === 0 ? 50 : 100}%</span>
-                      </div>
-                      <Progress
-                        value={course.completion === 0 ? 50 : 100}
-                        className="h-2"
-                      />
-                    </div>
-
-                    <div className="flex justify-between items-center pt-2">
-                      <span className="text-sm text-gray-600">
-                        {formatDistanceToNow(new Date(course.updatedAt), {
-                          addSuffix: true,
-                        })}
-                      </span>
-                      <Link
-                        href={`/Dashboard/TeacherDashboard/Courses/${course._id}`}
-                      >
-                        {" "}
-                        {/* ADDED LINK */}
-                        <Button size="sm">
-                          Manage
-                          <ChevronRight className="ml-1 h-4 w-4" />
-                        </Button>
-                      </Link>{" "}
-                      {/* END LINK */}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
 
@@ -889,8 +933,6 @@ export default function TeacherDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              
-
               {/* Sample challenges would be mapped here */}
               {context.challenges.map((challenge) => (
                 <Card key={challenge._id}>
@@ -1010,7 +1052,9 @@ export default function TeacherDashboard() {
                 </TableHeader>
                 <TableBody>
                   {context.allUsers
-                    .filter((user) => user.role === "student" || "admin" || "teacher")
+                    .filter(
+                      (user) => user.role === "student" || "admin" || "teacher"
+                    )
                     .map((student) => (
                       <TableRow key={student._id}>
                         <TableCell>
@@ -1086,7 +1130,7 @@ export default function TeacherDashboard() {
             </Card>
           </TabsContent>
 
-            {/* Assistant Tab */}
+          {/* Assistant Tab */}
           <TabsContent value="assistant" className="space-y-6">
             <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[50vh] bg-gray-50">
               <CardHeader>
