@@ -58,34 +58,37 @@ export default function SubjectCoursePage() {
   // Subtopics for this course
   const challengesForSubject = course?.subtopics || [];
 
-
   // Get user’s challenges for this course
-const userChallengesForCourse = context?.user?.challenges?.filter((uc) =>
-  course?.challenges?.some((sub) => String(sub._id) === String(uc.challengeId))
-) || [];
-
-// Total challenges in this course
-const totalChallenges = course?.challenges?.length || 0;
-
-// Completed challenges count
-const completedChallenges = userChallengesForCourse.filter(
-  (c) => c.status === "completed"
-).length;
-
-// Average challenge progress (0 if none)
-const avgChallengeProgress =
-  userChallengesForCourse.length > 0
-    ? Math.round(
-        userChallengesForCourse.reduce((sum, c) => sum + (c.progress || 0), 0) /
-          userChallengesForCourse.length
+  const userChallengesForCourse =
+    context?.user?.challenges?.filter((uc) =>
+      course?.challenges?.some(
+        (sub) => String(sub._id) === String(uc.challengeId)
       )
-    : 0;
+    ) || [];
 
-      const totalPoints = userChallengesForCourse.reduce(
-  (sum, c) => sum + (c.score || 0),
-  0
-);
+  // Total challenges in this course
+  const totalChallenges = course?.challenges?.length || 0;
 
+  // Completed challenges count
+  const completedChallenges = userChallengesForCourse.filter(
+    (c) => c.status === "completed"
+  ).length;
+
+  // Average challenge progress (0 if none)
+  const avgChallengeProgress =
+    userChallengesForCourse.length > 0
+      ? Math.round(
+          userChallengesForCourse.reduce(
+            (sum, c) => sum + (c.progress || 0),
+            0
+          ) / userChallengesForCourse.length
+        )
+      : 0;
+
+  const totalPoints = userChallengesForCourse.reduce(
+    (sum, c) => sum + (c.score || 0),
+    0
+  );
 
   if (!course) {
     return (
@@ -108,7 +111,7 @@ const avgChallengeProgress =
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
               href="/Dashboard/StudentDashboard"
@@ -129,7 +132,7 @@ const avgChallengeProgress =
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             {course.title}
@@ -150,7 +153,7 @@ const avgChallengeProgress =
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Progress</span>
-                  <span>{userCourse?.progress}%</span>
+                  <span>{userCourse?.progress.toFixed(2)}%</span>
                 </div>
                 <Progress value={userCourse?.progress} className="h-2" />
               </div>
@@ -213,10 +216,7 @@ const avgChallengeProgress =
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {
-                   completedChallenges
-                  }{" "}
-                  / {totalChallenges}
+                  {completedChallenges} / {totalChallenges}
                 </div>
                 <p className="text-xs text-gray-600">for this course</p>
               </CardContent>
@@ -229,7 +229,9 @@ const avgChallengeProgress =
                 <BarChart3 className="h-4 w-4 text-purple-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{avgChallengeProgress}%</div>{" "}
+                <div className="text-2xl font-bold">
+                  {avgChallengeProgress.toFixed(2)}%
+                </div>{" "}
                 {/* Mock average score */}
                 <p className="text-xs text-gray-600">across all challenges</p>
               </CardContent>
@@ -245,7 +247,10 @@ const avgChallengeProgress =
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {course.subtopics && course.subtopics.length > 0 ? (
               course.subtopics.map((subtopic, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={index}
+                  className="hover:shadow-lg transition-shadow flex flex-col"
+                >
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg">
@@ -259,48 +264,53 @@ const avgChallengeProgress =
                         {subtopic.difficulty || "Hard"}
                       </Badge>
                     </div>
+
                     <CardDescription>{subtopic.description}</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500">
-                        ⏱️ {subtopic.estimatedTime || "4 Days"}
-                      </span>
-                      <span className="text-gray-500">
-                        📅 Due:{" "}
-                        {subtopic.dueDate || subtopic.updatedAt.split("T")[0]}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <Badge variant="secondary">
-                        +{subtopic.points || 50} pts
-                      </Badge>
-                      <Link
-                        href={`/Dashboard/StudentDashboard/Courses/${course._id}/Subtopics/${subtopic._id}`}
-                      >
-                        <Button
-                          onClick={async () => {
-                            await fetch(
-                              `/api/user/${context?.user?._id}/progress/${course?._id}`,
-                              {
-                                method: "PUT",
-                                headers: {
-                                  "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({
-                                  subtopicId: subtopic._id, // ✅ pass the clicked subtopic id
-                                }),
-                              }
-                            );
 
-                            context.fetchProfile();
-                          }}
-                          size="sm"
+                  {/* Everything below description stays fixed at bottom */}
+                  <CardContent className="space-y-3 flex flex-col flex-1">
+                    <div className="mt-auto space-y-3">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500">
+                          ⏱️ {subtopic.estimatedTime || "4 Days"}
+                        </span>
+                        <span className="text-gray-500">
+                          📅 Due:{" "}
+                          {subtopic.dueDate || subtopic.updatedAt.split("T")[0]}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <Badge variant="secondary">
+                          +{(50 / course.subtopics.length).toFixed(2)} progress
+                        </Badge>
+                        <Link
+                          href={`/Dashboard/StudentDashboard/Courses/${course._id}/Subtopics/${subtopic._id}`}
                         >
-                          Open Theory
-                          <ChevronRight className="ml-1 h-4 w-4" />
-                        </Button>
-                      </Link>
+                          <Button
+                            onClick={async () => {
+                              await fetch(
+                                `/api/user/${context?.user?._id}/progress/${course?._id}`,
+                                {
+                                  method: "PUT",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                  },
+                                  body: JSON.stringify({
+                                    subtopicId: subtopic._id,
+                                  }),
+                                }
+                              );
+                              context.fetchProfile();
+                            }}
+                            size="sm"
+                          >
+                            Open Theory
+                            <ChevronRight className="ml-1 h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

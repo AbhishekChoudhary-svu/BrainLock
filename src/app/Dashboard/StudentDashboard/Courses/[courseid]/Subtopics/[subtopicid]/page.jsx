@@ -71,7 +71,7 @@ export default function SubjectTheoryPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
               href={`/Dashboard/StudentDashboard/Courses/${courseid}`}
@@ -92,7 +92,7 @@ export default function SubjectTheoryPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-5">
+      <main className="flex-1 flex flex-col lg:flex-row max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-5">
         {/* Left Column: Theory Content */}
         <div className="flex-1 min-w-0">
           <Card className="h-full flex flex-col">
@@ -114,10 +114,11 @@ export default function SubjectTheoryPage() {
                         allowFullScreen
                       />
                     )}
+                    <div
+                      className="ql-snow ql-editor border mr-4 rounded-lg "
+                      dangerouslySetInnerHTML={{ __html: c.description }}
+                    />
 
-                    <p className="text-gray-700 whitespace-pre-line">
-                      {c.description}
-                    </p>
 
                     {c.fileUrl && (
                       <a

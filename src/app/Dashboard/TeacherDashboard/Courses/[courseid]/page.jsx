@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import Loading from "./loading";
 
 export default function CourseSubtopicManagePage() {
   const params = useParams();
@@ -176,7 +177,7 @@ export default function CourseSubtopicManagePage() {
 };
 
 
-  if (loading) return <p className="p-6">Loading...</p>;
+  if (loading) return <p className="p-6"><Loading/></p>;
   if (error) return <p className="p-6 text-red-500">{error}</p>;
   if (!course) return <p className="p-6">Course not found.</p>;
 
@@ -184,7 +185,7 @@ export default function CourseSubtopicManagePage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
               href="/Dashboard/TeacherDashboard"
@@ -205,7 +206,7 @@ export default function CourseSubtopicManagePage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Manage Subtopics for {course.title}

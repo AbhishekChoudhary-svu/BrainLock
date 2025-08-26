@@ -1,80 +1,97 @@
-"use client"
+"use client";
 
-import { useParams } from "next/navigation"
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Brain, Upload, Save, ImageIcon, AlertCircle, CheckCircle, FileText, Pencil, Trash2 } from "lucide-react"
-import { toast } from "sonner"
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  ArrowLeft,
+  Brain,
+  Upload,
+  Save,
+  ImageIcon,
+  AlertCircle,
+  CheckCircle,
+  FileText,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import { toast } from "sonner";
+import TextEditor from "@/components/TextEditor/page";
 
 export default function SubtopicContentManagePage() {
-  const params = useParams()
-  const { courseid, subtopicid } = params
+  const params = useParams();
+  const { courseid, subtopicid } = params;
 
-  const [subtopic, setSubtopic] = useState({})
-  const [subtopicDescription, setSubtopicDescription] = useState("")
-  const [videoUrl, setVideoUrl] = useState("")
-  const [fileUrl, setFileUrl] = useState("")
-  const [subtopicImage, setSubtopicImage] = useState("")
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveStatus, setSaveStatus] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [subtopic, setSubtopic] = useState({});
+  const [subtopicDescription, setSubtopicDescription] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [fileUrl, setFileUrl] = useState("");
+  const [subtopicImage, setSubtopicImage] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const [contents, setContents] = useState([]) 
-  const [editingContentId, setEditingContentId] = useState(null) 
+  const [contents, setContents] = useState([]);
+  const [editingContentId, setEditingContentId] = useState(null);
 
   // Fetch subtopic
   async function fetchSubtopics() {
     try {
-      setLoading(true)
-      const res = await fetch(`/api/teacher/subTopics/${subtopicid}`)
-      if (!res.ok) throw new Error("Failed to fetch subtopic")
-      const data = await res.json()
-      setSubtopic(data.data)
+      setLoading(true);
+      const res = await fetch(`/api/teacher/subTopics/${subtopicid}`);
+      if (!res.ok) throw new Error("Failed to fetch subtopic");
+      const data = await res.json();
+      setSubtopic(data.data);
     } catch (err) {
-      console.error(err.message)
+      console.error(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
-
   async function fetchContents() {
     try {
-      const res = await fetch(`/api/teacher/theory?subtopic=${subtopicid}`)
-      if (!res.ok) throw new Error("Failed to fetch contents")
-      const data = await res.json()
-      setContents(data.data)
+      const res = await fetch(`/api/teacher/theory?subtopic=${subtopicid}`);
+      if (!res.ok) throw new Error("Failed to fetch contents");
+      const data = await res.json();
+      setContents(data.data);
     } catch (err) {
-      console.error(err.message)
+      console.error(err.message);
     }
   }
 
   useEffect(() => {
     if (subtopicid) {
-      fetchSubtopics()
-      fetchContents()
+      fetchSubtopics();
+      fetchContents();
     }
-  }, [subtopicid])
+  }, [subtopicid]);
 
   // File upload (PDF/DOC)
   const handleFileUpload = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      const url = URL.createObjectURL(file) // local preview
-      setFileUrl(url)
+      const url = URL.createObjectURL(file); // local preview
+      setFileUrl(url);
     }
-  }
+  };
 
   // Save content
   const handleSaveContent = async () => {
-    setIsSaving(true)
-    setSaveStatus(null)
+    setIsSaving(true);
+    setSaveStatus(null);
     try {
       const payload = {
         title: subtopic.title,
@@ -82,67 +99,68 @@ export default function SubtopicContentManagePage() {
         videoUrl,
         fileUrl,
         subtopic: subtopicid,
-      }
+      };
 
-      const method = editingContentId ? "PUT" : "POST"
+      const method = editingContentId ? "PUT" : "POST";
       const url = editingContentId
         ? `/api/teacher/theory/${editingContentId}`
-        : `/api/teacher/theory`
+        : `/api/teacher/theory`;
 
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      })
+      });
 
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Failed to save")
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to save");
       {
-        editingContentId ? toast.success("Content Updated Successfully") :
-        toast.success("Content Created Successfully")
+        editingContentId
+          ? toast.success("Content Updated Successfully")
+          : toast.success("Content Created Successfully");
       }
-        
-      setSaveStatus("success")
-      setEditingContentId(null) // reset edit mode
-      setSubtopicDescription("")
-      setVideoUrl("")
-      setFileUrl("")
-      fetchContents() // refresh contents
+
+      setSaveStatus("success");
+      setEditingContentId(null); // reset edit mode
+      setSubtopicDescription("");
+      setVideoUrl("");
+      setFileUrl("");
+      fetchContents(); // refresh contents
     } catch (error) {
-      toast.error("Failed to create or update")
-      setSaveStatus("error")
+      toast.error("Failed to create or update");
+      setSaveStatus("error");
     } finally {
-      setIsSaving(false)
-      setTimeout(() => setSaveStatus(null), 3000)
+      setIsSaving(false);
+      setTimeout(() => setSaveStatus(null), 3000);
     }
-  }
+  };
 
-  
   const handleEdit = (content) => {
-    setEditingContentId(content._id)
-    setSubtopicDescription(content.description || "")
-    setVideoUrl(content.videoUrl || "")
-    setFileUrl(content.fileUrl || "")
-  }
+    setEditingContentId(content._id);
+    setSubtopicDescription(content.description || "");
+    setVideoUrl(content.videoUrl || "");
+    setFileUrl(content.fileUrl || "");
+  };
 
-  
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`/api/teacher/theory/${id}`, { method: "DELETE" })
-      if (!res.ok) toast.error("Failed to delete")
+      const res = await fetch(`/api/teacher/theory/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) toast.error("Failed to delete");
 
-        toast.success("Content Deleted Successfully")
-      fetchContents()
+      toast.success("Content Deleted Successfully");
+      fetchContents();
     } catch (err) {
-      console.error(err.message)
+      console.error(err.message);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
               href={`/Dashboard/TeacherDashboard/Courses/${courseid}/`}
@@ -163,7 +181,7 @@ export default function SubtopicContentManagePage() {
       </header>
 
       {/* Main */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Form */}
         <Card className="shadow-lg">
           <CardHeader>
@@ -191,13 +209,17 @@ export default function SubtopicContentManagePage() {
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="subtopic-description">Theory / Article</Label>
-              <Textarea
+              <TextEditor
+                value={subtopicDescription}
+                onChange={setSubtopicDescription}
+              />
+              {/* <Textarea
                 id="subtopic-description"
                 value={subtopicDescription}
                 onChange={(e) => setSubtopicDescription(e.target.value)}
                 placeholder="Write theory or article content here..."
                 rows={8}
-              />
+              /> */}
             </div>
 
             {/* Video URL */}
@@ -238,12 +260,14 @@ export default function SubtopicContentManagePage() {
             <div className="flex items-center justify-end gap-4">
               {saveStatus === "success" && (
                 <div className="flex items-center text-green-600 text-sm">
-                  <CheckCircle className="h-4 w-4 mr-2" /> Subtopic saved successfully!
+                  <CheckCircle className="h-4 w-4 mr-2" /> Subtopic saved
+                  successfully!
                 </div>
               )}
               {saveStatus === "error" && (
                 <div className="flex items-center text-red-600 text-sm">
-                  <AlertCircle className="h-4 w-4 mr-2" /> Failed to save subtopic.
+                  <AlertCircle className="h-4 w-4 mr-2" /> Failed to save
+                  subtopic.
                 </div>
               )}
               <Button onClick={handleSaveContent} disabled={isSaving}>
@@ -261,57 +285,7 @@ export default function SubtopicContentManagePage() {
           </CardContent>
         </Card>
 
-        {/* Preview */}
-        <Card className="shadow-lg border-green-500">
-          <CardHeader>
-            <CardTitle className="text-green-700">Live Preview</CardTitle>
-            <CardDescription>See how your content will look</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Video */}
-            {videoUrl && (
-              <div className="aspect-video">
-                <iframe
-                  src={videoUrl}
-                  title="Video Preview"
-                  className=" h-[80vh] w-full rounded-md border"
-                  allowFullScreen
-                />
-              </div>
-            )}
-
-            {/* Title */}
-            {subtopic && <h2 className="text-xl font-bold">{subtopic.title}</h2>}
-
-            {/* Description */}
-            {subtopicDescription && (
-              <p className="text-gray-700 whitespace-pre-line">{subtopicDescription}</p>
-            )}
-
-            {/* File */}
-            {fileUrl && (
-              <p className="flex items-center text-blue-600 underline text-sm">
-                <FileText className="h-4 w-4 mr-2" />
-                <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-                  View Uploaded File
-                </a>
-              </p>
-            )}
-
-            {/* Image */}
-            {subtopicImage && (
-              <div className="mt-4 border rounded-md overflow-hidden">
-                <img
-                  src={subtopicImage}
-                  alt="Subtopic Preview"
-                  className="w-full h-48 object-cover"
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-         {/* --- FETCHED CONTENT LIST --- */}
+        {/* --- FETCHED CONTENT LIST --- */}
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-blue-700">Saved Contents</CardTitle>
@@ -322,10 +296,17 @@ export default function SubtopicContentManagePage() {
               <p className="text-gray-500">No contents added yet.</p>
             ) : (
               contents.map((c) => (
-                <div key={c._id} className="border rounded-md p-4 flex justify-between items-start">
+                <div
+                  key={c._id}
+                  className="border rounded-md p-4 flex justify-between items-start"
+                >
                   <div>
-                    <h3 className="font-bold">{c.title}</h3>
-                    <p className="text-sm text-gray-700 whitespace-pre-line">{c.description}</p>
+                    <h3 className="font-bold pb-4">{c.title}</h3>
+                    <div
+                      className="ql-snow ql-editor border mr-4 rounded-lg "
+                      dangerouslySetInnerHTML={{ __html: c.description }}
+                    />
+
                     {c.videoUrl && (
                       <iframe
                         src={c.videoUrl}
@@ -334,16 +315,28 @@ export default function SubtopicContentManagePage() {
                       />
                     )}
                     {c.fileUrl && (
-                      <a href={c.fileUrl} target="_blank" className="text-blue-600 underline flex items-center mt-5">
+                      <a
+                        href={c.fileUrl}
+                        target="_blank"
+                        className="text-blue-600 underline flex items-center mt-5"
+                      >
                         <FileText className="h-4 w-4 mr-2 mt-1" /> {c.title}
                       </a>
                     )}
                   </div>
                   <div className="flex flex-col gap-4">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(c)}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(c)}
+                    >
                       <Pencil className="h-4 w-4 mr-1" /> Edit
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(c._id)}>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDelete(c._id)}
+                    >
                       <Trash2 className="h-4 w-4 mr-1" /> Delete
                     </Button>
                   </div>
@@ -354,5 +347,5 @@ export default function SubtopicContentManagePage() {
         </Card>
       </main>
     </div>
-  )
+  );
 }

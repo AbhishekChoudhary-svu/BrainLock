@@ -79,6 +79,13 @@ import {
   Unlock,
   User,
   CircuitBoard,
+  Mail,
+  Phone,
+  Calendar,
+  Building2,
+  GraduationCap,
+  MapPin,
+  Info,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -90,6 +97,8 @@ export default function AdminDashboard() {
   const context = useContext(MyContext);
   const router = useRouter();
   const [isSystemSettingsOpen, setIsSystemSettingsOpen] = useState(false);
+  const [open1, setOpen1] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -280,11 +289,16 @@ export default function AdminDashboard() {
     }
   }
 
+  const openProfileDialog = (student) => {
+    setSelectedUser(student);
+    setOpen1(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -393,7 +407,7 @@ export default function AdminDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -851,7 +865,9 @@ export default function AdminDashboard() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => openProfileDialog(user)}
+                            >
                               <Eye className="mr-2 h-4 w-4" />
                               View Profile
                             </DropdownMenuItem>
@@ -1259,6 +1275,82 @@ export default function AdminDashboard() {
             <Button variant="outline">Cancel</Button>
             <Button type="submit">Save Changes</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={open1} onOpenChange={setOpen1}>
+        <DialogContent className="sm:max-w-[550px] rounded-2xl shadow-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold capitalize flex items-center gap-2">
+              <User className="h-5 w-5 text-blue-600 " />
+              {selectedUser?.role} Profile
+            </DialogTitle>
+          </DialogHeader>
+
+          <Card className="rounded-2xl border shadow-md">
+            <CardContent className="p-6 space-y-6">
+              {/* Name & Status */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {selectedUser?.firstName || "John"}{" "}
+                    {selectedUser?.lastName || "Doe"}
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    Enrollment No: {selectedUser?.enrollmentNumber || "N/A"}
+                  </p>
+                </div>
+                <Badge
+                  variant="outline"
+                  className="capitalize px-3 py-1 text-sm font-medium"
+                >
+                  {selectedUser?.status || "Active"}
+                </Badge>
+              </div>
+
+              {/* Contact Info */}
+              <div className="grid gap-3 text-gray-700">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-indigo-600" />
+                  <span>{selectedUser?.email || "student@email.com"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="h-5 w-5 text-green-600" />
+                  <span>{selectedUser?.phone || "+91 98765 43210"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-pink-600" />
+                  <span>
+                    {selectedUser?.dateOfBirth.split("T")[0] || "01 Jan 2000"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-purple-600" />
+                  <span>{selectedUser?.department || "Computer Science"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5 text-yellow-600" />
+                  <span>{selectedUser?.qualification || "B.Tech"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-red-600" />
+                  <span>{selectedUser?.address || "New Delhi, India"}</span>
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div className="pt-4 border-t text-gray-700">
+                <h3 className="text-sm font-semibold flex items-center gap-1 mb-1">
+                  <Info className="h-4 w-4 text-blue-500" />
+                  Bio
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {selectedUser?.bio ||
+                    "Enthusiastic learner, passionate about technology and innovation."}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </DialogContent>
       </Dialog>
     </div>

@@ -178,7 +178,7 @@ export default function ManageChallengePage() {
 
   return (
   <div className="min-h-screen bg-gray-50 p-8">
-  <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+  <div className="max-w-8xl mx-auto bg-white p-6 rounded-lg shadow-md">
     <div className="flex items-center justify-between mb-6">
       <Link href="/Dashboard/TeacherDashboard">
         <Button variant="ghost">

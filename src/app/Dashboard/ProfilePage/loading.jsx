@@ -3,7 +3,7 @@ export default function Loading() {
     <div className="min-h-screen bg-gray-50">
       {/* Header Skeleton */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
             <div className="h-10 w-28 bg-gray-200 rounded animate-pulse"></div>
@@ -12,7 +12,7 @@ export default function Loading() {
       </div>
 
       {/* Profile Content Skeleton */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           {/* Profile Header Skeleton */}
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-8">
