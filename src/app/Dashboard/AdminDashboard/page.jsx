@@ -101,22 +101,6 @@ export default function AdminDashboard() {
     context.fetchActivities();
   }, []);
 
-  // Mock data for admin (includes all teacher data plus admin-specific)
-  const adminData = {
-    name: "Dr. Michael Thompson",
-    email: "michael.thompson@school.edu",
-    role: "admin",
-    department: "Administration",
-    institution: "Lincoln High School",
-    avatar: "/placeholder.svg?height=40&width=40",
-    totalUsers: 1247,
-    totalTeachers: 45,
-    totalStudents: 1156,
-    totalCourses: 89,
-    systemUptime: "99.9%",
-    activeUsers: 892,
-  };
-
   const handleDelete = async (userId) => {
     setLoading(true);
     try {
@@ -258,32 +242,6 @@ export default function AdminDashboard() {
     },
   ];
 
-  const recentAdminActivities = [
-    {
-      id: 1,
-      type: "user_created",
-      title: "New teacher account created: Dr. Lisa Chen",
-      time: "1 hour ago",
-    },
-    {
-      id: 2,
-      type: "system_update",
-      title: "System maintenance completed successfully",
-      time: "2 hours ago",
-    },
-    {
-      id: 3,
-      type: "course_approved",
-      title: "Approved new course: Advanced Biology",
-      time: "4 hours ago",
-    },
-    {
-      id: 4,
-      type: "user_suspended",
-      title: "Suspended user account: john.doe@student.edu",
-      time: "1 day ago",
-    },
-  ];
   useEffect(() => {
     // Run once on mount
     context.fetchStats();
@@ -366,11 +324,17 @@ export default function AdminDashboard() {
                     className="flex items-center space-x-2"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={adminData.avatar || "/placeholder.svg"}
-                        alt={adminData.name}
-                      />
-                      <AvatarFallback>MT</AvatarFallback>
+                      <AvatarImage src={""} alt={""} />
+                      <AvatarFallback>
+                        {(
+                          context.user?.firstName +
+                          " " +
+                          context.user?.lastName
+                        )
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
                       <p className="text-sm font-medium">
@@ -618,52 +582,60 @@ export default function AdminDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                   <div className="space-y-4">
-                    {context.activities.length > 0 ? (
-                      context.activities.filter((c)=>c.role==="admin").map((activity) => (
-                        <div
-                          key={activity._id}
-                          className="flex items-start space-x-3"
-                        >
-                          <div className="flex-shrink-0 mt-1">
-                            {getActivityIcon(activity.action)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">
-                              {activity.action}
-                              {activity.courseId
-                                ? `: ${activity.courseId.title}`
-                                : ""}
-                              {activity.challengeId
-                                ? ` → ${activity.challengeId.title}`
-                                : ""}{" "}
-                              <Badge className={getRoleColor(activity.role)}>
-                                {activity.role}
-                              </Badge>{" "}
-                              <span className="font-semibold">
-                                {activity.userId?.firstName}{" "}
-                                {activity.userId?.lastName}
-                              </span>
-                            </p>
-                            {activity.details && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                {activity.details.score !== undefined
-                                  ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
-                                  : typeof activity.details === "string"
-                                  ? activity.details
-                                  : JSON.stringify(activity.details)}
-                              </p>
-                            )}
-                            <p className="text-xs text-gray-400 mt-1">
-                              {new Date(activity.createdAt).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-400 ">No recent admin activities</p>
-                    )}
-                  </div>
+                    <div className="space-y-4">
+                      {context.activities.length > 0 ? (
+                        context.activities
+                          .filter((c) => c.role === "admin")
+                          .map((activity) => (
+                            <div
+                              key={activity._id}
+                              className="flex items-start space-x-3"
+                            >
+                              <div className="flex-shrink-0 mt-1">
+                                {getActivityIcon(activity.action)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {activity.action}
+                                  {activity.courseId
+                                    ? `: ${activity.courseId.title}`
+                                    : ""}
+                                  {activity.challengeId
+                                    ? ` → ${activity.challengeId.title}`
+                                    : ""}{" "}
+                                  <Badge
+                                    className={getRoleColor(activity.role)}
+                                  >
+                                    {activity.role}
+                                  </Badge>{" "}
+                                  <span className="font-semibold">
+                                    {activity.userId?.firstName}{" "}
+                                    {activity.userId?.lastName}
+                                  </span>
+                                </p>
+                                {activity.details && (
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {activity.details.score !== undefined
+                                      ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
+                                      : typeof activity.details === "string"
+                                      ? activity.details
+                                      : JSON.stringify(activity.details)}
+                                  </p>
+                                )}
+                                <p className="text-xs text-gray-400 mt-1">
+                                  {new Date(
+                                    activity.createdAt
+                                  ).toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                          ))
+                      ) : (
+                        <p className="text-gray-400 ">
+                          No recent admin activities
+                        </p>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -975,38 +947,40 @@ export default function AdminDashboard() {
               </Card>
 
               <Card>
-  <CardHeader>
-    <div className="flex justify-between items-start">
-      <CardTitle className="text-lg">Active Challenges</CardTitle>
-      <Badge className="bg-green-100 text-green-800">
-        {context.challenges.filter((c) => c.status === "active").length}{" "}
-        Challenges
-      </Badge>
-    </div>
-  </CardHeader>
-  <CardContent className="max-h-[200px] overflow-y-auto space-y-2 text-sm scrollbar-none">
-    {context.challenges
-      .filter((challenge) => challenge.status === "active")
-      .map((challenge) => (
-        <div
-          key={challenge._id}
-          className="flex justify-between border-b last:border-b-0 pb-1"
-        >
-          {/* Challenge Title */}
-          <div className="flex-col flex">
-            <span>{challenge.title}</span>
-            <span className="text-xs text-gray-500">
-              ({challenge.course?.title})
-            </span>
-          </div>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg">Active Challenges</CardTitle>
+                    <Badge className="bg-green-100 text-green-800">
+                      {
+                        context.challenges.filter((c) => c.status === "active")
+                          .length
+                      }{" "}
+                      Challenges
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="max-h-[200px] overflow-y-auto space-y-2 text-sm scrollbar-none">
+                  {context.challenges
+                    .filter((challenge) => challenge.status === "active")
+                    .map((challenge) => (
+                      <div
+                        key={challenge._id}
+                        className="flex justify-between border-b last:border-b-0 pb-1"
+                      >
+                        {/* Challenge Title */}
+                        <div className="flex-col flex">
+                          <span>{challenge.title}</span>
+                          <span className="text-xs text-gray-500">
+                            ({challenge.course?.title})
+                          </span>
+                        </div>
 
-          {/* Number of MCQs */}
-          <span>{challenge.mcqs?.length || 0} MCQs</span>
-        </div>
-      ))}
-  </CardContent>
-</Card>
-
+                        {/* Number of MCQs */}
+                        <span>{challenge.mcqs?.length || 0} MCQs</span>
+                      </div>
+                    ))}
+                </CardContent>
+              </Card>
 
               <Card>
                 <CardHeader>

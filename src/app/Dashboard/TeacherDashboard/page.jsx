@@ -78,6 +78,13 @@ import {
   Loader2,
   Flame,
   Trophy,
+  Mail,
+  Phone,
+  Building2,
+  MapPin,
+  Info,
+  Calendar,
+  GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -94,6 +101,7 @@ export default function TeacherDashboard() {
   const [challengeData, setChallengeData] = useState([]);
   const [isCreateChallengeOpen, setIsCreateChallengeOpen] = useState(false);
   const [open, setOpen] = useState(false);
+  const [open1, setOpen1] = useState(false);
   const [tabValue, setTabValue] = useState("overview");
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -330,6 +338,10 @@ export default function TeacherDashboard() {
     setSelectedUser(student);
     setOpen(true);
   };
+  const openProfileDialog = (student) => {
+    setSelectedUser(student);
+    setOpen1(true);
+  };
 
   const allUserAvgScore =
     context.allUsers.length > 0
@@ -370,8 +382,17 @@ export default function TeacherDashboard() {
                     className="flex items-center space-x-2"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={"/placeholder.svg"} alt={""} />
-                      <AvatarFallback>SW</AvatarFallback>
+                      <AvatarImage src={""} alt={""} />
+                       <AvatarFallback>
+                        {(
+                          context.user?.firstName +
+                          " " +
+                          context.user?.lastName
+                        )
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
                       <p className="text-sm font-medium">
@@ -1120,7 +1141,9 @@ export default function TeacherDashboard() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openProfileDialog(student)}
+                              >
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Profile
                               </DropdownMenuItem>
@@ -1225,6 +1248,7 @@ export default function TeacherDashboard() {
           </TabsContent>
         </Tabs>
       </main>
+
       {/* Create Course Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
@@ -1351,6 +1375,7 @@ export default function TeacherDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       {/* Create Challenge Dialog */}
       <Dialog
         open={isCreateChallengeOpen}
@@ -1605,6 +1630,83 @@ export default function TeacherDashboard() {
                     <p className="text-xs text-gray-500">No achievements yet</p>
                   )}
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </DialogContent>
+      </Dialog>
+
+      {/* // Profile card */}
+      <Dialog open={open1} onOpenChange={setOpen1}>
+        <DialogContent className="sm:max-w-[550px] rounded-2xl shadow-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+              <User className="h-5 w-5 text-blue-600" />
+              Student Profile
+            </DialogTitle>
+          </DialogHeader>
+
+          <Card className="rounded-2xl border shadow-md">
+            <CardContent className="p-6 space-y-6">
+              {/* Name & Status */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {selectedUser?.firstName || "John"}{" "}
+                    {selectedUser?.lastName || "Doe"}
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    Enrollment No: {selectedUser?.enrollmentNumber || "N/A"}
+                  </p>
+                </div>
+                <Badge
+                  variant="outline"
+                  className="capitalize px-3 py-1 text-sm font-medium"
+                >
+                  {selectedUser?.status || "Active"}
+                </Badge>
+              </div>
+
+              {/* Contact Info */}
+              <div className="grid gap-3 text-gray-700">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-indigo-600" />
+                  <span>{selectedUser?.email || "student@email.com"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="h-5 w-5 text-green-600" />
+                  <span>{selectedUser?.phone || "+91 98765 43210"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-pink-600" />
+                  <span>
+                    {selectedUser?.dateOfBirth.split("T")[0] || "01 Jan 2000"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-purple-600" />
+                  <span>{selectedUser?.department || "Computer Science"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5 text-yellow-600" />
+                  <span>{selectedUser?.qualification || "B.Tech"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-red-600" />
+                  <span>{selectedUser?.address || "New Delhi, India"}</span>
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div className="pt-4 border-t text-gray-700">
+                <h3 className="text-sm font-semibold flex items-center gap-1 mb-1">
+                  <Info className="h-4 w-4 text-blue-500" />
+                  Bio
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {selectedUser?.bio ||
+                    "Enthusiastic learner, passionate about technology and innovation."}
+                </p>
               </div>
             </CardContent>
           </Card>

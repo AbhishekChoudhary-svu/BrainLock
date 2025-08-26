@@ -52,6 +52,7 @@ import {
   Send,
   Bot,
   Loader2,
+  Flame,
 } from "lucide-react";
 import Link from "next/link"; // Import Link
 import { toast } from "sonner";
@@ -59,11 +60,18 @@ import { useRouter } from "next/navigation";
 import MyContext from "@/context/ThemeProvider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function StudentDashboard() {
   const context = useContext(MyContext);
   const router = useRouter();
   const [tabValue, setTabValue] = useState("overview");
+  const [openProgressCard, setOpenProgressCard] = useState(false);
 
   useEffect(() => {
     context.fetchCourses();
@@ -148,33 +156,6 @@ export default function StudentDashboard() {
       toast.error(err.message || "Something went wrong");
     }
   };
-
-  const recentActivities = [
-    {
-      id: 1,
-      type: "challenge_completed",
-      title: "Completed Quadratic Equations Challenge",
-      course: "Advanced Mathematics",
-      points: 25,
-      time: "2 hours ago",
-    },
-    {
-      id: 2,
-      type: "streak_milestone",
-      title: "7-day study streak achieved!",
-      course: null,
-      points: 50,
-      time: "Today",
-    },
-    {
-      id: 3,
-      type: "quiz_completed",
-      title: "Aced Periodic Table Quiz",
-      course: "Chemistry Basics",
-      points: 30,
-      time: "Yesterday",
-    },
-  ];
 
   const handleLogout = async () => {
     try {
@@ -353,8 +334,17 @@ export default function StudentDashboard() {
                     className="flex items-center space-x-2"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={"/placeholder.svg"} alt={""} />
-                      <AvatarFallback>AJ</AvatarFallback>
+                      <AvatarImage src={""} alt={""} />
+                      <AvatarFallback>
+                        {(
+                          context.user?.firstName +
+                          " " +
+                          context.user?.lastName
+                        )
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
                       <p className="text-sm font-medium">
@@ -540,7 +530,9 @@ export default function StudentDashboard() {
                           />
 
                           <div className="flex justify-between text-sm text-gray-600">
-                            <span>{enrolled.progress || 0}% complete</span>
+                            <span>
+                              {enrolled.progress.toFixed(2) || 0}% complete
+                            </span>
                             <span className="font-[500] text-black">
                               Next:{" "}
                               {enrolled.course?.challenges?.[0]?.title ||
@@ -670,6 +662,7 @@ export default function StudentDashboard() {
                     <Button
                       className="w-full justify-start bg-transparent"
                       variant="outline"
+                      onClick={() => setOpenProgressCard(true)}
                     >
                       <BarChart3 className="mr-2 h-4 w-4" />
                       Progress Report
@@ -759,7 +752,7 @@ export default function StudentDashboard() {
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span>Progress</span>
-                          <span>{progress}%</span>
+                          <span>{progress.toFixed(2)}%</span>
                         </div>
                         <Progress value={progress} className="h-2" />
                       </div>
@@ -1096,6 +1089,123 @@ export default function StudentDashboard() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* // Detailed Progress Report Dialog */}
+      <Dialog open={openProgressCard} onOpenChange={setOpenProgressCard}>
+        <DialogContent className="sm:max-w-[1000px] rounded-2xl shadow-lg h-[90vh] ">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+              <User className="h-5 w-5 text-blue-600" />
+              Student Progress Report
+            </DialogTitle>
+          </DialogHeader>
+
+          <Card className="rounded-2xl border shadow-md">
+            <CardContent className="p-6 pt-0 space-y-6">
+              {/* Student Info */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">
+                    {context.user?.firstName || "John"}{" "}
+                    {context.user?.lastName || "Doe"}
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    {context.user?.email || "student@email.com"}
+                  </p>
+                </div>
+                <Badge variant="outline" className="capitalize">
+                  {context.user?.status || "active"}
+                </Badge>
+              </div>
+
+              {/* Overall Stats */}
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="p-4 rounded-xl bg-yellow-50">
+                  <p className="text-sm text-gray-600">Streaks</p>
+                  <p className="text-xl font-bold text-red-700">
+                    {context.user?.streaks || 0}
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-blue-50">
+                  <p className="text-sm text-gray-600">Average Score</p>
+                  <p className="text-xl font-bold text-blue-700">
+                    {context.user?.avgScore?.toFixed(2) || 0}%
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-yellow-50">
+                  <p className="text-sm text-gray-600">Total Points</p>
+                  <p className="text-xl font-bold text-yellow-700">
+                    {context.user?.points || 0}
+                  </p>
+                </div>
+              </div>
+
+              {/* Courses Section */}
+              <div>
+                <h3 className="text-md font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-indigo-600" />
+                  Courses Progress
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  {context.user?.courses?.length > 0 ? (
+                    context.user.courses.map((c, idx) => {
+                      const matchedCourse = context.courses?.find(
+                        (course) => course._id === c.courseId
+                      );
+                      return (
+                        <div
+                          key={idx}
+                          className="p-3 border rounded-lg bg-gray-50 flex flex-col justify-center h-[70px]"
+                        >
+                          <span className="font-medium text-gray-700 text-sm truncate">
+                            {matchedCourse
+                              ? matchedCourse.title
+                              : "Unknown Course"}
+                          </span>
+                          <span className="text-xs text-gray-500 mt-1">
+                            Progress: {c.progress.toFixed(0) || 0}%
+                          </span>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      No courses enrolled yet
+                    </p>
+                  )}
+                </div>
+              </div>
+              {/* Challenge Section */}
+              <div>
+                <h3 className="text-md font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-green-600" />
+                  Challenges Progress
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {context.user?.challenges?.length > 0 ? (
+                    context.user.challenges.map((ch, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 border rounded-lg bg-gray-50 flex flex-col justify-center h-[70px]"
+                      >
+                        <span className="font-medium text-gray-700 text-sm truncate">
+                          {ch.title}
+                        </span>
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                          <span>Score: {ch.score || 0}</span>
+                          <span>Progress: {ch.progress.toFixed(0) || 0}%</span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">No challenges yet</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
