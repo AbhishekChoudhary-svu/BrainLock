@@ -76,6 +76,8 @@ import {
   Sun,
   Send,
   Loader2,
+  Flame,
+  Trophy,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -91,7 +93,9 @@ export default function TeacherDashboard() {
   const [courseData, setCourseData] = useState([]);
   const [challengeData, setChallengeData] = useState([]);
   const [isCreateChallengeOpen, setIsCreateChallengeOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState("overview");
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -322,6 +326,10 @@ export default function TeacherDashboard() {
         return <Clock className="h-5 w-5 text-gray-400" />;
     }
   }
+  const openProgressDialog = (student) => {
+    setSelectedUser(student);
+    setOpen(true);
+  };
 
   const allUserAvgScore =
     context.allUsers.length > 0
@@ -486,7 +494,7 @@ export default function TeacherDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">
-                {allUserAvgScore}%
+                {allUserAvgScore.toFixed(2)}%
               </div>
               <p className="text-xs text-gray-600">↑ 3% from last month</p>
             </CardContent>
@@ -1088,7 +1096,7 @@ export default function TeacherDashboard() {
                                 : "destructive"
                             }
                           >
-                            {student.avgScore || 50}%
+                            {student.avgScore.toFixed(2) || 50}%
                           </Badge>
                         </TableCell>
                         <TableCell>{student.streaks || 7} days</TableCell>
@@ -1116,7 +1124,9 @@ export default function TeacherDashboard() {
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Profile
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openProgressDialog(student)}
+                              >
                                 <BarChart3 className="mr-2 h-4 w-4" />
                                 View Progress
                               </DropdownMenuItem>
@@ -1470,96 +1480,136 @@ export default function TeacherDashboard() {
       </Dialog>
 
       {/* // progress card */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[500px] rounded-2xl shadow-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+              <User className="h-5 w-5 text-blue-600" />
+              Student Progress
+            </DialogTitle>
+          </DialogHeader>
+
+          <Card className="rounded-2xl border shadow-md">
+            <CardContent className="p-6 space-y-5">
+              {/* Student Info */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">
+                    {selectedUser?.firstName || "John"}{" "}
+                    {selectedUser?.lastName || "Doe"}
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    {selectedUser?.email || "student@email.com"}
+                  </p>
+                </div>
+                <Badge variant="outline" className="capitalize">
+                  {selectedUser?.status || "active"}
+                </Badge>
+              </div>
+
+              {/* Course Info */}
+              <div className="flex items-center  gap-2 text-gray-700">
+                <BookOpen className="h-5 w-5 text-indigo-600 mt-1" />
+                <div className="flex flex-wrap gap-2">
+                  {selectedUser?.courses?.length > 0 ? (
+                    selectedUser.courses.map((c, idx) => {
+                      const matchedCourse = context.courses?.find(
+                        (course) => course._id === c.courseId
+                      );
+
+                      return (
+                        <Badge
+                          key={idx}
+                          variant="outline"
+                          className="bg-indigo-50 text-indigo-700 border-indigo-200"
+                        >
+                          {matchedCourse
+                            ? matchedCourse.title
+                            : "Unknown Course"}
+                        </Badge>
+                      );
+                    })
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className="bg-gray-100 text-gray-600"
+                    >
+                      Mathematics
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Progress */}
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm font-medium text-gray-700">
+                    Progress
+                  </span>
+                  <span className="text-sm text-gray-600">
+                    {selectedUser?.avgScore?.toFixed(2) || 0}%
+                  </span>
+                </div>
+                <Progress value={selectedUser?.avgScore || 0} className="h-2" />
+              </div>
+
+              {/* Extra Info */}
+              <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex items-center gap-1">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  Completed:{" "}
+                  {selectedUser?.courses?.filter(
+                    (c) => c.status === "completed"
+                  ).length || 0}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4 text-yellow-600" />
+                  Pending:{" "}
+                  {selectedUser?.courses?.filter((c) => c.status === "active")
+                    .length || 0}
+                </div>
+              </div>
+
+              {/* Points & Streaks */}
+              <div className="flex items-center justify-between text-lg font-semibold text-gray-800">
+                {/* Points */}
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500" />
+                  Points: {selectedUser?.points || 0}
+                </div>
+
+                {/* Streaks */}
+                <div className="flex items-center gap-2 ">
+                  <Flame className="h-5 w-5 text-orange-600" />{" "}
+                  {/* lucide-react flame icon */}
+                  Streaks: {selectedUser?.streaks || 0}
+                </div>
+              </div>
+
+              {/* Achievements */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                  <Award className="h-4 w-4 text-purple-600" /> Achievements
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedUser?.achievements?.length > 0 ? (
+                    selectedUser.achievements.map((ach, index) => (
+                      <Badge
+                        key={index}
+                        className="bg-purple-100 text-purple-700"
+                      >
+                        {ach}
+                      </Badge>
+                    ))
+                  ) : (
+                    <p className="text-xs text-gray-500">No achievements yet</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-//  <Dialog open={false} onOpenChange={true}>
-//         <DialogContent className="sm:max-w-[500px] rounded-2xl shadow-lg">
-//           <DialogHeader>
-//             <DialogTitle className="text-xl font-semibold flex items-center gap-2">
-//               <User className="h-5 w-5 text-blue-600" />
-//               Student Progress
-//             </DialogTitle>
-//           </DialogHeader>
-
-//           <Card className="rounded-2xl border shadow-md">
-//             <CardContent className="p-6 space-y-5">
-//               {/* Student Info */}
-//               <div className="flex items-center justify-between">
-//                 <div>
-//                   <h2 className="text-lg font-bold text-gray-900">
-//                     {student?.name || "John Doe"}
-//                   </h2>
-//                   <p className="text-sm text-gray-500">
-//                     {student?.email || "student@email.com"}
-//                   </p>
-//                 </div>
-//                 <Badge variant="outline" className="capitalize">
-//                   {student?.status || "active"}
-//                 </Badge>
-//               </div>
-
-//               {/* Course Info */}
-//               <div className="flex items-center gap-2 text-gray-700">
-//                 <BookOpen className="h-5 w-5 text-indigo-600" />
-//                 <span className="font-medium">
-//                   {student?.course || "Mathematics"}
-//                 </span>
-//               </div>
-
-//               {/* Progress Bar */}
-//               <div>
-//                 <div className="flex justify-between mb-1">
-//                   <span className="text-sm font-medium text-gray-700">
-//                     Progress
-//                   </span>
-//                   <span className="text-sm text-gray-600">
-//                     {student?.progress || 0}%
-//                   </span>
-//                 </div>
-//                 <Progress value={student?.progress || 0} className="h-2" />
-//               </div>
-
-//               {/* Extra Info */}
-//               <div className="flex justify-between text-sm text-gray-600">
-//                 <div className="flex items-center gap-1">
-//                   <CheckCircle className="h-4 w-4 text-green-600" />
-//                   Completed: {student?.completedModules || 0}
-//                 </div>
-//                 <div className="flex items-center gap-1">
-//                   <Clock className="h-4 w-4 text-yellow-600" />
-//                   Pending: {student?.pendingModules || 0}
-//                 </div>
-//               </div>
-
-//               {/* Points */}
-//               <div className="flex items-center gap-2 text-lg font-semibold text-gray-800">
-//                 <Star className="h-5 w-5 text-yellow-500" />
-//                 Points: {student?.points || 0}
-//               </div>
-
-//               {/* Achievements */}
-//               <div>
-//                 <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-//                   <Award className="h-4 w-4 text-purple-600" /> Achievements
-//                 </h3>
-//                 <div className="flex flex-wrap gap-2">
-//                   {student?.achievements && student.achievements.length > 0 ? (
-//                     student.achievements.map((ach, index) => (
-//                       <Badge
-//                         key={index}
-//                         className="bg-purple-100 text-purple-700"
-//                       >
-//                         {ach}
-//                       </Badge>
-//                     ))
-//                   ) : (
-//                     <p className="text-xs text-gray-500">No achievements yet</p>
-//                   )}
-//                 </div>
-//               </div>
-//             </CardContent>
-//           </Card>
-//         </DialogContent>
-//       </Dialog>
