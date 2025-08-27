@@ -85,6 +85,7 @@ import {
   Info,
   Calendar,
   GraduationCap,
+  Bot,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -350,17 +351,21 @@ export default function TeacherDashboard() {
       : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen dark:bg-slate-950 bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="dark:bg-slate-950 bg-white dark:border-slate-800 border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
               <Brain className="h-8 w-8 text-green-600" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Brain Lock</h1>
-                <p className="text-xs text-gray-500">Teacher Dashboard</p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  Brain Lock
+                </h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Teacher Dashboard
+                </p>
               </div>
             </div>
 
@@ -368,7 +373,7 @@ export default function TeacherDashboard() {
             <div className="flex items-center space-x-4">
               {/* Notifications */}
               <Button variant="ghost" size="sm" className="relative">
-                <Bell className="h-5 w-5" />
+                <Bell className="h-5 w-5 dark:text-gray-300 text-gray-700" />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   5
                 </span>
@@ -379,7 +384,7 @@ export default function TeacherDashboard() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="flex items-center space-x-2"
+                    className="flex items-center space-x-2 dark:text-gray-200 text-gray-700"
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={""} alt={""} />
@@ -395,18 +400,23 @@ export default function TeacherDashboard() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-left hidden sm:block">
-                      <p className="text-sm font-medium">
+                      <p className="text-sm font-medium dark:text-gray-100 text-gray-900">
                         {context.user?.firstName} {context.user?.lastName}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {context.user?.department}
                       </p>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 dark:bg-slate-900 dark:text-gray-200"
+                >
+                  <DropdownMenuLabel className="dark:text-gray-300">
+                    My Account
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="dark:bg-slate-700" />
                   <Link href={"/Dashboard/AdminDashboard"}>
                     <DropdownMenuItem>
                       <User className="mr-2 h-4 w-4" />
@@ -433,10 +443,10 @@ export default function TeacherDashboard() {
                     <MessageCircle className="mr-2 h-4 w-4" />
                     Help & Support
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator className="dark:bg-slate-700" />
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="text-red-600"
+                    className="text-red-600 dark:text-red-400"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
@@ -447,14 +457,15 @@ export default function TeacherDashboard() {
           </div>
         </div>
       </header>
+
       {/* Main Content */}
       <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold dark:text-gray-100 text-gray-900 mb-2">
             Welcome back, {context.user?.firstName}! 👋
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Manage your courses and track student progress
           </p>
         </div>
@@ -472,7 +483,9 @@ export default function TeacherDashboard() {
               <div className="text-2xl font-bold text-green-600">
                 {context?.allUsers?.length}
               </div>
-              <p className="text-xs text-gray-600">+2 this month</p>
+              <p className="text-xs dark:text-gray-400 text-gray-600">
+                +2 this month
+              </p>
             </CardContent>
           </Card>
 
@@ -487,7 +500,9 @@ export default function TeacherDashboard() {
               <div className="text-2xl font-bold text-blue-600">
                 {context.courses.length}
               </div>
-              <p className="text-xs text-gray-600">2 new this month</p>
+              <p className="text-xs dark:text-gray-400 text-gray-600">
+                2 new this month
+              </p>
             </CardContent>
           </Card>
 
@@ -502,7 +517,9 @@ export default function TeacherDashboard() {
               <div className="text-2xl font-bold text-purple-600">
                 {context.challenges.length}
               </div>
-              <p className="text-xs text-gray-600">5 pending review</p>
+              <p className="text-xs dark:text-gray-400 text-gray-600">
+                5 pending review
+              </p>
             </CardContent>
           </Card>
 
@@ -517,7 +534,9 @@ export default function TeacherDashboard() {
               <div className="text-2xl font-bold text-yellow-600">
                 {allUserAvgScore.toFixed(2)}%
               </div>
-              <p className="text-xs text-gray-600">↑ 3% from last month</p>
+              <p className="text-xs dark:text-gray-400 text-gray-600">
+                ↑ 3% from last month
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -586,15 +605,15 @@ export default function TeacherDashboard() {
                                 <Badge variant="secondary">
                                   {studentsCount} students
                                 </Badge>
-                                <span className="text-sm text-gray-600">
+                                <span className="text-sm dark:text-gray-400 text-gray-600">
                                   {avgProgress}% avg
                                 </span>
                               </div>
                             </div>
 
-                            <Progress value={avgProgress} className="h-2" />
+                            <Progress value={avgProgress} className="h-2 " />
 
-                            <div className="flex justify-between text-sm text-gray-600">
+                            <div className="flex justify-between text-sm dark:text-gray-400 text-gray-600">
                               <span>{avgProgress}% complete</span>
                               <span>
                                 Updated{" "}
@@ -636,7 +655,7 @@ export default function TeacherDashboard() {
                                 {getActivityIcon(activity.action)}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900">
+                                <p className="text-sm font-medium dark:text-gray-100 text-gray-900">
                                   {activity.action}
                                   {activity.courseId
                                     ? `: ${activity.courseId.title}`
@@ -655,7 +674,7 @@ export default function TeacherDashboard() {
                                   </span>
                                 </p>
                                 {activity.details && (
-                                  <p className="text-xs text-gray-500 mt-1">
+                                  <p className="text-xs dark:text-gray-400 text-gray-500 mt-1">
                                     {activity.details.score !== undefined
                                       ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
                                       : typeof activity.details === "string"
@@ -663,7 +682,7 @@ export default function TeacherDashboard() {
                                       : JSON.stringify(activity.details)}
                                   </p>
                                 )}
-                                <p className="text-xs text-gray-400 mt-1">
+                                <p className="text-xs dark:text-gray-500 text-gray-400 mt-1">
                                   {new Date(
                                     activity.createdAt
                                   ).toLocaleString()}
@@ -731,8 +750,8 @@ export default function TeacherDashboard() {
                           key={student.rank}
                           className={`flex items-center space-x-4 p-3 rounded-lg ${
                             student.isCurrentUser
-                              ? "bg-purple-50 border border-purple-200"
-                              : "bg-gray-50"
+                              ? "bg-purple-50 border border-purple-200 dark:bg-purple-900/20 dark:border-purple-700/40"
+                              : "bg-gray-50 dark:bg-slate-800"
                           }`}
                         >
                           {/* Rank */}
@@ -772,14 +791,14 @@ export default function TeacherDashboard() {
                             <p
                               className={`font-medium ${
                                 student.isCurrentUser
-                                  ? "text-purple-900"
-                                  : "text-gray-900"
+                                  ? "text-purple-900 dark:text-purple-300"
+                                  : "text-gray-900 dark:text-gray-100"
                               }`}
                             >
                               {student.firstName + " " + student.lastName}{" "}
                               {student.isCurrentUser && "(You)"}
                             </p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
                               {student.points.toLocaleString()} points
                             </p>
                           </div>
@@ -788,7 +807,7 @@ export default function TeacherDashboard() {
                           {student.isCurrentUser && (
                             <Badge
                               variant="secondary"
-                              className="bg-purple-100 text-purple-800"
+                              className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200"
                             >
                               Your Rank
                             </Badge>
@@ -887,21 +906,29 @@ export default function TeacherDashboard() {
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-gray-600">Students</p>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Students
+                          </p>
                           <p className="font-semibold">{studentsCount}</p>
                         </div>
                         <div>
-                          <p className="text-gray-600">Challenges</p>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Challenges
+                          </p>
                           <p className="font-semibold">
                             {course.challenges.length}
                           </p>
                         </div>
                         <div>
-                          <p className="text-gray-600">Avg Score</p>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Avg Score
+                          </p>
                           <p className="font-semibold">{course.avgScore}%</p>
                         </div>
                         <div>
-                          <p className="text-gray-600">Status</p>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Status
+                          </p>
                           <Badge
                             variant={
                               course.status === "active"
@@ -923,21 +950,20 @@ export default function TeacherDashboard() {
                       </div>
 
                       {course.challenges.length > 0 && (
-                        <div className="text-sm text-gray-700">
+                        <div className="text-sm dark:text-gray-300 text-gray-700">
                           <span className="font-medium">Next Challenge: </span>
                           {firstChallenge}
                         </div>
                       )}
 
                       <div className="flex justify-between items-center pt-2">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm dark:text-gray-400 text-gray-600">
                           {formatDistanceToNow(new Date(course.updatedAt), {
                             addSuffix: true,
                           })}
                         </span>
                         <Link
                           href={`/Dashboard/TeacherDashboard/Courses/${course._id}`}
-                
                         >
                           <Button size="sm">
                             Manage
@@ -1009,25 +1035,33 @@ export default function TeacherDashboard() {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-600">Course</p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          Course
+                        </p>
                         <p className="font-semibold">
                           {challenge.course.title}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Difficulty</p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          Difficulty
+                        </p>
                         <Badge variant="destructive">
                           {challenge.difficulty}
                         </Badge>
                       </div>
                       <div>
-                        <p className="text-gray-600">Submissions Date</p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          Submissions Date
+                        </p>
                         <p className="font-semibold">
                           {challenge.createdAt.split("T")[0]}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Status</p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          Status
+                        </p>
                         <Badge>{challenge.status}</Badge>
                       </div>
                     </div>
@@ -1101,7 +1135,7 @@ export default function TeacherDashboard() {
                               <p className="font-medium">
                                 {student.firstName} {student.lastName}
                               </p>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-sm dark:text-gray-400 text-gray-600">
                                 {student.email}
                               </p>
                             </div>
@@ -1166,7 +1200,7 @@ export default function TeacherDashboard() {
 
           {/* Assistant Tab */}
           <TabsContent value="assistant" className="space-y-6">
-            <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[50vh] bg-gray-50">
+            <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[50vh] bg-gray-50 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <MessageCircle className="h-5 w-5 text-purple-600" />
@@ -1177,7 +1211,7 @@ export default function TeacherDashboard() {
                 <ScrollArea className="flex-1 pr-4 overflow-x-hidden">
                   <div className="space-y-4">
                     {messages.length === 0 && (
-                      <div className="text-center text-gray-500 text-sm py-4">
+                      <div className="text-center dark:text-gray-400 text-gray-500 text-sm py-4">
                         Ask me anything about you Like!
                       </div>
                     )}
@@ -1197,9 +1231,9 @@ export default function TeacherDashboard() {
                         )}
                         <div
                           className={`max-w-[80%] p-3 rounded-lg overflow-hidden break-words ${
-                            msg.role === "user"
+                            msg.role === "admin"
                               ? "bg-blue-600 text-white rounded-br-none"
-                              : "bg-gray-200 text-gray-900 rounded-bl-none"
+                              : "bg-gray-200 text-gray-900 dark:bg-slate-800 dark:text-gray-100 rounded-bl-none"
                           }`}
                         >
                           <p className="text-sm break-words">{msg.content}</p>
@@ -1220,7 +1254,7 @@ export default function TeacherDashboard() {
                             <Bot className="h-5 w-5" />
                           </AvatarFallback>
                         </Avatar>
-                        <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 text-gray-900 rounded-bl-none">
+                        <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 text-gray-900 dark:bg-slate-800 dark:text-gray-100 rounded-bl-none">
                           <Loader2 className="h-4 w-4 animate-spin" />
                         </div>
                       </div>
@@ -1507,34 +1541,37 @@ export default function TeacherDashboard() {
 
       {/* // progress card */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[500px] rounded-2xl shadow-lg">
+        <DialogContent className="sm:max-w-[500px] rounded-2xl shadow-lg bg-white dark:bg-gray-900">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+            <DialogTitle className="text-xl font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
               <User className="h-5 w-5 text-blue-600" />
               Student Progress
             </DialogTitle>
           </DialogHeader>
 
-          <Card className="rounded-2xl border shadow-md">
+          <Card className="rounded-2xl border shadow-md bg-white dark:bg-gray-800 dark:border-gray-700">
             <CardContent className="p-6 space-y-5">
               {/* Student Info */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                     {selectedUser?.firstName || "John"}{" "}
                     {selectedUser?.lastName || "Doe"}
                   </h2>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {selectedUser?.email || "student@email.com"}
                   </p>
                 </div>
-                <Badge variant="outline" className="capitalize">
+                <Badge
+                  variant="outline"
+                  className="capitalize dark:border-gray-600 dark:text-gray-300"
+                >
                   {selectedUser?.status || "active"}
                 </Badge>
               </div>
 
               {/* Course Info */}
-              <div className="flex items-center  gap-2 text-gray-700">
+              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
                 <BookOpen className="h-5 w-5 text-indigo-600 mt-1" />
                 <div className="flex flex-wrap gap-2">
                   {selectedUser?.courses?.length > 0 ? (
@@ -1547,7 +1584,7 @@ export default function TeacherDashboard() {
                         <Badge
                           key={idx}
                           variant="outline"
-                          className="bg-indigo-50 text-indigo-700 border-indigo-200"
+                          className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900 dark:text-indigo-300 dark:border-indigo-700"
                         >
                           {matchedCourse
                             ? matchedCourse.title
@@ -1558,7 +1595,7 @@ export default function TeacherDashboard() {
                   ) : (
                     <Badge
                       variant="outline"
-                      className="bg-gray-100 text-gray-600"
+                      className="bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
                     >
                       Mathematics
                     </Badge>
@@ -1569,10 +1606,10 @@ export default function TeacherDashboard() {
               {/* Progress */}
               <div>
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Progress
                   </span>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     {selectedUser?.avgScore?.toFixed(2) || 0}%
                   </span>
                 </div>
@@ -1580,7 +1617,7 @@ export default function TeacherDashboard() {
               </div>
 
               {/* Extra Info */}
-              <div className="flex justify-between text-sm text-gray-600">
+              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-1">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   Completed:{" "}
@@ -1597,7 +1634,7 @@ export default function TeacherDashboard() {
               </div>
 
               {/* Points & Streaks */}
-              <div className="flex items-center justify-between text-lg font-semibold text-gray-800">
+              <div className="flex items-center justify-between text-lg font-semibold text-gray-800 dark:text-gray-200">
                 {/* Points */}
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-yellow-500" />
@@ -1605,16 +1642,15 @@ export default function TeacherDashboard() {
                 </div>
 
                 {/* Streaks */}
-                <div className="flex items-center gap-2 ">
-                  <Flame className="h-5 w-5 text-orange-600" />{" "}
-                  {/* lucide-react flame icon */}
+                <div className="flex items-center gap-2">
+                  <Flame className="h-5 w-5 text-orange-600" />
                   Streaks: {selectedUser?.streaks || 0}
                 </div>
               </div>
 
               {/* Achievements */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">
                   <Award className="h-4 w-4 text-purple-600" /> Achievements
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -1622,13 +1658,15 @@ export default function TeacherDashboard() {
                     selectedUser.achievements.map((ach, index) => (
                       <Badge
                         key={index}
-                        className="bg-purple-100 text-purple-700"
+                        className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
                       >
                         {ach}
                       </Badge>
                     ))
                   ) : (
-                    <p className="text-xs text-gray-500">No achievements yet</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      No achievements yet
+                    </p>
                   )}
                 </div>
               </div>
@@ -1639,72 +1677,72 @@ export default function TeacherDashboard() {
 
       {/* // Profile card */}
       <Dialog open={open1} onOpenChange={setOpen1}>
-        <DialogContent className="sm:max-w-[550px] rounded-2xl shadow-lg">
+        <DialogContent className="sm:max-w-[550px] rounded-2xl shadow-lg bg-background text-foreground">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold flex items-center gap-2">
-              <User className="h-5 w-5 text-blue-600" />
+              <User className="h-5 w-5 text-primary" />
               Student Profile
             </DialogTitle>
           </DialogHeader>
 
-          <Card className="rounded-2xl border shadow-md">
+          <Card className="rounded-2xl border border-border shadow-md bg-card text-card-foreground">
             <CardContent className="p-6 space-y-6">
               {/* Name & Status */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-2xl font-bold">
                     {selectedUser?.firstName || "John"}{" "}
                     {selectedUser?.lastName || "Doe"}
                   </h2>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     Enrollment No: {selectedUser?.enrollmentNumber || "N/A"}
                   </p>
                 </div>
                 <Badge
                   variant="outline"
-                  className="capitalize px-3 py-1 text-sm font-medium"
+                  className="capitalize px-3 py-1 text-sm font-medium border-border text-foreground"
                 >
                   {selectedUser?.status || "Active"}
                 </Badge>
               </div>
 
               {/* Contact Info */}
-              <div className="grid gap-3 text-gray-700">
+              <div className="grid gap-3 text-foreground">
                 <div className="flex items-center gap-2">
-                  <Mail className="h-5 w-5 text-indigo-600" />
+                  <Mail className="h-5 w-5 text-primary" />
                   <span>{selectedUser?.email || "student@email.com"}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="h-5 w-5 text-green-600" />
+                  <Phone className="h-5 w-5 text-green-500 dark:text-green-400" />
                   <span>{selectedUser?.phone || "+91 98765 43210"}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-pink-600" />
+                  <Calendar className="h-5 w-5 text-pink-500 dark:text-pink-400" />
                   <span>
-                    {selectedUser?.dateOfBirth.split("T")[0] || "01 Jan 2000"}
+                    {selectedUser?.dateOfBirth?.split("T")[0] || "01 Jan 2000"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-purple-600" />
+                  <Building2 className="h-5 w-5 text-purple-500 dark:text-purple-400" />
                   <span>{selectedUser?.department || "Computer Science"}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5 text-yellow-600" />
+                  <GraduationCap className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
                   <span>{selectedUser?.qualification || "B.Tech"}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-red-600" />
+                  <MapPin className="h-5 w-5 text-red-500 dark:text-red-400" />
                   <span>{selectedUser?.address || "New Delhi, India"}</span>
                 </div>
               </div>
 
               {/* Bio */}
-              <div className="pt-4 border-t text-gray-700">
+              <div className="pt-4 border-t border-border">
                 <h3 className="text-sm font-semibold flex items-center gap-1 mb-1">
-                  <Info className="h-4 w-4 text-blue-500" />
+                  <Info className="h-4 w-4 text-primary" />
                   Bio
                 </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {selectedUser?.bio ||
                     "Enthusiastic learner, passionate about technology and innovation."}
                 </p>
