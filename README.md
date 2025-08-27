@@ -1,8 +1,3 @@
-Got it ✅
-Since your project is a **Next.js + Tailwind CSS full-stack application** with authentication, dashboards (Student, Teacher, Admin), and APIs (user, teacher, leaderboard, etc.), I'll create a **professional README.md** that you can directly use in your repo.
-
-Here’s a polished draft:
-
 ---
 
 # 📚 LMS Platform
@@ -164,10 +159,15 @@ Contributions are welcome! Please fork the repo and create a pull request.
 
 ---
 
+## Connect With Me:  
+- **Abhishek Choudhary**  
+- **[https://www.linkedin.com/in/your-linkedin-username](https://www.linkedin.com/in/abhishekchoudhary-svu134/)**
+
+---
+
 ## 📄 License
 
 This project is licensed under the **MIT License**.
 
 ---
 
-👉 Would you like me to also **add badges (build status, license, tech stack logos)** at the top of the README to make it look even more professional (like open-source repos)?
