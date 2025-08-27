@@ -108,20 +108,20 @@ export default function SubjectCoursePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen dark:bg-slate-950 bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white dark:bg-slate-950 border-b dark:border-gray-900 border-gray-200 sticky top-0 z-40">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
               href="/Dashboard/StudentDashboard"
-              className="flex items-center space-x-3 text-gray-900 hover:text-purple-600 transition-colors"
+              className="flex items-center space-x-3 dark:text-gray-100 text-gray-900 hover:text-purple-600 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
               <Brain className="h-8 w-8 text-purple-600" />
               <div>
                 <h1 className="text-xl font-bold">Brain Lock</h1>
-                <p className="text-xs text-gray-500">Student Dashboard</p>
+                <p className="text-xs dark:text-gray-400 text-gray-500">Student Dashboard</p>
               </div>
             </Link>
             <Badge variant="secondary" className="text-sm">
@@ -134,10 +134,10 @@ export default function SubjectCoursePage() {
       {/* Main Content */}
       <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold dark:text-gray-100 text-gray-900 mb-2">
             {course.title}
           </h2>
-          <p className="text-lg text-gray-600">{course.description}</p>
+          <p className="text-lg dark:text-gray-400 text-gray-600">{course.description}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -159,7 +159,7 @@ export default function SubjectCoursePage() {
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-600">Status</p>
+                  <p className="text-gray-600 dark:text-gray-400">Status</p>
                   <Badge
                     variant={
                       course.status === "completed" ? "default" : "secondary"
@@ -174,7 +174,7 @@ export default function SubjectCoursePage() {
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-gray-600">Difficulty</p>
+                  <p className="text-gray-600 dark:text-gray-400">Difficulty</p>
                   <Badge
                     className={getDifficultyColor(course.difficulty || "Hard")}
                   >
@@ -182,11 +182,11 @@ export default function SubjectCoursePage() {
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-gray-600">Points Earned</p>
+                  <p className="text-gray-600 dark:text-gray-400">Points Earned</p>
                   <p className="font-semibold">{totalPoints || 0}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Next Challenge</p>
+                  <p className="text-gray-600 dark:text-gray-400">Next Challenge</p>
                   <p className="font-semibold">
                     {course.subtopics?.[0]?.title || "No challenges yet"}
                   </p>
@@ -218,7 +218,7 @@ export default function SubjectCoursePage() {
                 <div className="text-2xl font-bold">
                   {completedChallenges} / {totalChallenges}
                 </div>
-                <p className="text-xs text-gray-600">for this course</p>
+                <p className="text-xs dark:text-gray-400 text-gray-600">for this course</p>
               </CardContent>
             </Card>
             <Card>
@@ -233,7 +233,7 @@ export default function SubjectCoursePage() {
                   {avgChallengeProgress.toFixed(2)}%
                 </div>{" "}
                 {/* Mock average score */}
-                <p className="text-xs text-gray-600">across all challenges</p>
+                <p className="text-xs dark:text-gray-400 text-gray-600">across all challenges</p>
               </CardContent>
             </Card>
           </div>
@@ -241,7 +241,7 @@ export default function SubjectCoursePage() {
 
         {/* Challenges for this Course */}
         <section className="mb-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
+          <h3 className="text-2xl font-bold dark:text-gray-100 text-gray-900 mb-4">
             Theory in {course.title}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

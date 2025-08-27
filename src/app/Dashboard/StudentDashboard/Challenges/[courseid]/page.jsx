@@ -187,20 +187,20 @@ const handleStartChallenge = async (challenge) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen dark:bg-slate-950 bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white dark:bg-slate-950 border-b dark:border-gray-900 border-gray-200 sticky top-0 z-40">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
               href={`/Dashboard/StudentDashboard/Courses/${courseid}`}
-              className="flex items-center space-x-3 text-gray-900 hover:text-purple-600 transition-colors"
+              className="flex items-center space-x-3 dark:text-gray-100 text-gray-900 hover:text-purple-600 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
               <Brain className="h-8 w-8 text-purple-600" />
               <div>
                 <h1 className="text-xl font-bold">Brain Lock</h1>
-                <p className="text-xs text-gray-500">Student Dashboard</p>
+                <p className="text-xs dark:text-gray-400 text-gray-500">Student Dashboard</p>
               </div>
             </Link>
             <Badge variant="secondary" className="text-sm">
@@ -213,8 +213,8 @@ const handleStartChallenge = async (challenge) => {
       {/* Main Content */}
       <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Challenges for {course?.title}</h2>
-          <p className="text-lg text-gray-600">Explore and conquer challenges in your chosen subject.</p>
+          <h2 className="text-3xl font-bold dark:text-gray-100 text-gray-900 mb-2">Challenges for {course?.title}</h2>
+          <p className="text-lg dark:text-gray-400 text-gray-600">Explore and conquer challenges in your chosen subject.</p>
         </div>
 
         {/* Filters and Search */}
@@ -285,7 +285,7 @@ const handleStartChallenge = async (challenge) => {
               ))}
             </div>
           ) : (
-            <div className="text-center p-8 bg-white rounded-lg shadow">
+            <div className="text-center p-8 bg-white dark:bg-gray-900 rounded-lg shadow">
               <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-lg text-gray-600">No challenges match your criteria.</p>
             </div>

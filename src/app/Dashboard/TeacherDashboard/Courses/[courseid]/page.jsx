@@ -182,19 +182,19 @@ export default function CourseSubtopicManagePage() {
   if (!course) return <p className="p-6">Course not found.</p>;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white dark:bg-slate-950 border-b border-gray-200 dark:border-gray-900 sticky top-0 z-40">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
               href="/Dashboard/TeacherDashboard"
-              className="flex items-center space-x-3 text-gray-900 hover:text-green-600 transition-colors"
+              className="flex items-center space-x-3 dark:text-gray-100 text-gray-900 hover:text-green-600 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
               <Brain className="h-8 w-8 text-green-600" />
               <div>
-                <h1 className="text-xl font-bold">Brain Lock</h1>
+                <h1 className="text-xl font-bold dark:text-gray-100">Brain Lock</h1>
                 <p className="text-xs text-gray-500">Teacher Dashboard</p>
               </div>
             </Link>
@@ -208,7 +208,7 @@ export default function CourseSubtopicManagePage() {
       {/* Main Content */}
       <main className="flex-1 max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold dark:text-gray-100 text-gray-900 mb-2">
             Manage Subtopics for {course.title}
           </h2>
           <p className="text-lg text-gray-600">
@@ -283,7 +283,7 @@ export default function CourseSubtopicManagePage() {
                         id="subtopic-course"
                         value={course?.title || ""}
                         disabled
-                        className="col-span-3 text-black bg-gray-100"
+                        className="col-span-3 text-black dark:text-gray-100 bg-gray-100"
                       />
                     </div>
                 </div>
@@ -313,7 +313,7 @@ export default function CourseSubtopicManagePage() {
                       <h3 className="font-semibold text-lg">
                         {subtopic.title}
                       </h3>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm dark:text-gray-400 text-gray-600">
                         Description : {subtopic.description}
                       </p>
                     </div>

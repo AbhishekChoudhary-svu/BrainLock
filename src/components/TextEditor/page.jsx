@@ -55,7 +55,7 @@ export default function TextEditor({ value, onChange }) {
       {/* Live Preview */}
 {value && (
   <div
-    className="ql-snow ql-editor border p-3 rounded-lg bg-gray-50"
+    className="ql-snow ql-editor border p-3 rounded-lg dark:bg-gray-900 dark:text-gray-50 bg-gray-50"
     dangerouslySetInnerHTML={{ __html: sanitized }}
   />
 )}

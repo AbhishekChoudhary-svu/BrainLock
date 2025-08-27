@@ -295,16 +295,18 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen dark:bg-slate-950 bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white dark:bg-slate-950 border-b dark:border-gray-900 border-gray-200 sticky top-0 z-40">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
               <Brain className="h-8 w-8 text-red-600" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Brain Lock</h1>
+                <h1 className="text-xl font-bold dark:text-gray-100 text-gray-900">
+                  Brain Lock
+                </h1>
                 <p className="text-xs text-gray-500">Admin Dashboard</p>
               </div>
             </div>
@@ -410,10 +412,10 @@ export default function AdminDashboard() {
       <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold dark:text-gray-100 text-gray-900 mb-2">
             Welcome back, {context.user?.firstName}! 👋
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Monitor system performance and manage all platform users
           </p>
         </div>
@@ -429,7 +431,9 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold text-red-600">
                 {context.allUsers.length}
               </div>
-              <p className="text-xs text-gray-600">+2 this month</p>
+              <p className="text-xs dark:text-gray-400 text-gray-600">
+                +2 this month
+              </p>
             </CardContent>
           </Card>
 
@@ -444,7 +448,9 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold text-green-600">
                 {context.allUsers.length}
               </div>
-              <p className="text-xs text-gray-600">71% of total users</p>
+              <p className="text-xs dark:text-gray-400 text-gray-600">
+                71% of total users
+              </p>
             </CardContent>
           </Card>
 
@@ -459,7 +465,9 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold text-blue-600">
                 {context.courses.length}
               </div>
-              <p className="text-xs text-gray-600">12 pending approval</p>
+              <p className="text-xs dark:text-gray-400 text-gray-600">
+                12 pending approval
+              </p>
             </CardContent>
           </Card>
 
@@ -474,7 +482,9 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold text-purple-600">
                 {context.stats?.uptime}
               </div>
-              <p className="text-xs text-gray-600">Last 30 days</p>
+              <p className="text-xs dark:text-gray-400 text-gray-600">
+                Last 30 days
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -509,11 +519,11 @@ export default function AdminDashboard() {
                         return (
                           <div
                             key={index}
-                            className={`p-4 rounded-lg ${stat.bgColor}`}
+                            className={`p-4 rounded-lg ${stat.bgColor} dark:bg-gray-800`}
                           >
                             <div className="flex items-center space-x-2 mb-2">
                               <Icon className={`h-5 w-5 ${stat.color}`} />
-                              <span className="text-sm font-medium">
+                              <span className="text-sm font-medium dark:text-gray-200">
                                 {stat.title}
                               </span>
                             </div>
@@ -536,54 +546,26 @@ export default function AdminDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Students</span>
-                        <span className="text-sm text-gray-600">
-                          {context.allUsers.filter((c) => c.role === "student")
-                            .length || 0}
-                        </span>
+                    {["student", "teacher", "admin"].map((role) => (
+                      <div key={role} className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium capitalize dark:text-gray-200">
+                            {role}s
+                          </span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            {context.allUsers.filter((c) => c.role === role)
+                              .length || 0}
+                          </span>
+                        </div>
+                        <Progress
+                          value={
+                            (context.allUsers.filter((c) => c.role === role)
+                              .length || 0) * 100
+                          }
+                          className="h-2"
+                        />
                       </div>
-                      <Progress
-                        value={
-                          (context.allUsers.filter((c) => c.role === "student")
-                            .length || 0) * 100
-                        }
-                        className="h-2"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Teachers</span>
-                        <span className="text-sm text-gray-600">
-                          {context.allUsers.filter((c) => c.role === "teacher")
-                            .length || 0}
-                        </span>
-                      </div>
-                      <Progress
-                        value={
-                          (context.allUsers.filter((c) => c.role === "teacher")
-                            .length || 0) * 100
-                        }
-                        className="h-2"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Admins</span>
-                        <span className="text-sm text-gray-600">
-                          {context.allUsers.filter((c) => c.role === "admin")
-                            .length || 0}
-                        </span>
-                      </div>
-                      <Progress
-                        value={
-                          (context.allUsers.filter((c) => c.role === "admin")
-                            .length || 0) * 100
-                        }
-                        className="h-2"
-                      />
-                    </div>
+                    ))}
                   </CardContent>
                 </Card>
 
@@ -609,7 +591,7 @@ export default function AdminDashboard() {
                                 {getActivityIcon(activity.action)}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900">
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   {activity.action}
                                   {activity.courseId
                                     ? `: ${activity.courseId.title}`
@@ -628,7 +610,7 @@ export default function AdminDashboard() {
                                   </span>
                                 </p>
                                 {activity.details && (
-                                  <p className="text-xs text-gray-500 mt-1">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                     {activity.details.score !== undefined
                                       ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
                                       : typeof activity.details === "string"
@@ -636,7 +618,7 @@ export default function AdminDashboard() {
                                       : JSON.stringify(activity.details)}
                                   </p>
                                 )}
-                                <p className="text-xs text-gray-400 mt-1">
+                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                   {new Date(
                                     activity.createdAt
                                   ).toLocaleString()}
@@ -645,7 +627,7 @@ export default function AdminDashboard() {
                             </div>
                           ))
                       ) : (
-                        <p className="text-gray-400 ">
+                        <p className="text-gray-400 dark:text-gray-500">
                           No recent admin activities
                         </p>
                       )}
@@ -659,25 +641,27 @@ export default function AdminDashboard() {
                 {/* Quick Admin Actions */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
+                    <CardTitle className="dark:text-gray-100">
+                      Quick Actions
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Button
-                      className="w-full justify-start bg-transparent"
+                      className="w-full justify-start bg-transparent dark:bg-gray-800 dark:text-gray-200"
                       variant="outline"
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Export User Data
                     </Button>
                     <Button
-                      className="w-full justify-start bg-transparent"
+                      className="w-full justify-start bg-transparent dark:bg-gray-800 dark:text-gray-200"
                       variant="outline"
                     >
                       <Shield className="mr-2 h-4 w-4" />
                       Security Audit
                     </Button>
                     <Button
-                      className="w-full justify-start bg-transparent"
+                      className="w-full justify-start bg-transparent dark:bg-gray-800 dark:text-gray-200"
                       variant="outline"
                       onClick={() => setIsSystemSettingsOpen(true)}
                     >
@@ -696,13 +680,13 @@ export default function AdminDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <Alert>
+                    <Alert className="dark:bg-gray-800 dark:text-gray-200">
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription className="text-sm">
                         Scheduled maintenance in 2 days. Users will be notified.
                       </AlertDescription>
                     </Alert>
-                    <Alert>
+                    <Alert className="dark:bg-gray-800 dark:text-gray-200">
                       <CheckCircle className="h-4 w-4" />
                       <AlertDescription className="text-sm">
                         Database backup completed successfully.
@@ -721,15 +705,15 @@ export default function AdminDashboard() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-center">
-                      <div className="p-3 bg-blue-50 rounded-lg">
+                      <div className="p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
                         <div className="text-lg font-bold text-blue-600">
                           {context.challenges.length}
                         </div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
                           Total Challenges
                         </div>
                       </div>
-                      <div className="p-3 bg-green-50 rounded-lg">
+                      <div className="p-3 bg-green-50 dark:bg-green-900 rounded-lg">
                         <div className="text-lg font-bold text-green-600">
                           {(() => {
                             const courses = context.user?.courses || [];
@@ -740,26 +724,28 @@ export default function AdminDashboard() {
                             ).length;
                             const successRate =
                               (completed / courses.length) * 100;
-                            return `${successRate.toFixed(2)}%`; // e.g. 33.33%
+                            return `${successRate.toFixed(2)}%`;
                           })()}
                         </div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
                           Success Rate
                         </div>
                       </div>
-                      <div className="p-3 bg-purple-50 rounded-lg">
+                      <div className="p-3 bg-purple-50 dark:bg-purple-900 rounded-lg">
                         <div className="text-lg font-bold text-purple-600">
                           156K
                         </div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
                           Hours Studied
                         </div>
                       </div>
-                      <div className="p-3 bg-yellow-50 rounded-lg">
+                      <div className="p-3 bg-yellow-50 dark:bg-yellow-900 rounded-lg">
                         <div className="text-lg font-bold text-yellow-600">
                           {parseUptimeToPercent(context.stats?.uptime)}%
                         </div>
-                        <div className="text-xs text-gray-600">Uptime</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Uptime
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -814,7 +800,7 @@ export default function AdminDashboard() {
                             <p className="font-medium">
                               {user.firstName + " " + user.lastName}
                             </p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm dark:text-gray-400 text-gray-600">
                               {user.email}
                             </p>
                           </div>
@@ -842,17 +828,17 @@ export default function AdminDashboard() {
                       </TableCell>
                       <TableCell>
                         {user.role === "teacher" ? (
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm dark:text-gray-400 text-gray-600">
                             {user.courses || 4} courses, {user.students || 50}{" "}
                             students
                           </span>
                         ) : user.role === "student" ? (
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm dark:text-gray-400 text-gray-600">
                             {user.courses.length || 4} courses,{" "}
                             {user.avgScore || 50}% avg
                           </span>
                         ) : (
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm dark:text-gray-400 text-gray-600">
                             System Admin
                           </span>
                         )}
@@ -927,16 +913,21 @@ export default function AdminDashboard() {
           {/* Course Oversight Tab */}
           <TabsContent value="courses" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Course Oversight</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Course Oversight
+              </h3>
               <div className="flex space-x-2"></div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
+              {/* Active Courses */}
+              <Card className="bg-white dark:bg-gray-800 border dark:border-gray-700">
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">Active Courses</CardTitle>
-                    <Badge className="bg-green-100 text-green-800">
+                    <CardTitle className="text-lg text-gray-900 dark:text-gray-100">
+                      Active Courses
+                    </CardTitle>
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                       {
                         context.courses.filter((c) => c.status === "active")
                           .length
@@ -952,7 +943,7 @@ export default function AdminDashboard() {
                       .map((course) => (
                         <div
                           key={course._id}
-                          className="flex justify-between border-b last:border-b-0 pb-1"
+                          className="flex justify-between border-b last:border-b-0 pb-1 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
                         >
                           <span>{course.title}</span>
                           <span>{course.subtopics?.length || 0} subtopics</span>
@@ -962,11 +953,14 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card>
+              {/* Active Challenges */}
+              <Card className="bg-white dark:bg-gray-800 border dark:border-gray-700">
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">Active Challenges</CardTitle>
-                    <Badge className="bg-green-100 text-green-800">
+                    <CardTitle className="text-lg text-gray-900 dark:text-gray-100">
+                      Active Challenges
+                    </CardTitle>
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                       {
                         context.challenges.filter((c) => c.status === "active")
                           .length
@@ -981,12 +975,12 @@ export default function AdminDashboard() {
                     .map((challenge) => (
                       <div
                         key={challenge._id}
-                        className="flex justify-between border-b last:border-b-0 pb-1"
+                        className="flex justify-between border-b last:border-b-0 pb-1 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
                       >
                         {/* Challenge Title */}
                         <div className="flex-col flex">
                           <span>{challenge.title}</span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             ({challenge.course?.title})
                           </span>
                         </div>
@@ -998,13 +992,14 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card>
+              {/* Performance Metrics */}
+              <Card className="bg-white dark:bg-gray-800 border dark:border-gray-700">
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">
+                    <CardTitle className="text-lg text-gray-900 dark:text-gray-100">
                       Performance Metrics
                     </CardTitle>
-                    <Badge className="bg-blue-100 text-blue-800">
+                    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
                       Analytics
                     </Badge>
                   </div>
@@ -1012,8 +1007,8 @@ export default function AdminDashboard() {
                 <CardContent>
                   <div className="space-y-3">
                     {/* Avg Completion */}
-                    <div className="text-center p-3 bg-blue-50 rounded-lg">
-                      <div className="text-lg font-bold text-blue-600">
+                    <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
+                      <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
                         {(() => {
                           const courses = context.user?.courses || [];
                           if (!courses.length) return "0%";
@@ -1023,17 +1018,17 @@ export default function AdminDashboard() {
                             0
                           );
                           const avg = totalProgress / courses.length;
-                          return `${avg.toFixed(2)}%`; // e.g. 56.25%
+                          return `${avg.toFixed(2)}%`;
                         })()}
                       </div>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
                         Avg Completion
                       </div>
                     </div>
 
                     {/* Student Success Rate */}
-                    <div className="text-center p-3 bg-purple-50 rounded-lg">
-                      <div className="text-lg font-bold text-purple-600">
+                    <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/40 rounded-lg">
+                      <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
                         {(() => {
                           const courses = context.user?.courses || [];
                           if (!courses.length) return "0%";
@@ -1043,19 +1038,13 @@ export default function AdminDashboard() {
                           ).length;
                           const successRate =
                             (completed / courses.length) * 100;
-                          return `${successRate.toFixed(2)}%`; // e.g. 33.33%
+                          return `${successRate.toFixed(2)}%`;
                         })()}
                       </div>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
                         Student Success Rate
                       </div>
                     </div>
-
-                    {/* Student Satisfaction (placeholder) */}
-                    {/* <div className="text-center p-3 bg-green-50 rounded-lg">
-        <div className="text-lg font-bold text-green-600">92%</div>
-        <div className="text-xs text-gray-600">Student Satisfaction</div>
-      </div> */}
                   </div>
                 </CardContent>
               </Card>
@@ -1063,12 +1052,13 @@ export default function AdminDashboard() {
           </TabsContent>
 
           {/* Activity Tab */}
+
           <TabsContent value="activity" className="space-y-6">
-            <div className="">
-              <Card>
+            <div>
+              <Card className="bg-white dark:bg-slate-900">
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Clock className="h-5 w-5 text-orange-600" />
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
+                    <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                     <span>Recent Activities</span>
                   </CardTitle>
                 </CardHeader>
@@ -1084,7 +1074,7 @@ export default function AdminDashboard() {
                             {getActivityIcon(activity.action)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                               {activity.action}
                               {activity.courseId
                                 ? `: ${activity.courseId.title}`
@@ -1095,13 +1085,14 @@ export default function AdminDashboard() {
                               <Badge className={getRoleColor(activity.role)}>
                                 {activity.role}
                               </Badge>{" "}
-                              <span className="font-semibold">
+                              <span className="font-semibold text-gray-900 dark:text-gray-200">
                                 {activity.userId?.firstName}{" "}
                                 {activity.userId?.lastName}
                               </span>
                             </p>
+
                             {activity.details && (
-                              <p className="text-xs text-gray-500 mt-1">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 {activity.details.score !== undefined
                                   ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
                                   : typeof activity.details === "string"
@@ -1109,25 +1100,28 @@ export default function AdminDashboard() {
                                   : JSON.stringify(activity.details)}
                               </p>
                             )}
-                            <p className="text-xs text-gray-400 mt-1">
+
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                               {new Date(activity.createdAt).toLocaleString()}
                             </p>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <p className="text-gray-400 ">No recent activities</p>
+                      <p className="text-gray-400 dark:text-gray-500">
+                        No recent activities
+                      </p>
                     )}
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            <Alert>
-              <BarChart3 className="h-4 w-4" />
-              <AlertDescription>
-                Here we can see the all recent activities of all user like Admin
-                , Teacher and Student also ..
+            <Alert className="bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-gray-700">
+              <BarChart3 className="h-4 w-4 text-gray-700 dark:text-gray-300" />
+              <AlertDescription className="text-gray-600 dark:text-gray-300">
+                Here we can see all recent activities of all users like Admin,
+                Teacher and Student also ..
               </AlertDescription>
             </Alert>
           </TabsContent>

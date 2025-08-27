@@ -302,17 +302,21 @@ export default function StudentDashboard() {
       : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen dark:bg-slate-950 bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white dark:bg-slate-950 border-b dark:border-gray-900 border-gray-200 sticky top-0 z-40">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
               <Brain className="h-8 w-8 text-purple-600" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Brain Lock</h1>
-                <p className="text-xs text-gray-500">Student Dashboard</p>
+                <h1 className="text-xl font-bold dark:text-gray-100 text-gray-900">
+                  Brain Lock
+                </h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Student Dashboard
+                </p>
               </div>
             </div>
 
@@ -404,10 +408,10 @@ export default function StudentDashboard() {
       <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold dark:text-gray-100 text-gray-900 mb-2">
             Welcome back, {context.user?.firstName}! 👋
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Ready to continue your learning journey?
           </p>
         </div>
@@ -425,7 +429,9 @@ export default function StudentDashboard() {
               <div className="text-2xl font-bold text-orange-600">
                 {context?.user?.streaks} days
               </div>
-              <p className="text-xs text-gray-600">Keep it up!</p>
+              <p className="text-xs dark:text-gray-400 text-gray-600">
+                Keep it up!
+              </p>
             </CardContent>
           </Card>
 
@@ -440,7 +446,7 @@ export default function StudentDashboard() {
               <div className="text-2xl font-bold text-yellow-600">
                 {context?.user?.points?.toLocaleString()}
               </div>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs dark:text-gray-400 text-gray-600">
                 +{context?.user?.points?.toLocaleString()} this week
               </p>
             </CardContent>
@@ -455,7 +461,7 @@ export default function StudentDashboard() {
               <div className="text-2xl font-bold text-purple-600">
                 #{context?.user?.classRank?.toLocaleString()}
               </div>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs dark:text-gray-400 text-gray-600">
                 ↑ {context?.user?.classRank?.toLocaleString()} positions
               </p>
             </CardContent>
@@ -472,7 +478,7 @@ export default function StudentDashboard() {
               <div className="text-2xl font-bold text-blue-600">
                 {context.user?.courses?.length}
               </div>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs dark:text-gray-400 text-gray-600">
                 {context?.user?.courses?.filter((c) => c.status === "completed")
                   .length || 0}{" "}
                 completed
@@ -501,11 +507,13 @@ export default function StudentDashboard() {
               {/* Left Column */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Current Progress */}
-                <Card>
+                <Card className="bg-white dark:bg-gray-900 border dark:border-gray-700">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <TrendingUp className="h-5 w-5 text-green-600" />
-                      <span>Current Progress</span>
+                      <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      <span className="text-gray-900 dark:text-gray-100">
+                        Current Progress
+                      </span>
                     </CardTitle>
                   </CardHeader>
 
@@ -514,14 +522,9 @@ export default function StudentDashboard() {
                       enrolledCourses.map((enrolled) => (
                         <div key={enrolled._id} className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <h4 className="font-medium">
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100">
                               {enrolled.course?.title}
                             </h4>
-                            {/* <Badge
-              className={getDifficultyColor(enrolled.course.difficulty) || ""}
-            >
-              {enrolled.course.difficulty || ""}
-            </Badge> */}
                           </div>
 
                           <Progress
@@ -529,11 +532,11 @@ export default function StudentDashboard() {
                             className="h-2"
                           />
 
-                          <div className="flex justify-between text-sm text-gray-600">
+                          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                             <span>
                               {enrolled.progress.toFixed(2) || 0}% complete
                             </span>
-                            <span className="font-[500] text-black">
+                            <span className="font-[500] text-black dark:text-gray-200">
                               Next:{" "}
                               {enrolled.course?.challenges?.[0]?.title ||
                                 "No challenges"}
@@ -542,7 +545,7 @@ export default function StudentDashboard() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-gray-500 text-sm italic">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm italic">
                         No enrolled courses yet
                       </p>
                     )}
@@ -550,11 +553,13 @@ export default function StudentDashboard() {
                 </Card>
 
                 {/* Recent Activity */}
-                <Card>
+                <Card className="bg-white dark:bg-gray-900 border dark:border-gray-700">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Clock className="h-5 w-5 text-blue-600" />
-                      <span>Recent Activity</span>
+                      <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      <span className="text-gray-900 dark:text-gray-100">
+                        Recent Activity
+                      </span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -569,7 +574,7 @@ export default function StudentDashboard() {
                               {getActivityIcon(activity.action)}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {activity.action}
                                 {activity.courseId
                                   ? `: ${activity.courseId.title}`
@@ -586,7 +591,7 @@ export default function StudentDashboard() {
                                 </span>
                               </p>
                               {activity.details && (
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                   {activity.details.score !== undefined
                                     ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
                                     : typeof activity.details === "string"
@@ -594,14 +599,16 @@ export default function StudentDashboard() {
                                     : JSON.stringify(activity.details)}
                                 </p>
                               )}
-                              <p className="text-xs text-gray-400 mt-1">
+                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                 {new Date(activity.createdAt).toLocaleString()}
                               </p>
                             </div>
                           </div>
                         ))
                       ) : (
-                        <p className="text-gray-400 ">No recent activities</p>
+                        <p className="text-gray-400 dark:text-gray-500">
+                          No recent activities
+                        </p>
                       )}
                     </div>
                   </CardContent>
@@ -611,15 +618,17 @@ export default function StudentDashboard() {
               {/* Right Column */}
               <div className="space-y-6">
                 {/* Study Timer */}
-                <Card>
+                <Card className="bg-white dark:bg-gray-900 border dark:border-gray-700">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Target className="h-5 w-5 text-red-600" />
-                      <span>Focus Timer</span>
+                      <Target className="h-5 w-5 text-red-600 dark:text-red-400" />
+                      <span className="text-gray-900 dark:text-gray-100">
+                        Focus Timer
+                      </span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="text-center space-y-4">
-                    <div className="text-4xl font-mono font-bold text-gray-900">
+                    <div className="text-4xl font-mono font-bold text-gray-900 dark:text-gray-100">
                       {String(studyTimer.minutes).padStart(2, "0")}:
                       {String(studyTimer.seconds).padStart(2, "0")}
                     </div>
@@ -641,18 +650,22 @@ export default function StudentDashboard() {
                         <RotateCcw className="h-4 w-4" />
                       </Button>
                     </div>
-                    <p className="text-sm text-gray-600">Pomodoro Session</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Pomodoro Session
+                    </p>
                   </CardContent>
                 </Card>
 
                 {/* Quick Actions */}
-                <Card>
+                <Card className="bg-white dark:bg-gray-900 border dark:border-gray-700">
                   <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
+                    <CardTitle className="text-gray-900 dark:text-gray-100">
+                      Quick Actions
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Button
-                      className="w-full justify-start bg-transparent"
+                      className="w-full justify-start bg-transparent dark:text-gray-200"
                       variant="outline"
                       onClick={() => setTabValue("assistant")}
                     >
@@ -660,7 +673,7 @@ export default function StudentDashboard() {
                       AI Assistant
                     </Button>
                     <Button
-                      className="w-full justify-start bg-transparent"
+                      className="w-full justify-start bg-transparent dark:text-gray-200"
                       variant="outline"
                       onClick={() => setOpenProgressCard(true)}
                     >
@@ -671,30 +684,38 @@ export default function StudentDashboard() {
                 </Card>
 
                 {/* Achievements */}
-                <Card>
+                <Card className="bg-white dark:bg-gray-900 border dark:border-gray-700">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Award className="h-5 w-5 text-yellow-600" />
-                      <span>Recent Achievements</span>
+                      <Award className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                      <span className="text-gray-900 dark:text-gray-100">
+                        Recent Achievements
+                      </span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center space-x-3">
-                      <div className="bg-orange-100 p-2 rounded-full">
-                        <Fire className="h-4 w-4 text-orange-600" />
+                      <div className="bg-orange-100 dark:bg-orange-900/40 p-2 rounded-full">
+                        <Fire className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium">Week Warrior</p>
-                        <p className="text-xs text-gray-600">7-day streak</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Week Warrior
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          7-day streak
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="bg-blue-100 p-2 rounded-full">
-                        <Brain className="h-4 w-4 text-blue-600" />
+                      <div className="bg-blue-100 dark:bg-blue-900/40 p-2 rounded-full">
+                        <Brain className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium">Quick Learner</p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Quick Learner
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
                           Completed 5 challenges
                         </p>
                       </div>
@@ -761,7 +782,7 @@ export default function StudentDashboard() {
                       {course.challenges.length > 0 && (
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">
+                            <span className="text-sm dark:text-gray-400 text-gray-600">
                               Next Challenge:
                             </span>
                             <p className="text-sm font-medium">
@@ -774,7 +795,7 @@ export default function StudentDashboard() {
 
                       {/* Footer Section */}
                       <div className="flex justify-between items-center">
-                        <p className="text-xs font-bold pt-2 text-gray-800">
+                        <p className="text-xs font-bold pt-2 dark:text-gray-400 text-gray-800">
                           Due:{" "}
                           {userCourse?.enrolledAt?.split("T")[0] || "Not Yet"}
                         </p>
@@ -821,54 +842,62 @@ export default function StudentDashboard() {
           <TabsContent value="challenges" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
               {/* Challenge Stats */}
-              <Card>
+              <Card className="bg-white dark:bg-gray-900 border dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                     <BarChart3 className="h-5 w-5 text-green-600" />
                     <span>Challenge Statistics</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-4 gap-4">
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/40 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                         {completedChallenges}
                       </div>
-                      <div className="text-sm text-gray-600">Completed</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
+                        Completed
+                      </div>
                     </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
+                    <div className="text-center p-4 bg-green-50 dark:bg-green-900/40 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                         {averageProgress}%
                       </div>
-                      <div className="text-sm text-gray-600">Success Rate</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
+                        Success Rate
+                      </div>
                     </div>
-                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                      <div className="text-2xl font-bold text-yellow-600">
+                    <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/40 rounded-lg">
+                      <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                         {activeChallenges}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
                         Active Challenges
                       </div>
                     </div>
-                    <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">
+                    <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/40 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                         {perfectScore}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
                         Perfect Scores
                       </div>
                     </div>
                   </div>
 
-                  <Alert>
-                    <Zap className="h-4 w-4" />
-                    <AlertDescription>
-                      You're on fire! Complete 2 more challenges to unlock the
-                      "Challenge Master" badge.
+                  <Alert className="bg-gray-50 dark:bg-gray-800 border dark:border-gray-700">
+                    <Zap className="h-4 w-4 text-yellow-500" />
+                    <AlertDescription className="text-gray-700 flex dark:text-gray-300">
+                      You're on fire! Complete 2 more challenges to unlock the{" "}
+                      <span className="font-semibold text-yellow-600 dark:text-yellow-400">
+                        Challenge Master
+                      </span>
+                      badge.
                     </AlertDescription>
                   </Alert>
                 </CardContent>
               </Card>
+
               {/* Upcoming Challenges */}
               <Card>
                 <CardHeader>
@@ -925,9 +954,9 @@ export default function StudentDashboard() {
 
           {/* Ai Assistant Tab */}
           <TabsContent value="assistant" className="space-y-6">
-            <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[50vh] bg-gray-50">
+            <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[50vh] bg-gray-50 dark:bg-gray-900">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                   <MessageCircle className="h-5 w-5 text-purple-600" />
                   <span>AI Assistant</span>
                 </CardTitle>
@@ -936,7 +965,7 @@ export default function StudentDashboard() {
                 <ScrollArea className="flex-1 pr-4 overflow-x-hidden">
                   <div className="space-y-4">
                     {messages.length === 0 && (
-                      <div className="text-center text-gray-500 text-sm py-4">
+                      <div className="text-center text-gray-500 dark:text-gray-400 text-sm py-4">
                         Ask me anything about you Like!
                       </div>
                     )}
@@ -958,7 +987,7 @@ export default function StudentDashboard() {
                           className={`max-w-[80%] p-3 rounded-lg overflow-hidden break-words ${
                             msg.role === "user"
                               ? "bg-blue-600 text-white rounded-br-none"
-                              : "bg-gray-200 text-gray-900 rounded-bl-none"
+                              : "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-none"
                           }`}
                         >
                           <p className="text-sm break-words">{msg.content}</p>
@@ -979,7 +1008,7 @@ export default function StudentDashboard() {
                             <Bot className="h-5 w-5" />
                           </AvatarFallback>
                         </Avatar>
-                        <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 text-gray-900 rounded-bl-none">
+                        <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-none">
                           <Loader2 className="h-4 w-4 animate-spin" />
                         </div>
                       </div>
@@ -993,7 +1022,7 @@ export default function StudentDashboard() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     disabled={isLoading}
-                    className="flex-1"
+                    className="flex-1 dark:bg-gray-800 dark:text-gray-100"
                   />
                   <Button type="submit" size="icon" disabled={isLoading}>
                     {isLoading ? (
@@ -1012,10 +1041,12 @@ export default function StudentDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Trophy className="h-5 w-5 text-yellow-600" />
-                  <span>Class Leaderboard</span>
+                  <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                  <span className="text-gray-900 dark:text-gray-100">
+                    Class Leaderboard
+                  </span>
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-600 dark:text-gray-400">
                   See how you rank against your classmates
                 </CardDescription>
               </CardHeader>
@@ -1024,28 +1055,31 @@ export default function StudentDashboard() {
                   {context.leaderboard.map((student) => (
                     <div
                       key={student.rank}
-                      className={`flex items-center space-x-4 p-3 rounded-lg ${
+                      className={`flex items-center space-x-4 p-3 rounded-lg transition ${
                         student.isCurrentUser
-                          ? "bg-purple-50 border border-purple-200"
-                          : "bg-gray-50"
+                          ? "bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700"
+                          : "bg-gray-50 dark:bg-gray-800"
                       }`}
                     >
+                      {/* Rank */}
                       <div className="flex items-center justify-center w-8 h-8">
                         {student.rank === 1 && (
-                          <Crown className="h-6 w-6 text-yellow-500" />
+                          <Crown className="h-6 w-6 text-yellow-500 dark:text-yellow-400" />
                         )}
                         {student.rank === 2 && (
-                          <Medal className="h-6 w-6 text-gray-400" />
+                          <Medal className="h-6 w-6 text-gray-400 dark:text-gray-300" />
                         )}
                         {student.rank === 3 && (
-                          <Medal className="h-6 w-6 text-amber-600" />
+                          <Medal className="h-6 w-6 text-amber-600 dark:text-amber-500" />
                         )}
                         {student.rank > 3 && (
-                          <span className="text-lg font-bold text-gray-600">
+                          <span className="text-lg font-bold text-gray-600 dark:text-gray-300">
                             #{student.rank}
                           </span>
                         )}
                       </div>
+
+                      {/* Avatar */}
                       <Avatar className="h-10 w-10">
                         <AvatarImage
                           src={student.avatar || "/placeholder.svg"}
@@ -1058,25 +1092,29 @@ export default function StudentDashboard() {
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
+
+                      {/* Name + Points */}
                       <div className="flex-1">
                         <p
                           className={`font-medium ${
                             student.isCurrentUser
-                              ? "text-purple-900"
-                              : "text-gray-900"
+                              ? "text-purple-900 dark:text-purple-200"
+                              : "text-gray-900 dark:text-gray-100"
                           }`}
                         >
                           {student.firstName + " " + student.lastName}{" "}
                           {student.isCurrentUser && "(You)"}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                           {student.points.toLocaleString()} points
                         </p>
                       </div>
+
+                      {/* Badge for Current User */}
                       {student.isCurrentUser && (
                         <Badge
                           variant="secondary"
-                          className="bg-purple-100 text-purple-800"
+                          className="bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100"
                         >
                           Your Rank
                         </Badge>
@@ -1092,7 +1130,7 @@ export default function StudentDashboard() {
 
       {/* // Detailed Progress Report Dialog */}
       <Dialog open={openProgressCard} onOpenChange={setOpenProgressCard}>
-        <DialogContent className="sm:max-w-[1000px] rounded-2xl shadow-lg h-[90vh] ">
+        <DialogContent className="sm:max-w-[1000px] rounded-2xl shadow-lg h-[90vh] bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold flex items-center gap-2">
               <User className="h-5 w-5 text-blue-600" />
@@ -1100,16 +1138,16 @@ export default function StudentDashboard() {
             </DialogTitle>
           </DialogHeader>
 
-          <Card className="rounded-2xl border shadow-md">
+          <Card className="rounded-2xl border shadow-md bg-white dark:bg-gray-800">
             <CardContent className="p-6 pt-0 space-y-6">
               {/* Student Info */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                     {context.user?.firstName || "John"}{" "}
                     {context.user?.lastName || "Doe"}
                   </h2>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {context.user?.email || "student@email.com"}
                   </p>
                 </div>
@@ -1120,21 +1158,27 @@ export default function StudentDashboard() {
 
               {/* Overall Stats */}
               <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="p-4 rounded-xl bg-yellow-50">
-                  <p className="text-sm text-gray-600">Streaks</p>
-                  <p className="text-xl font-bold text-red-700">
+                <div className="p-4 rounded-xl bg-yellow-50 dark:bg-yellow-900/40">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Streaks
+                  </p>
+                  <p className="text-xl font-bold text-red-700 dark:text-red-400">
                     {context.user?.streaks || 0}
                   </p>
                 </div>
-                <div className="p-4 rounded-xl bg-blue-50">
-                  <p className="text-sm text-gray-600">Average Score</p>
-                  <p className="text-xl font-bold text-blue-700">
+                <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/40">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Average Score
+                  </p>
+                  <p className="text-xl font-bold text-blue-700 dark:text-blue-400">
                     {context.user?.avgScore?.toFixed(2) || 0}%
                   </p>
                 </div>
-                <div className="p-4 rounded-xl bg-yellow-50">
-                  <p className="text-sm text-gray-600">Total Points</p>
-                  <p className="text-xl font-bold text-yellow-700">
+                <div className="p-4 rounded-xl bg-yellow-50 dark:bg-yellow-900/40">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Total Points
+                  </p>
+                  <p className="text-xl font-bold text-yellow-700 dark:text-yellow-400">
                     {context.user?.points || 0}
                   </p>
                 </div>
@@ -1142,7 +1186,7 @@ export default function StudentDashboard() {
 
               {/* Courses Section */}
               <div>
-                <h3 className="text-md font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <h3 className="text-md font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
                   <BookOpen className="h-5 w-5 text-indigo-600" />
                   Courses Progress
                 </h3>
@@ -1155,29 +1199,30 @@ export default function StudentDashboard() {
                       return (
                         <div
                           key={idx}
-                          className="p-3 border rounded-lg bg-gray-50 flex flex-col justify-center h-[70px]"
+                          className="p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 flex flex-col justify-center h-[70px]"
                         >
-                          <span className="font-medium text-gray-700 text-sm truncate">
+                          <span className="font-medium text-gray-700 dark:text-gray-200 text-sm truncate">
                             {matchedCourse
                               ? matchedCourse.title
                               : "Unknown Course"}
                           </span>
-                          <span className="text-xs text-gray-500 mt-1">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             Progress: {c.progress.toFixed(0) || 0}%
                           </span>
                         </div>
                       );
                     })
                   ) : (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       No courses enrolled yet
                     </p>
                   )}
                 </div>
               </div>
+
               {/* Challenge Section */}
               <div>
-                <h3 className="text-md font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <h3 className="text-md font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
                   <Trophy className="h-5 w-5 text-green-600" />
                   Challenges Progress
                 </h3>
@@ -1186,19 +1231,21 @@ export default function StudentDashboard() {
                     context.user.challenges.map((ch, idx) => (
                       <div
                         key={idx}
-                        className="p-3 border rounded-lg bg-gray-50 flex flex-col justify-center h-[70px]"
+                        className="p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 flex flex-col justify-center h-[70px]"
                       >
-                        <span className="font-medium text-gray-700 text-sm truncate">
+                        <span className="font-medium text-gray-700 dark:text-gray-200 text-sm truncate">
                           {ch.title}
                         </span>
-                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                           <span>Score: {ch.score || 0}</span>
                           <span>Progress: {ch.progress.toFixed(0) || 0}%</span>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-gray-500">No challenges yet</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      No challenges yet
+                    </p>
                   )}
                 </div>
               </div>
