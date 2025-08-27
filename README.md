@@ -1,66 +1,59 @@
----
-
 # 📚 LMS Platform
 
-A **full-stack Learning Management System (LMS)** built with **Next.js 14, Tailwind CSS, MongoDB, and JWT Authentication**.
-The platform provides separate dashboards for **Students, Teachers, and Admins**, featuring course management, challenges, leaderboards, and user progress tracking.
+A **full-stack Learning Management System (LMS)** built with **Next.js 14, Tailwind CSS, MongoDB, and JWT Authentication**.  
+The platform provides separate dashboards for **Students, Teachers, and Admins**, featuring course management, challenges, leaderboards, chatbot support, and user progress tracking.
 
 ---
 
 ## 🚀 Features
 
 ### 🔑 Authentication & Security
-
-* User registration, login, email verification, password reset
-* JWT-based authentication with refresh & access tokens
-* Middleware protection for secured routes
+* User registration, login, email verification, password reset  
+* JWT-based authentication with refresh & access tokens  
+* Middleware protection for secured routes  
 
 ### 👨‍🎓 Student Dashboard
-
-* Enroll in courses & track progress
-* Attempt challenges & quizzes
-* View scores and achievements
-* Class rank leaderboard
+* Enroll in courses & track progress  
+* Attempt challenges & quizzes  
+* View scores and achievements  
+* Class rank leaderboard  
+* **AI-powered chatbot inside courses** for instant help (no distractions, stay focused while learning)  
 
 ### 👩‍🏫 Teacher Dashboard
-
-* Create & manage courses, subtopics, and theory content
-* Add MCQs and challenges
-* Monitor student performance
+* Create & manage courses, subtopics, and theory content  
+* Add MCQs and challenges  
+* Monitor student performance  
 
 ### 🛠️ Admin Dashboard
-
-* Manage users, courses, and system settings
+* Manage users, courses, and system settings  
 
 ### 📊 Additional Features
-
-* Activity logging
-* Email notifications (verification, password reset)
-* Dark/Light mode support
-* Rich text editor for course content
+* Activity logging  
+* Email notifications (verification, password reset)  
+* Dark/Light mode support  
+* Rich text editor for course content  
+* Integrated chatbot to assist students during learning sessions  
 
 ---
 
 ## 🏗️ Tech Stack
 
 **Frontend:**
-
-* Next.js 14 (App Router)
-* Tailwind CSS + Shadcn UI Components
-* Context API (Theme Provider)
+* Next.js 14 (App Router)  
+* Tailwind CSS + Shadcn UI Components  
+* Context API (Theme Provider)  
 
 **Backend (API Routes):**
-
-* Next.js API Routes
-* MongoDB + Mongoose
-* JWT Authentication
-* Nodemailer for email services
+* Next.js API Routes  
+* MongoDB + Mongoose  
+* JWT Authentication  
+* Nodemailer for email services  
+* Chatbot integration (AI-powered support for students)  
 
 **Other:**
-
-* ESLint & Prettier for code linting
-* PostCSS & Tailwind for styling
-* Vercel for deployment
+* ESLint & Prettier for code linting  
+* PostCSS & Tailwind for styling  
+* Vercel for deployment  
 
 ---
 
@@ -95,8 +88,8 @@ The platform provides separate dashboards for **Students, Teachers, and Admins**
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/your-repo.git
-cd your-repo
+git clone https://github.com/AbhishekChoudhary-svu/BrainLock.git
+cd BrainLock
 ```
 
 ### 2️⃣ Install dependencies
@@ -135,12 +128,7 @@ Your app will be running on **[http://localhost:3000](http://localhost:3000)** �
 * **Teachers** → `/api/teacher/courses`, `/api/teacher/challenges`, `/api/teacher/mcqs`
 * **Leaderboard** → `/api/leaderboard/classRank`
 * **System** → `/api/system`
-
----
-
-## 🖼️ Screenshots
-
-> *(Add screenshots of Student, Teacher, Admin dashboards here)*
+* **Chatbot** → `/api/chat`
 
 ---
 
@@ -150,6 +138,7 @@ Your app will be running on **[http://localhost:3000](http://localhost:3000)** �
 * [ ] Add certificate generation
 * [ ] Real-time chat for classes
 * [ ] Analytics dashboard for teachers
+* [ ] Smarter AI-powered chatbot (context-aware learning assistant)
 
 ---
 
