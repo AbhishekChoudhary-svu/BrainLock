@@ -53,6 +53,7 @@ import {
   Bot,
   Loader2,
   Flame,
+  Sun,
 } from "lucide-react";
 import Link from "next/link"; // Import Link
 import { toast } from "sonner";
@@ -75,6 +76,7 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     context.fetchCourses();
+    context.fetchChallenges();
     context.fetchProfile();
     context.fetchLeaderboard();
     context.fetchUserActivities();
@@ -366,13 +368,13 @@ export default function StudentDashboard() {
                   <Link href={"/Dashboard/AdminDashboard"}>
                     <DropdownMenuItem>
                       <User className="mr-2 h-4 w-4" />
-                      Admin Page
+                      Admin Dashboard
                     </DropdownMenuItem>
                   </Link>
                   <Link href={"/Dashboard/TeacherDashboard"}>
                     <DropdownMenuItem>
                       <CircuitBoard className="mr-2 h-4 w-4" />
-                      Teacher Page
+                      Teacher Dashboard
                     </DropdownMenuItem>
                   </Link>
                   <Link href={"/Dashboard/ProfilePage"}>
@@ -381,9 +383,9 @@ export default function StudentDashboard() {
                       My Profile
                     </DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
+                  <DropdownMenuItem onClick={context.toggleTheme}>
+                    <Sun className="mr-2 h-4 w-4" />
+                    {context.darkMode ? "Light Mode" : " Dark Mode"}
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <MessageCircle className="mr-2 h-4 w-4" />
@@ -1226,22 +1228,32 @@ export default function StudentDashboard() {
                   <Trophy className="h-5 w-5 text-green-600" />
                   Challenges Progress
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   {context.user?.challenges?.length > 0 ? (
-                    context.user.challenges.map((ch, idx) => (
-                      <div
-                        key={idx}
-                        className="p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 flex flex-col justify-center h-[70px]"
-                      >
-                        <span className="font-medium text-gray-700 dark:text-gray-200 text-sm truncate">
-                          {ch.title}
-                        </span>
-                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          <span>Score: {ch.score || 0}</span>
-                          <span>Progress: {ch.progress.toFixed(0) || 0}%</span>
+                    context.user.challenges.map((uc, idx) => {
+                      // Find full challenge info from context.challenges using id
+                      const fullChallenge = context.challenges?.find(
+                        (c) => c._id === uc.challengeId
+                      );
+
+                      return (
+                        <div
+                          key={idx}
+                          className="p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 flex flex-col justify-center h-[70px]"
+                        >
+                          <span className="font-medium text-gray-700 dark:text-gray-200 text-sm truncate">
+                            {fullChallenge?.title || "Unknown Challenge"}
+                          </span>
+                          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-100 mt-1">
+                            <span>Score: {uc.score || 0}</span>
+                            <span>
+                              Progress: {uc.progress?.toFixed(0) || 0}%
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       No challenges yet

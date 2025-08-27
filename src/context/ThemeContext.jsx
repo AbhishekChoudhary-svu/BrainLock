@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MyContext from "./ThemeProvider";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -15,9 +15,7 @@ const ThemeProvider = ({ children }) => {
   const [stats, setStats] = useState([]);
   const [activities, setActivities] = useState([]);
   const [userActivities, setUserActivities] = useState([]);
-
-
-
+  const [darkMode, setDarkMode] = useState(true);
   
   const [loading, setLoading] = useState(true);
 
@@ -148,7 +146,16 @@ const ThemeProvider = ({ children }) => {
   
 
 
+    
+    useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
 
+  const toggleTheme = () => setDarkMode((prev) => !prev);
 
 
 
@@ -177,9 +184,12 @@ const ThemeProvider = ({ children }) => {
     userActivities, 
     setUserActivities,
     fetchUserActivities,
+    darkMode, 
+    setDarkMode,
+    toggleTheme 
   };
 
-  return <MyContext.Provider value={values}>{children}</MyContext.Provider>;
+  return <MyContext.Provider value={values  }>{children}</MyContext.Provider>;
 };
 
 export default ThemeProvider;

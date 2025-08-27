@@ -98,9 +98,9 @@ export default function ForgotPasswordPage() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
+      <div className="min-h-screen dark:from-slate-900 dark:via-slate-950 dark:to-purple-950 bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
         {/* Header */}
-        <div className="p-4 sm:p-6">
+        <div className="p-4 sm:p-6 dark:from-slate-900 dark:via-slate-950 dark:to-purple-950">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
             <Link href="/" className="flex items-center space-x-2 text-gray-900 hover:text-blue-600 transition-colors">
               <ArrowLeft className="h-5 w-5" />
@@ -112,7 +112,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Success Message */}
-        <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 dark:from-slate-900 dark:via-slate-950 dark:to-purple-950">
           <div className="w-full max-w-md">
             <Card className="shadow-2xl border-0">
               <CardHeader className="space-y-1 text-center pb-4">
@@ -143,11 +143,11 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
+    <div className="min-h-screen dark:from-slate-900 dark:via-slate-950 dark:to-purple-950 bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
       {/* Header */}
       <div className="p-4 sm:p-6">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <Link href="/" className="flex items-center space-x-2 text-gray-900 hover:text-blue-600 transition-colors">
+          <Link href="/" className="flex items-center space-x-2 dark:text-gray-100 text-gray-900 hover:text-blue-600 transition-colors">
             <ArrowLeft className="h-5 w-5" />
             <Brain className="h-8 w-8 text-blue-600" />
             <span className="text-2xl font-bold">Brain Lock</span>
@@ -220,7 +220,7 @@ export default function ForgotPasswordPage() {
                   {errors.confirmPassword && <p className="text-sm text-red-600">{errors.confirmPassword}</p>}
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-blue-50 dark:bg-slate-950 dark:text-gray-100 dark:border-blue-900  border border-blue-200 rounded-lg p-4">
                   <h4 className="font-medium text-blue-900 mb-2">Password Requirements:</h4>
                   <ul className="text-sm text-blue-700 space-y-1">
                     <li>• At least 8 characters long</li>
@@ -234,7 +234,7 @@ export default function ForgotPasswordPage() {
               </form>
 
               <div className="text-center">
-                <Link href="/login" className="text-sm text-blue-600 hover:underline">
+                <Link href="/LoginPage" className="text-sm text-blue-600 hover:underline">
                   Back to Login
                 </Link>
               </div>

@@ -33,8 +33,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
-
-    const router = useRouter();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("student");
@@ -96,7 +95,7 @@ export default function SignupPage() {
       toast.success(
         data.message || "Registration successful! Please check your email."
       );
-      localStorage.setItem("userEmail",formData.email)
+      localStorage.setItem("userEmail", formData.email);
 
       // Reset form fields
       setFormData({
@@ -109,51 +108,74 @@ export default function SignupPage() {
         adminCode: "",
         teacherCode: "",
       });
-      router.push("/VerifyEmailPage")
+      router.push("/VerifyEmailPage");
       setActiveTab("student");
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
     }
   };
 
-  const getRoleConfig = (role) => {
-    const configs = {
-      admin: {
-        title: "Admin Registration",
-        description: "Create an administrative account",
-        icon: Shield,
-        color: "text-blue-600",
-        bgColor: "bg-blue-50",
-        borderColor: "border-blue-200",
-      },
-      teacher: {
-        title: "Teacher Registration",
-        description: "Join as an educator",
-        icon: GraduationCap,
-        color: "text-green-600",
-        bgColor: "bg-green-50",
-        borderColor: "border-green-200",
-      },
-      student: {
-        title: "Student Registration",
-        description: "Start your learning journey",
-        icon: BookOpen,
-        color: "text-purple-600",
-        bgColor: "bg-purple-50",
-        borderColor: "border-purple-200",
-      },
-    };
-    return configs[role] || configs.student;
-  };
+  function getRoleConfig(role) {
+    switch (role) {
+      case "admin":
+        return {
+          title: "Admin Panel",
+          description: "Manage system settings and users",
+          icon: Shield,
+          bgColor: "bg-purple-100",
+          borderColor: "border-purple-300",
+          textColor: "text-purple-800",
+          darkBgColor: "dark:bg-purple-950",
+          darkBorderColor: "dark:border-purple-900",
+          darkTextColor: "dark:text-purple-400",
+        };
+      case "teacher":
+        return {
+          title: "Teacher Dashboard",
+          description: "Manage your classes and assignments",
+          icon: GraduationCap,
+          bgColor: "bg-green-100",
+          borderColor: "border-green-300",
+          textColor: "text-green-800",
+          darkBgColor: "dark:bg-green-950",
+          darkBorderColor: "dark:border-green-900",
+          darkTextColor: "dark:text-green-400",
+        };
+      case "student":
+        return {
+          title: "Student Panel",
+          description: "Access your courses and assignments",
+          icon: BookOpen,
+          bgColor: "bg-blue-100",
+          borderColor: "border-blue-300",
+          textColor: "text-blue-800",
+          darkBgColor: "dark:bg-blue-950",
+          darkBorderColor: "dark:border-blue-900",
+          darkTextColor: "dark:text-blue-400",
+        };
+      default:
+        return {
+          title: "",
+          description: "",
+          icon: Shield,
+          bgColor: "bg-gray-100",
+          borderColor: "border-gray-300",
+          textColor: "text-gray-800",
+          darkBgColor: "dark:bg-gray-950",
+          darkBorderColor: "dark:border-gray-900",
+          darkTextColor: "dark:text-gray-400",
+        };
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
+    <div className="min-h-screen dark:from-slate-900 dark:via-slate-950 dark:to-purple-950 bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
       {/* Header */}
-      <div className="p-4 sm:p-6">
+      <div className="p-4 sm:p-6 dark:from-slate-900 dark:via-slate-950 dark:to-purple-950">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <Link
             href="/"
-            className="flex items-center space-x-2 text-gray-900 hover:text-blue-600 transition-colors"
+            className="flex items-center space-x-2 dark:text-gray-100 text-gray-900 hover:text-blue-600 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
             <Brain className="h-8 w-8 text-blue-600" />
@@ -164,7 +186,7 @@ export default function SignupPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
+      <div className="flex-1 dark:from-slate-900 dark:via-slate-950 dark:to-purple-950 flex items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-2xl">
           <Card className="shadow-2xl border-0">
             <CardHeader className="space-y-1 text-center pb-4">
@@ -207,15 +229,19 @@ export default function SignupPage() {
                   return (
                     <TabsContent key={role} value={role} className="mt-6">
                       <div
-                        className={`p-4 rounded-lg ${config.bgColor} ${config.borderColor} border mb-6`}
+                        className={`p-4 rounded-lg border mb-6 
+                        ${config.bgColor} ${config.borderColor} 
+                        ${config.darkBgColor} ${config.darkBorderColor}`}
                       >
                         <div className="flex items-center space-x-3">
-                          <Icon className={`h-6 w-6 ${config.color}`} />
+                          <Icon
+                            className={`h-6 w-6 ${config.textColor} ${config.darkTextColor}`}
+                          />
                           <div>
-                            <h3 className="font-semibold text-gray-900">
+                            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                               {config.title}
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
                               {config.description}
                             </p>
                           </div>
@@ -471,7 +497,7 @@ export default function SignupPage() {
                     <Separator />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-gray-500">
+                    <span className="bg-white dark:bg-slate-950 px-2 text-gray-500">
                       Already have an account?
                     </span>
                   </div>

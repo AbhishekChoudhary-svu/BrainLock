@@ -86,6 +86,7 @@ import {
   GraduationCap,
   MapPin,
   Info,
+  Sun,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -295,7 +296,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen dark:bg-slate-950 bg-gray-50">
+    <div className="min-h-screen dark:bg-slate-950  bg-gray-50">
       {/* Header */}
       <header className="bg-white dark:bg-slate-950 border-b dark:border-gray-900 border-gray-200 sticky top-0 z-40">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -366,13 +367,13 @@ export default function AdminDashboard() {
                   <Link href={"/Dashboard/StudentDashboard"}>
                     <DropdownMenuItem>
                       <User className="mr-2 h-4 w-4" />
-                      Student Page
+                      Student Dashboard
                     </DropdownMenuItem>
                   </Link>
                   <Link href={"/Dashboard/TeacherDashboard"}>
                     <DropdownMenuItem>
                       <CircuitBoard className="mr-2 h-4 w-4" />
-                      Teacher Page
+                      Teacher Dashboard
                     </DropdownMenuItem>
                   </Link>
                   <Link href={"/Dashboard/ProfilePage"}>
@@ -381,9 +382,9 @@ export default function AdminDashboard() {
                       My Profile
                     </DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    System Settings
+                  <DropdownMenuItem onClick={context.toggleTheme}>
+                    <Sun className="mr-2 h-4 w-4" />
+                    {context.darkMode ? "Light Mode" : " Dark Mode"}
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Shield className="mr-2 h-4 w-4" />

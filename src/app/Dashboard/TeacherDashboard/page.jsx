@@ -420,13 +420,13 @@ export default function TeacherDashboard() {
                   <Link href={"/Dashboard/AdminDashboard"}>
                     <DropdownMenuItem>
                       <User className="mr-2 h-4 w-4" />
-                      Admin Page
+                      Admin Dashboard
                     </DropdownMenuItem>
                   </Link>
                   <Link href={"/Dashboard/StudentDashboard"}>
                     <DropdownMenuItem>
                       <CircuitBoard className="mr-2 h-4 w-4" />
-                      Student Page
+                      Student Dashboard
                     </DropdownMenuItem>
                   </Link>
                   <Link href={"/Dashboard/ProfilePage"}>
@@ -435,9 +435,9 @@ export default function TeacherDashboard() {
                       My Profile
                     </DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
+                 <DropdownMenuItem onClick={context.toggleTheme}>
+                    <Sun className="mr-2 h-4 w-4" />
+                    {context.darkMode ? "Light Mode" : " Dark Mode"}
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <MessageCircle className="mr-2 h-4 w-4" />
