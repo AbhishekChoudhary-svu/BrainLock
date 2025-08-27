@@ -1,4 +1,4 @@
-# 📚 LMS Platform
+# 📚 BrainLock - LMS Platform
 
 A **full-stack Learning Management System (LMS)** built with **Next.js 14, Tailwind CSS, MongoDB, and JWT Authentication**.  
 The platform provides separate dashboards for **Students, Teachers, and Admins**, featuring course management, challenges, leaderboards, chatbot support, and user progress tracking.
