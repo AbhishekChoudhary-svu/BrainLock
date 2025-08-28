@@ -3,10 +3,11 @@ import SubjectChallenge from "@/models/subjectChallenge.model";
 import MCQ from "@/models/mcq.model";
 import Course from "@/models/course.model";
 
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
     await dbConnect();
-    const challenge = await SubjectChallenge.findById(params.id)
+    const { id } = await context.params;
+    const challenge = await SubjectChallenge.findById(id)
       .populate("course", "title")
       // .populate("mcqs")
       // .populate("assignments");
@@ -31,13 +32,14 @@ export async function GET(req, { params }) {
   }
 }
 
-export async function PUT(req, { params }) {
+export async function PUT(req, context) {
   try {
     await dbConnect();
     const body = await req.json();
+    const { id } = await context.params;
 
     const challenge = await SubjectChallenge.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       { new: true, runValidators: true }
     );

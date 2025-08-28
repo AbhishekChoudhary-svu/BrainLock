@@ -44,7 +44,7 @@ export default function SubjectTheoryPage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-      <p className="ml-2 text-gray-600">Loading theory...</p>
+      <p className="ml-2 text-gray-600"></p>
     </div>
   );
 }

@@ -67,13 +67,17 @@ export default function LandingPage() {
             environment designed for success.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href={"/Dashboard/StudentDashboard"}>
             <Button size="lg" className="text-lg px-8 py-3">
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
+            </Link>
+            <Link href={"/LoginPage"}>
             <Button size="lg" variant="outline" className="text-lg px-8 py-3 bg-transparent">
               Login
             </Button>
+            </Link>
           </div>
         </div>
       </section>

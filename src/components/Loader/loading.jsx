@@ -1,8 +1,11 @@
 // /Dashboard/TeacherDashboard/Courses/[courseid]/loading.js
 
+import { Loader2 } from "lucide-react";
+
 export default function Loading() {
-  return (
-    <div className="p-6 animate-pulse">
+  return (<>
+       <div className="h-8 w-full  bg-gray-200 rounded mb-8"></div>
+    <div className="p-2 animate-pulse">
       {/* Page Title */}
       <div className="h-8 w-2/3 bg-gray-200 rounded mb-4"></div>
       <div className="h-4 w-1/2 bg-gray-200 rounded mb-8"></div>
@@ -27,6 +30,17 @@ export default function Loading() {
           </div>
         ))}
       </div>
-    </div>
+    </div></>
   );
 }
+export  function Loading1() {
+  return (
+  <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+      <p className="ml-2 text-gray-600"></p>
+    </div>
+
+  );
+}
+
+

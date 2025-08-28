@@ -3,11 +3,13 @@ import Course from "@/models/course.model";
 import Subtopic from "@/models/subtopic.model";
 import Content from "@/models/content.model";
 
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
     await dbConnect();
+
+    const { id } = await context.params; 
     
-    const course = await Course.findById(params.id)
+    const course = await Course.findById(id)
       // .populate("instructor", "firstName lastName email")
       // .populate("subtopics")
       // .populate("studentsEnrolled", "firstName lastName")
@@ -33,12 +35,13 @@ export async function GET(req, { params }) {
   }
 }
 
-export async function PUT(req, { params }) {
+export async function PUT(req, context) {
   try {
     await dbConnect();
     const body = await req.json();
+    const { id } = await context.params; 
 
-    const course = await Course.findByIdAndUpdate(params.id, body, {
+    const course = await Course.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
@@ -63,12 +66,13 @@ export async function PUT(req, { params }) {
   }
 }
 
-export async function DELETE(req, { params }) {
+export async function DELETE(req, context) {
   try {
     await dbConnect();
+    const { id } = await context.params;
 
     // Find the course first (so we can access subtopics)
-    const course = await Course.findById(params.id);
+    const course = await Course.findById(id);
     if (!course) {
       return new Response(
         JSON.stringify({ success: false, error: "Course not found" }),
@@ -94,7 +98,7 @@ export async function DELETE(req, { params }) {
     }
 
     // Finally delete the course
-    await Course.findByIdAndDelete(params.id);
+    await Course.findByIdAndDelete(id);
 
     return new Response(
       JSON.stringify({

@@ -19,19 +19,20 @@ const modules = {
   ],
 };
 
+
 const formats = [
   "header",
   "bold",
   "italic",
   "underline",
   "strike",
-  "list",
-  "bullet",
+  "list",        // covers both ordered + bullet lists
   "blockquote",
   "code-block",
   "link",
   "image",
 ];
+
 
 export default function TextEditor({ value, onChange }) {
   // Sanitize HTML output

@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import TextEditor from "@/components/TextEditor/page";
+import { Loading1 } from "@/components/Loader/loading";
 
 export default function SubtopicContentManagePage() {
   const params = useParams();
@@ -63,12 +64,15 @@ export default function SubtopicContentManagePage() {
 
   async function fetchContents() {
     try {
+      setLoading(true);
       const res = await fetch(`/api/teacher/theory?subtopic=${subtopicid}`);
       if (!res.ok) throw new Error("Failed to fetch contents");
       const data = await res.json();
       setContents(data.data);
     } catch (err) {
       console.error(err.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -155,6 +159,12 @@ export default function SubtopicContentManagePage() {
       console.error(err.message);
     }
   };
+   if (loading)
+      return (
+        <div className="p-6">
+          <Loading1/>
+        </div>
+      );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col">
@@ -200,7 +210,7 @@ export default function SubtopicContentManagePage() {
               <Label htmlFor="subtopic-title">Subtopic Title</Label>
               <Input
                 id="subtopic-title"
-                value={subtopic.title}
+                value={subtopic?.title}
                 disabled
                 placeholder="Enter subtopic title"
               />

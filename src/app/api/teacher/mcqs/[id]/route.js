@@ -6,6 +6,7 @@ import SubjectChallenge from "@/models/subjectChallenge.model";
 export async function GET(req, { params }) {
   try {
     await dbConnect();
+    
     const mcq = await MCQ.findById(params.id).populate("subjectChallenge", "title");
 
     if (!mcq) {

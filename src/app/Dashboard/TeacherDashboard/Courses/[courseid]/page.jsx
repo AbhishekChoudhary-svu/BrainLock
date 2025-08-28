@@ -32,10 +32,11 @@ import {
   Trash2,
   ChevronRight,
   MoreHorizontal,
+  Loader2,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import Loading from "./loading";
+import Loading, {Loading1} from "@/components/Loader/loading";
 
 export default function CourseSubtopicManagePage() {
   const params = useParams();
@@ -51,133 +52,130 @@ export default function CourseSubtopicManagePage() {
   const [newSubtopicTitle, setNewSubtopicTitle] = useState("");
   const [editingSubtopicId, setEditingSubtopicId] = useState(null);
 
-
   async function fetchCourse() {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/teacher/courses/${courseId}`);
-        if (!res.ok) {
-          const { error } = await res.json();
-          throw new Error(error || "Failed to fetch course");
-        }
-        const data = await res.json();
-        setCourse(data.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/teacher/courses/${courseId}`);
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error || "Failed to fetch course");
       }
+      const data = await res.json();
+      setCourse(data.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    async function fetchCourseSubTopics() {
-  try {
-    setLoading(true);
-    const res = await fetch(`/api/teacher/subTopics?courseId=${courseId}`);
-    if (!res.ok) {
-      const { error } = await res.json();
-      throw new Error(error || "Failed to fetch subtopics");
-    }
-    const data = await res.json();
-    setSubtopic(data.data);
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
   }
-}
-
-
+  async function fetchCourseSubTopics() {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/teacher/subTopics?courseId=${courseId}`);
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error || "Failed to fetch subtopics");
+      }
+      const data = await res.json();
+      setSubtopic(data.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    
-    if (courseId){
+    if (courseId) {
       fetchCourse();
       fetchCourseSubTopics();
-    } 
+    }
   }, [courseId]);
 
   const handleEditSubtopic = (sub) => {
-  setNewSubtopicTitle(sub.title);
-  setNewSubtopicDescription(sub.description);
-  setEditingSubtopicId(sub._id);
-  setIsCreateSubtopicOpen(true);
-};
-
+    setNewSubtopicTitle(sub.title);
+    setNewSubtopicDescription(sub.description);
+    setEditingSubtopicId(sub._id);
+    setIsCreateSubtopicOpen(true);
+  };
 
   const handleSaveSubtopic = async () => {
-  try {
-    const payload = {
-      title: newSubtopicTitle,
-      description: newSubtopicDescription,
-      course: courseId,
-      contents: [],
-    };
+    try {
+      const payload = {
+        title: newSubtopicTitle,
+        description: newSubtopicDescription,
+        course: courseId,
+        contents: [],
+      };
 
-    let res;
-    if (editingSubtopicId) {
-      // UPDATE
-      res = await fetch(`/api/teacher/subTopics/${editingSubtopicId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-    } else {
-      // CREATE
-      res = await fetch("/api/teacher/subTopics", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      let res;
+      if (editingSubtopicId) {
+        // UPDATE
+        res = await fetch(`/api/teacher/subTopics/${editingSubtopicId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        // CREATE
+        res = await fetch("/api/teacher/subTopics", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success(
+          editingSubtopicId
+            ? "Subtopic updated successfully!"
+            : "Subtopic created successfully!"
+        );
+
+        fetchCourseSubTopics(); // refresh list
+
+        // reset form
+        setNewSubtopicTitle("");
+        setNewSubtopicDescription("");
+        setEditingSubtopicId(null);
+        setIsCreateSubtopicOpen(false);
+      } else {
+        toast.error(data.error || "Failed to save subtopic");
+      }
+    } catch (error) {
+      toast.error("Error saving subtopic:", error.message);
     }
-
-    const data = await res.json();
-
-    if (data.success) {
-      toast.success(
-        editingSubtopicId
-          ? "Subtopic updated successfully!"
-          : "Subtopic created successfully!"
-      );
-
-      fetchCourseSubTopics(); // refresh list
-
-      // reset form
-      setNewSubtopicTitle("");
-      setNewSubtopicDescription("");
-      setEditingSubtopicId(null);
-      setIsCreateSubtopicOpen(false);
-    } else {
-      toast.error(data.error || "Failed to save subtopic");
-    }
-  } catch (error) {
-    toast.error("Error saving subtopic:", error.message);
-  }
-};
-
+  };
 
   const handleDeleteSubtopic = async (subtopicId) => {
-  try {
-    const res = await fetch(`/api/teacher/subTopics/${subtopicId}`, {
-      method: "DELETE",
-    });
+    try {
+      const res = await fetch(`/api/teacher/subTopics/${subtopicId}`, {
+        method: "DELETE",
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok && data.success) {
-      // Remove from local state
-      toast.success(data.message || "SubTopics Deleted Successfully");
-      setSubtopic((prev) => prev.filter((s) => s._id !== subtopicId));
-
-    } else {
-      toast.error(data.message || "Failed to delete subtopic");
+      if (res.ok && data.success) {
+        // Remove from local state
+        toast.success(data.message || "SubTopics Deleted Successfully");
+        setSubtopic((prev) => prev.filter((s) => s._id !== subtopicId));
+      } else {
+        toast.error(data.message || "Failed to delete subtopic");
+      }
+    } catch (err) {
+      console.error("Error deleting subtopic:", err);
+      toast.error("Something went wrong while deleting subtopic");
     }
-  } catch (err) {
-    console.error("Error deleting subtopic:", err);
-    toast.error("Something went wrong while deleting subtopic");
-  }
-};
+  };
 
-
-  if (loading) return <p className="p-6"><Loading/></p>;
+  if (loading)
+    return (
+      <div className="p-6">
+        <Loading/>
+      </div>
+    );
   if (error) return <p className="p-6 text-red-500">{error}</p>;
   if (!course) return <p className="p-6">Course not found.</p>;
 
@@ -194,7 +192,9 @@ export default function CourseSubtopicManagePage() {
               <ArrowLeft className="h-5 w-5" />
               <Brain className="h-8 w-8 text-green-600" />
               <div>
-                <h1 className="text-xl font-bold dark:text-gray-100">Brain Lock</h1>
+                <h1 className="text-xl font-bold dark:text-gray-100">
+                  Brain Lock
+                </h1>
                 <p className="text-xs text-gray-500">Teacher Dashboard</p>
               </div>
             </Link>
@@ -234,7 +234,11 @@ export default function CourseSubtopicManagePage() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{editingSubtopicId ? "Edit Subtopic" : "Create New Subtopic"}</DialogTitle>
+                  <DialogTitle>
+                    {editingSubtopicId
+                      ? "Edit Subtopic"
+                      : "Create New Subtopic"}
+                  </DialogTitle>
                   <DialogDescription>
                     Fill in details to create a new subtopic.
                   </DialogDescription>
@@ -275,17 +279,17 @@ export default function CourseSubtopicManagePage() {
                   </div>
 
                   {/* Course Selection */}
-                    <div className="flex items-center gap-18">
-                      <Label htmlFor="subtopic-course" className="text-right">
-                        Course
-                      </Label>
-                      <Input
-                        id="subtopic-course"
-                        value={course?.title || ""}
-                        disabled
-                        className="col-span-3 text-black dark:text-gray-100 bg-gray-100"
-                      />
-                    </div>
+                  <div className="flex items-center gap-18">
+                    <Label htmlFor="subtopic-course" className="text-right">
+                      Course
+                    </Label>
+                    <Input
+                      id="subtopic-course"
+                      value={course?.title || ""}
+                      disabled
+                      className="col-span-3 text-black dark:text-gray-100 bg-gray-100"
+                    />
+                  </div>
                 </div>
 
                 <DialogFooter>
@@ -333,7 +337,9 @@ export default function CourseSubtopicManagePage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditSubtopic(subtopic)}>
+                          <DropdownMenuItem
+                            onClick={() => handleEditSubtopic(subtopic)}
+                          >
                             <Edit className="mr-2 h-4 w-4" />
                             Rename Subtopic
                           </DropdownMenuItem>
