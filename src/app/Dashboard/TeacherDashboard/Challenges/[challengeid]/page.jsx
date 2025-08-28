@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Plus, Trash2, Edit, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { QuestionLoading } from "@/components/Loader/loading";
 
 export default function ManageChallengePage() {
   const { challengeid } = useParams();
@@ -24,6 +25,7 @@ export default function ManageChallengePage() {
   // Fetch challenge by ID
   const fetchChallenge = async () => {
     try {
+      
       const res = await fetch(`/api/teacher/challenges/${challengeid}`);
       const data = await res.json();
       if (res.ok) {
@@ -40,6 +42,7 @@ export default function ManageChallengePage() {
 
   const fetchChallengeMcqs = async () => {
     try {
+      setLoading(true);
       const res = await fetch(`/api/teacher/mcqs?challengeId=${challengeid}`);
       const data = await res.json();
 
@@ -257,6 +260,8 @@ export default function ManageChallengePage() {
         </Card>
 
         {/* Existing Questions */}
+        
+        {loading  ? <QuestionLoading/> : <>
         <h2 className="text-xl font-bold dark:text-gray-100 text-gray-900 mb-4">
           Existing Questions ({questions.length})
         </h2>
@@ -318,6 +323,8 @@ export default function ManageChallengePage() {
             ))
           )}
         </div>
+        </>}
+        
       </div>
     </div>
   );

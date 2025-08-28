@@ -1,16 +1,36 @@
-"use client"
+"use client";
 
-import { useParams, useRouter } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Brain, Search, Filter, ChevronRight, AlertCircle } from "lucide-react"
-import { useContext, useEffect, useState } from "react"
-import MyContext from "@/context/ThemeProvider"
-import { toast } from "sonner"
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ArrowLeft,
+  Brain,
+  Search,
+  Filter,
+  ChevronRight,
+  AlertCircle,
+} from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+import MyContext from "@/context/ThemeProvider";
+import { toast } from "sonner";
+import { TheoryCardLoading } from "@/components/Loader/loading";
 
 // Mock data for challenges
 const mockChallenges = [
@@ -24,7 +44,8 @@ const mockChallenges = [
     estimatedTime: "45 min",
     dueDate: "Tomorrow",
     points: 50,
-    description: "Master the concepts of differentiation and its applications in real-world problems.",
+    description:
+      "Master the concepts of differentiation and its applications in real-world problems.",
     status: "pending",
   },
   {
@@ -37,7 +58,8 @@ const mockChallenges = [
     estimatedTime: "30 min",
     dueDate: "In 3 days",
     points: 40,
-    description: "Test your understanding of Newton's three laws of motion through a series of challenging questions.",
+    description:
+      "Test your understanding of Newton's three laws of motion through a series of challenging questions.",
     status: "pending",
   },
   {
@@ -50,7 +72,8 @@ const mockChallenges = [
     estimatedTime: "20 min",
     dueDate: "Next week",
     points: 30,
-    description: "Identify elements and understand their properties on the periodic table with this interactive quiz.",
+    description:
+      "Identify elements and understand their properties on the periodic table with this interactive quiz.",
     status: "completed",
   },
   {
@@ -63,7 +86,8 @@ const mockChallenges = [
     estimatedTime: "30 min",
     dueDate: "In 5 days",
     points: 45,
-    description: "Solve systems of linear equations using various methods, including substitution and elimination.",
+    description:
+      "Solve systems of linear equations using various methods, including substitution and elimination.",
     status: "pending",
   },
   {
@@ -76,7 +100,8 @@ const mockChallenges = [
     estimatedTime: "60 min",
     dueDate: "In 7 days",
     points: 60,
-    description: "Explore the laws of thermodynamics and their applications in energy transfer.",
+    description:
+      "Explore the laws of thermodynamics and their applications in energy transfer.",
     status: "pending",
   },
   {
@@ -93,98 +118,86 @@ const mockChallenges = [
       "An introduction to the fundamental concepts of organic chemistry, including functional groups and nomenclature.",
     status: "pending",
   },
-]
+];
 
 const getDifficultyColor = (difficulty) => {
   switch (difficulty.toLowerCase()) {
     case "easy":
-      return "bg-green-100 text-green-800"
+      return "bg-green-100 text-green-800";
     case "medium":
-      return "bg-yellow-100 text-yellow-800"
+      return "bg-yellow-100 text-yellow-800";
     case "hard":
-      return "bg-red-100 text-red-800"
+      return "bg-red-100 text-red-800";
     default:
-      return "bg-gray-100 text-gray-800"
+      return "bg-gray-100 text-gray-800";
   }
-}
+};
 
 export default function SubjectChallengesPage() {
-  const router = useRouter()
-  const context = useContext(MyContext)
-  const params = useParams()
-  const { courseid } = params
+  const router = useRouter();
+  const context = useContext(MyContext);
+  const params = useParams();
+  const { courseid } = params;
 
-  useEffect(()=>{
+  useEffect(() => {
     context.fetchCourses();
-    context.fetchProfile()
-  },[])
+    context.fetchProfile();
+  }, []);
 
-
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterDifficulty, setFilterDifficulty] = useState("all")
-  const [filterStatus, setFilterStatus] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterDifficulty, setFilterDifficulty] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
 
   // Flatten courses in case nested
-const allCourses = context?.courses?.flat() || [];
+  const allCourses = context?.courses?.flat() || [];
 
-// Find the course by ID
-const course = allCourses.find((c) => String(c._id) === String(courseid));
+  // Find the course by ID
+  const course = allCourses.find((c) => String(c._id) === String(courseid));
 
-// Get challenges safely
-const challengesForSubject = course?.challenges || [];
+  // Get challenges safely
+  const challengesForSubject = course?.challenges || [];
 
   const filteredChallenges = challengesForSubject.filter((challenge) => {
     const matchesSearch =
       challenge.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      challenge.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesDifficulty = filterDifficulty === "all" || challenge.difficulty.toLowerCase() === filterDifficulty
-    const matchesStatus = filterStatus === "all" || challenge.status.toLowerCase() === filterStatus
-    return matchesSearch && matchesDifficulty && matchesStatus
-  })
+      challenge.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDifficulty =
+      filterDifficulty === "all" ||
+      challenge.difficulty.toLowerCase() === filterDifficulty;
+    const matchesStatus =
+      filterStatus === "all" || challenge.status.toLowerCase() === filterStatus;
+    return matchesSearch && matchesDifficulty && matchesStatus;
+  });
 
-const handleStartChallenge = async (challenge) => {
-  try {
-    const res = await fetch(
-      `/api/user/${context?.user?._id}/challenge/${challenge._id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+  const handleStartChallenge = async (challenge) => {
+    try {
+      const res = await fetch(
+        `/api/user/${context?.user?._id}/challenge/${challenge._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Update local challenge status
+        challenge.status = "active";
+        toast.success(data.message || "Challenge started successfully!");
+        // Optionally refetch profile or challenges
+        router.push(
+          `/Dashboard/StudentDashboard/Challenges/${courseid}/${challenge._id}`
+        );
+        context.fetchProfile();
+      } else {
+        toast.error(data.message || "Failed to start challenge");
       }
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      // Update local challenge status
-      challenge.status = "active";
-      toast.success(data.message || "Challenge started successfully!");
-      // Optionally refetch profile or challenges
-      router.push(`/Dashboard/StudentDashboard/Challenges/${courseid}/${challenge._id}`);
-      context.fetchProfile();
-
-    } else {
-      toast.error(data.message || "Failed to start challenge");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to start challenge");
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to start challenge");
-  }
-};
-
-
-
-  if (challengesForSubject.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
-        <AlertCircle className="h-16 w-16 text-gray-500 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">No Challenges Found</h2>
-        <p className="text-gray-600 mb-6">There are no challenges available for {courseid} yet.</p>
-        <Link href="/Dashboard/StudentDashboard">
-          <Button>Back to Dashboard</Button>
-        </Link>
-      </div>
-    )
-  }
+  };
 
   return (
     <div className="min-h-screen dark:bg-slate-950 bg-gray-50">
@@ -200,7 +213,9 @@ const handleStartChallenge = async (challenge) => {
               <Brain className="h-8 w-8 text-purple-600" />
               <div>
                 <h1 className="text-xl font-bold">Brain Lock</h1>
-                <p className="text-xs dark:text-gray-400 text-gray-500">Student Dashboard</p>
+                <p className="text-xs dark:text-gray-400 text-gray-500">
+                  Student Dashboard
+                </p>
               </div>
             </Link>
             <Badge variant="secondary" className="text-sm">
@@ -213,8 +228,12 @@ const handleStartChallenge = async (challenge) => {
       {/* Main Content */}
       <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold dark:text-gray-100 text-gray-900 mb-2">Challenges for {course?.title}</h2>
-          <p className="text-lg dark:text-gray-400 text-gray-600">Explore and conquer challenges in your chosen subject.</p>
+          <h2 className="text-3xl font-bold dark:text-gray-100 text-gray-900 mb-2">
+            Challenges for {course?.title}
+          </h2>
+          <p className="text-lg dark:text-gray-400 text-gray-600">
+            Explore and conquer challenges in your chosen subject.
+          </p>
         </div>
 
         {/* Filters and Search */}
@@ -254,44 +273,75 @@ const handleStartChallenge = async (challenge) => {
         </div>
 
         {/* Challenges List */}
-        <section>
-          {filteredChallenges.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredChallenges.map((challenge) => (
-                <Card key={challenge._id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-lg">{challenge.title}</CardTitle>
-                      <Badge className={getDifficultyColor(challenge.difficulty)}>{challenge.difficulty}</Badge>
-                    </div>
-                    <CardDescription>{challenge.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500">⏱️ {challenge.estimatedTime || "50 mins"}</span>
-                      <span className="text-gray-500">📅 Due: {challenge.createdAt.split("T")[0]}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <Badge variant="secondary">+{challenge.points || 50} pts</Badge>
-                      <Link href="" onClick={()=>handleStartChallenge(challenge)}>
-                        <Button size="sm" disabled={challenge.status === "completed"}>
-                          {challenge.status === "completed" ? "Completed" : "Start Challenge"}
-                          {challenge.status !== "completed" && <ChevronRight className="ml-1 h-4 w-4" />}
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center p-8 bg-white dark:bg-gray-900 rounded-lg shadow">
-              <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-lg text-gray-600">No challenges match your criteria.</p>
-            </div>
-          )}
-        </section>
+        {context.loading ? (
+          <TheoryCardLoading />
+        ) : (
+          <section>
+            {filteredChallenges.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredChallenges.map((challenge) => (
+                  <Card
+                    key={challenge._id}
+                    className="hover:shadow-lg transition-shadow"
+                  >
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-lg">
+                          {challenge.title}
+                        </CardTitle>
+                        <Badge
+                          className={getDifficultyColor(challenge.difficulty)}
+                        >
+                          {challenge.difficulty}
+                        </Badge>
+                      </div>
+                      <CardDescription>{challenge.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500">
+                          ⏱️ {challenge.estimatedTime || "50 mins"}
+                        </span>
+                        <span className="text-gray-500">
+                          📅 Due: {challenge.createdAt.split("T")[0]}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <Badge variant="secondary">
+                          +{challenge.points || 50} pts
+                        </Badge>
+                        <Link
+                          href=""
+                          onClick={() => handleStartChallenge(challenge)}
+                        >
+                          <Button
+                            size="sm"
+                            disabled={challenge.status === "completed"}
+                          >
+                            {challenge.status === "completed"
+                              ? "Completed"
+                              : "Start Challenge"}
+                            {challenge.status !== "completed" && (
+                              <ChevronRight className="ml-1 h-4 w-4" />
+                            )}
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center p-8 bg-white dark:bg-gray-900 rounded-lg shadow">
+                <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-lg text-gray-600">
+                  No challenges match your criteria.
+                </p>
+              </div>
+            )}
+          </section>
+        )}
       </main>
     </div>
-  )
+  );
 }

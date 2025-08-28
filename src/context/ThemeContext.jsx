@@ -20,19 +20,43 @@ const ThemeProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   async function fetchCourses() {
+  try {
+    setLoading(true); 
     const res = await fetch("/api/teacher/courses");
     const data = await res.json();
+
     if (data.success) {
       setCourses(data.data);
+    } else {
+      setCourses([]); 
     }
+  } catch (error) {
+    console.error("Failed to fetch courses:", error);
+    setCourses([]); 
+  } finally {
+    setLoading(false); 
   }
+}
+
   async function fetchChallenges() {
+  try {
+    setLoading(true); 
     const res = await fetch("/api/teacher/challenges");
     const data = await res.json();
-    if (data.success) {
+
+    if (data.success && Array.isArray(data.data)) {
       setChallenges(data.data);
+    } else {
+      setChallenges([]); 
     }
+  } catch (error) {
+    console.error("Failed to fetch challenges:", error);
+    setChallenges([]); 
+  } finally {
+    setLoading(false); 
   }
+}
+
   async function fetchAllUsers() {
     const res = await fetch("/api/user/allUsers");
     const data = await res.json();
@@ -186,7 +210,8 @@ const ThemeProvider = ({ children }) => {
     fetchUserActivities,
     darkMode, 
     setDarkMode,
-    toggleTheme 
+    toggleTheme,
+    loading, 
   };
 
   return <MyContext.Provider value={values  }>{children}</MyContext.Provider>;

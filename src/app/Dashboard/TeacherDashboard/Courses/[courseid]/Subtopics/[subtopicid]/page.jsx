@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import TextEditor from "@/components/TextEditor/page";
-import { Loading1 } from "@/components/Loader/loading";
+import { ContentLoading, Loading1 } from "@/components/Loader/loading";
 
 export default function SubtopicContentManagePage() {
   const params = useParams();
@@ -159,12 +159,7 @@ export default function SubtopicContentManagePage() {
       console.error(err.message);
     }
   };
-   if (loading)
-      return (
-        <div className="p-6">
-          <Loading1/>
-        </div>
-      );
+  
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col">
@@ -204,6 +199,7 @@ export default function SubtopicContentManagePage() {
             </CardDescription>
           </CardHeader>
 
+         {loading ? <ContentLoading/> : 
           <CardContent className="space-y-6">
             {/* Title */}
             <div className="space-y-2">
@@ -293,6 +289,7 @@ export default function SubtopicContentManagePage() {
               </Button>
             </div>
           </CardContent>
+         }
         </Card>
 
         {/* --- FETCHED CONTENT LIST --- */}

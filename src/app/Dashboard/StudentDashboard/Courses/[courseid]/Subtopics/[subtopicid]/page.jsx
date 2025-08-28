@@ -21,6 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import MyContext from "@/context/ThemeProvider";
+import { CourseContent, TheoryPageLoading } from "@/components/Loader/loading";
 
 export default function SubjectTheoryPage() {
   const context = useContext(MyContext);
@@ -35,19 +36,8 @@ export default function SubjectTheoryPage() {
     .find((s) => String(s._id) === String(subtopicid));
 
   // 2. Get its contents array safely
-  const contents = Array.isArray(subtopic?.contents) ? subtopic.contents : [];
+  const contents = Array.isArray(subtopic?.contents) ? subtopic?.contents : [];
 
-  
-  
-
- if (!subtopic) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-      <p className="ml-2 text-gray-600"></p>
-    </div>
-  );
-}
 
 
   if (!contents) {
@@ -58,7 +48,7 @@ export default function SubjectTheoryPage() {
           Theory Not Found
         </h2>
         <p className="text-gray-600 mb-6">
-          The theory content for subject "{contents}" could not be found.
+          The theory content for subject "{contents._id}" could not be found.
         </p>
         <Link href="/Dashboard/StudentDashboard">
           <Button>Back to Dashboard</Button>
@@ -90,7 +80,7 @@ export default function SubjectTheoryPage() {
         variant="secondary"
         className="text-sm bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border dark:border-gray-700"
       >
-        {subtopic.title} Theory
+        {subtopic?.title} Theory
       </Badge>
     </div>
   </div>
@@ -98,24 +88,27 @@ export default function SubjectTheoryPage() {
 
 
       {/* Main Content Area */}
-<main className="flex-1 flex flex-col lg:flex-row max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-6">
+     
+      <main className="flex-1 flex flex-col lg:flex-row max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-6">
   {/* Left Column: Theory Content */}
   <div className="flex-1 min-w-0">
     <Card className="h-full flex flex-col shadow-lg border border-gray-200 dark:border-gray-700">
       <CardHeader className="border-b border-gray-200 dark:border-gray-700">
         <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          {subtopic.title}
+          {subtopic?.title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 overflow-hidden">
+       {
+        !subtopic ? <TheoryPageLoading/> :
+         <CardContent className="flex-1 overflow-hidden">
         <ScrollArea className="h-[62vh] pr-4">
-          {contents.map((c) => (
-            <div key={c._id} className="mb-8">
-              {c.videoUrl && (
+          {contents?.map((c) => (
+            <div key={c?._id} className="mb-8">
+              {c?.videoUrl && (
                 <iframe
                   className="w-full h-64 mb-4 rounded-lg shadow"
-                  src={c.videoUrl}
-                  title={c.title}
+                  src={c?.videoUrl}
+                  title={c?.title}
                   frameBorder="0"
                   allowFullScreen
                 />
@@ -123,12 +116,12 @@ export default function SubjectTheoryPage() {
 
               <div
                 className="ql-snow ql-editor border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-4"
-                dangerouslySetInnerHTML={{ __html: c.description }}
+                dangerouslySetInnerHTML={{ __html: c?.description }}
               />
 
-              {c.fileUrl && (
+              {c?.fileUrl && (
                 <a
-                  href={c.fileUrl}
+                  href={c?.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 dark:text-blue-400 hover:underline mt-3 inline-block"
@@ -140,6 +133,8 @@ export default function SubjectTheoryPage() {
           ))}
         </ScrollArea>
       </CardContent>
+      }
+     
     </Card>
   </div>
 
@@ -158,6 +153,7 @@ export default function SubjectTheoryPage() {
     
   </div>
 </main>
+
 
     </div>
   );

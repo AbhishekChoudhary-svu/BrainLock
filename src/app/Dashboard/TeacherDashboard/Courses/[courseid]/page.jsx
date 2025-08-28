@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import Loading, {Loading1} from "@/components/Loader/loading";
+import {SubtopicLoading} from "@/components/Loader/loading";
 
 export default function CourseSubtopicManagePage() {
   const params = useParams();
@@ -170,12 +170,6 @@ export default function CourseSubtopicManagePage() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="p-6">
-        <Loading/>
-      </div>
-    );
   if (error) return <p className="p-6 text-red-500">{error}</p>;
   if (!course) return <p className="p-6">Course not found.</p>;
 
@@ -301,7 +295,7 @@ export default function CourseSubtopicManagePage() {
             </Dialog>
           </CardHeader>
           <CardContent className="space-y-4">
-            {!subtopic || subtopic.length === 0 ? (
+           { loading ? <SubtopicLoading/> :  !subtopic || subtopic.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
                 No subtopics added yet. Click "Create New Subtopic" to get
                 started!
