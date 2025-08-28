@@ -143,7 +143,8 @@ export default function SubjectCoursePage() {
                   <span>Progress</span>
                   <span>{userCourse?.progress.toFixed(2)}%</span>
                 </div>
-                <Progress value={userCourse?.progress} className="h-2" />
+                <Progress value={userCourse?.progress} className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700" />
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>

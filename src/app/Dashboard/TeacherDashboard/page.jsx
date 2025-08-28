@@ -435,7 +435,7 @@ export default function TeacherDashboard() {
                       My Profile
                     </DropdownMenuItem>
                   </Link>
-                 <DropdownMenuItem onClick={context.toggleTheme}>
+                  <DropdownMenuItem onClick={context.toggleTheme}>
                     <Sun className="mr-2 h-4 w-4" />
                     {context.darkMode ? "Light Mode" : " Dark Mode"}
                   </DropdownMenuItem>
@@ -611,7 +611,11 @@ export default function TeacherDashboard() {
                               </div>
                             </div>
 
-                            <Progress value={avgProgress} className="h-2 " />
+                            <Progress
+                              value={avgProgress}
+                              className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700"
+                            />
 
                             <div className="flex justify-between text-sm dark:text-gray-400 text-gray-600">
                               <span>{avgProgress}% complete</span>
@@ -709,7 +713,7 @@ export default function TeacherDashboard() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Button
-                      className="w-full justify-start bg-transparent"
+                      className="w-full justify-start bg-transparent dark:bg-purple-800"
                       variant="outline"
                       onClick={() => openCreateDialog(true)}
                     >
@@ -717,7 +721,7 @@ export default function TeacherDashboard() {
                       Create Course
                     </Button>
                     <Button
-                      className="w-full justify-start bg-transparent"
+                      className="w-full justify-start bg-transparent dark:bg-blue-800"
                       variant="outline"
                       onClick={() => setIsCreateChallengeOpen(true)}
                     >
@@ -725,7 +729,7 @@ export default function TeacherDashboard() {
                       Create Challenge
                     </Button>
                     <Button
-                      className="w-full justify-start bg-transparent"
+                      className="w-full justify-start bg-transparent dark:bg-green-800"
                       variant="outline"
                       onClick={() => setTabValue("assistant")}
                     >
@@ -946,7 +950,8 @@ export default function TeacherDashboard() {
                           <span>Progress</span>
                           <span>{avgProgress}%</span>
                         </div>
-                        <Progress value={avgProgress} className="h-2" />
+                        <Progress value={avgProgress} className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700" />
                       </div>
 
                       {course.challenges.length > 0 && (
@@ -1613,7 +1618,8 @@ export default function TeacherDashboard() {
                     {selectedUser?.avgScore?.toFixed(2) || 0}%
                   </span>
                 </div>
-                <Progress value={selectedUser?.avgScore || 0} className="h-2" />
+                <Progress value={selectedUser?.avgScore || 0} className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700" />
               </div>
 
               {/* Extra Info */}

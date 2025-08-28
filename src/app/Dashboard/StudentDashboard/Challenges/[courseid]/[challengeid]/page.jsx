@@ -192,7 +192,8 @@ export default function ChallengeDetailPage() {
               <div className="mt-4">
                 <Progress
                   value={((currentQuestionIndex + 1) / totalQuestions) * 100}
-                  className="h-2"
+                  className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700"
                 />
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                   Question {currentQuestionIndex + 1} of {totalQuestions}

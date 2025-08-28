@@ -531,7 +531,8 @@ export default function StudentDashboard() {
 
                           <Progress
                             value={enrolled.progress || 0}
-                            className="h-2"
+                            className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700"
                           />
 
                           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
@@ -667,7 +668,7 @@ export default function StudentDashboard() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Button
-                      className="w-full justify-start bg-transparent dark:text-gray-200"
+                      className="w-full justify-start bg-transparent dark:bg-purple-800 dark:text-gray-200"
                       variant="outline"
                       onClick={() => setTabValue("assistant")}
                     >
@@ -675,7 +676,7 @@ export default function StudentDashboard() {
                       AI Assistant
                     </Button>
                     <Button
-                      className="w-full justify-start bg-transparent dark:text-gray-200"
+                      className="w-full justify-start bg-transparent dark:bg-green-800 dark:text-gray-200"
                       variant="outline"
                       onClick={() => setOpenProgressCard(true)}
                     >
@@ -777,7 +778,8 @@ export default function StudentDashboard() {
                           <span>Progress</span>
                           <span>{progress.toFixed(2)}%</span>
                         </div>
-                        <Progress value={progress} className="h-2" />
+                        <Progress value={progress} className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700" />
                       </div>
 
                       {/* Challenges Preview */}

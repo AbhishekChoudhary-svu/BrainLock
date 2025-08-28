@@ -15,7 +15,7 @@ const ThemeProvider = ({ children }) => {
   const [stats, setStats] = useState([]);
   const [activities, setActivities] = useState([]);
   const [userActivities, setUserActivities] = useState([]);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   
   const [loading, setLoading] = useState(true);
 
@@ -171,15 +171,30 @@ const ThemeProvider = ({ children }) => {
 
 
     
-    useEffect(() => {
-    if (darkMode) {
+   useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme === "dark") {
+      setDarkMode(true);
       document.documentElement.classList.add("dark");
     } else {
+      setDarkMode(false);
       document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  // Apply theme + save to localStorage when darkMode changes
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
   }, [darkMode]);
 
   const toggleTheme = () => setDarkMode((prev) => !prev);
+
 
 
 

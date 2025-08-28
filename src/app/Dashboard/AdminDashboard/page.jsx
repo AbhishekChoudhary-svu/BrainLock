@@ -563,7 +563,8 @@ export default function AdminDashboard() {
                             (context.allUsers.filter((c) => c.role === role)
                               .length || 0) * 100
                           }
-                          className="h-2"
+                          className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700"
                         />
                       </div>
                     ))}
@@ -648,21 +649,21 @@ export default function AdminDashboard() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Button
-                      className="w-full justify-start bg-transparent dark:bg-gray-800 dark:text-gray-200"
+                      className="w-full justify-start bg-transparent dark:bg-purple-800 dark:text-gray-200"
                       variant="outline"
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Export User Data
                     </Button>
                     <Button
-                      className="w-full justify-start bg-transparent dark:bg-gray-800 dark:text-gray-200"
+                      className="w-full justify-start bg-transparent dark:bg-blue-800 dark:text-gray-200"
                       variant="outline"
                     >
                       <Shield className="mr-2 h-4 w-4" />
                       Security Audit
                     </Button>
                     <Button
-                      className="w-full justify-start bg-transparent dark:bg-gray-800 dark:text-gray-200"
+                      className="w-full justify-start bg-transparent dark:bg-green-800 dark:text-gray-200"
                       variant="outline"
                       onClick={() => setIsSystemSettingsOpen(true)}
                     >
