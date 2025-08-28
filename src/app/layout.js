@@ -1,9 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ThemeProvider from "@/context/ThemeContext";
+import {ThemeProvider} from "@/context/ThemeProvider";
 import { Toaster } from "sonner";
-import { useContext } from "react";
-import MyContext from "@/context/ThemeProvider";
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,26 +23,6 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* 👇 This script runs BEFORE paint */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const theme = localStorage.getItem('theme');
-                  if (theme === 'dark' || 
-                      (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                } catch (_) {}
-              })();
-            `,
-          }}
-        />
-      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
           {children}

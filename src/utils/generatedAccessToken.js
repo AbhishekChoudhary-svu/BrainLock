@@ -5,9 +5,9 @@ import jwt from "jsonwebtoken";
  * @param {string} userId - MongoDB user ID
  * @returns {string} - JWT access token
  */
-export function generateAccessToken(userId) {
+export function generateAccessToken(userId,role) {
   return jwt.sign(
-    { id: userId },
+    { id: userId,role },
     process.env.SECRET_KEY_ACCESS_TOKEN, // should be set in .env.local
     { expiresIn: "7h" }
   );

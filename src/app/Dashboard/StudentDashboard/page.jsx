@@ -67,6 +67,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 
 export default function StudentDashboard() {
   const context = useContext(MyContext);
@@ -332,6 +333,12 @@ export default function StudentDashboard() {
                 </span>
               </Button>
 
+              <ThemeToggleButton
+                
+                variant="gif"
+                url="https://media.giphy.com/media/5PncuvcXbBuIZcSiQo/giphy.gif?cid=ecf05e47j7vdjtytp3fu84rslaivdun4zvfhej6wlvl6qqsz&ep=v1_stickers_search&rid=giphy.gif&ct=s"
+              />
+
               {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -365,28 +372,29 @@ export default function StudentDashboard() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <Link href={"/Dashboard/AdminDashboard"}>
-                    <DropdownMenuItem>
-                      <User className="mr-2 h-4 w-4" />
-                      Admin Dashboard
-                    </DropdownMenuItem>
-                  </Link>
-                  <Link href={"/Dashboard/TeacherDashboard"}>
-                    <DropdownMenuItem>
-                      <CircuitBoard className="mr-2 h-4 w-4" />
-                      Teacher Dashboard
-                    </DropdownMenuItem>
-                  </Link>
+                  {context?.user?.role === "admin" && (
+                    <Link href="/Dashboard/AdminDashboard">
+                      <DropdownMenuItem>
+                        <User className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </DropdownMenuItem>
+                    </Link>
+                  )}
+
+                  {["admin", "teacher"].includes(context?.user?.role) && (
+                    <Link href="/Dashboard/TeacherDashboard">
+                      <DropdownMenuItem>
+                        <CircuitBoard className="mr-2 h-4 w-4" />
+                        Teacher Dashboard
+                      </DropdownMenuItem>
+                    </Link>
+                  )}
                   <Link href={"/Dashboard/ProfilePage"}>
                     <DropdownMenuItem>
                       <CircuitBoard className="mr-2 h-4 w-4" />
                       My Profile
                     </DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem onClick={context.toggleTheme}>
-                    <Sun className="mr-2 h-4 w-4" />
-                    {context.darkMode ? "Light Mode" : " Dark Mode"}
-                  </DropdownMenuItem>
                   <DropdownMenuItem>
                     <MessageCircle className="mr-2 h-4 w-4" />
                     Help & Support
@@ -778,8 +786,11 @@ export default function StudentDashboard() {
                           <span>Progress</span>
                           <span>{progress.toFixed(2)}%</span>
                         </div>
-                        <Progress value={progress} className="h-2 [&>div]:transition-colors
-                              dark:[&>div]:bg-yellow-700" />
+                        <Progress
+                          value={progress}
+                          className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700"
+                        />
                       </div>
 
                       {/* Challenges Preview */}

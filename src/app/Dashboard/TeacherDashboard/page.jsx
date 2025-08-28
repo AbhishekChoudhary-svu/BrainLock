@@ -93,6 +93,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import MyContext from "@/context/ThemeProvider";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 
 export default function TeacherDashboard() {
   const context = useContext(MyContext);
@@ -378,6 +379,10 @@ export default function TeacherDashboard() {
                   5
                 </span>
               </Button>
+              <ThemeToggleButton
+                variant="gif"
+                url="https://media.giphy.com/media/5PncuvcXbBuIZcSiQo/giphy.gif?cid=ecf05e47j7vdjtytp3fu84rslaivdun4zvfhej6wlvl6qqsz&ep=v1_stickers_search&rid=giphy.gif&ct=s"
+              />
 
               {/* User Menu */}
               <DropdownMenu>
@@ -417,28 +422,38 @@ export default function TeacherDashboard() {
                     My Account
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="dark:bg-slate-700" />
-                  <Link href={"/Dashboard/AdminDashboard"}>
-                    <DropdownMenuItem>
-                      <User className="mr-2 h-4 w-4" />
-                      Admin Dashboard
-                    </DropdownMenuItem>
-                  </Link>
-                  <Link href={"/Dashboard/StudentDashboard"}>
-                    <DropdownMenuItem>
-                      <CircuitBoard className="mr-2 h-4 w-4" />
-                      Student Dashboard
-                    </DropdownMenuItem>
-                  </Link>
+                  {context?.user?.role === "admin" && (
+                    <>
+                      <Link href={"/Dashboard/AdminDashboard"}>
+                        <DropdownMenuItem>
+                          <User className="mr-2 h-4 w-4" />
+                          Admin Dashboard
+                        </DropdownMenuItem>
+                      </Link>
+                      <Link href={"/Dashboard/StudentDashboard"}>
+                        <DropdownMenuItem>
+                          <CircuitBoard className="mr-2 h-4 w-4" />
+                          Student Dashboard
+                        </DropdownMenuItem>
+                      </Link>
+                    </>
+                  )}
+
+                  {context?.user?.role === "teacher" && (
+                    <Link href={"/Dashboard/StudentDashboard"}>
+                      <DropdownMenuItem>
+                        <CircuitBoard className="mr-2 h-4 w-4" />
+                        Student Dashboard
+                      </DropdownMenuItem>
+                    </Link>
+                  )}
+
                   <Link href={"/Dashboard/ProfilePage"}>
                     <DropdownMenuItem>
                       <CircuitBoard className="mr-2 h-4 w-4" />
                       My Profile
                     </DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem onClick={context.toggleTheme}>
-                    <Sun className="mr-2 h-4 w-4" />
-                    {context.darkMode ? "Light Mode" : " Dark Mode"}
-                  </DropdownMenuItem>
                   <DropdownMenuItem>
                     <MessageCircle className="mr-2 h-4 w-4" />
                     Help & Support
@@ -950,8 +965,11 @@ export default function TeacherDashboard() {
                           <span>Progress</span>
                           <span>{avgProgress}%</span>
                         </div>
-                        <Progress value={avgProgress} className="h-2 [&>div]:transition-colors
-                              dark:[&>div]:bg-yellow-700" />
+                        <Progress
+                          value={avgProgress}
+                          className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700"
+                        />
                       </div>
 
                       {course.challenges.length > 0 && (
@@ -1618,8 +1636,11 @@ export default function TeacherDashboard() {
                     {selectedUser?.avgScore?.toFixed(2) || 0}%
                   </span>
                 </div>
-                <Progress value={selectedUser?.avgScore || 0} className="h-2 [&>div]:transition-colors
-                              dark:[&>div]:bg-yellow-700" />
+                <Progress
+                  value={selectedUser?.avgScore || 0}
+                  className="h-2 [&>div]:transition-colors
+                              dark:[&>div]:bg-yellow-700"
+                />
               </div>
 
               {/* Extra Info */}

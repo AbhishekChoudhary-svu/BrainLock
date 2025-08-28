@@ -93,6 +93,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import MyContext from "@/context/ThemeProvider";
 import { formatDistanceToNow } from "date-fns";
+import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 
 export default function AdminDashboard() {
   const context = useContext(MyContext);
@@ -332,6 +333,12 @@ export default function AdminDashboard() {
                   8
                 </span>
               </Button>
+              <ThemeToggleButton
+                
+                variant="gif"
+                url="https://media.giphy.com/media/5PncuvcXbBuIZcSiQo/giphy.gif?cid=ecf05e47j7vdjtytp3fu84rslaivdun4zvfhej6wlvl6qqsz&ep=v1_stickers_search&rid=giphy.gif&ct=s"
+              />
+              
 
               {/* User Menu */}
               <DropdownMenu>
@@ -364,28 +371,28 @@ export default function AdminDashboard() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <Link href={"/Dashboard/StudentDashboard"}>
-                    <DropdownMenuItem>
-                      <User className="mr-2 h-4 w-4" />
-                      Student Dashboard
-                    </DropdownMenuItem>
-                  </Link>
-                  <Link href={"/Dashboard/TeacherDashboard"}>
-                    <DropdownMenuItem>
-                      <CircuitBoard className="mr-2 h-4 w-4" />
-                      Teacher Dashboard
-                    </DropdownMenuItem>
-                  </Link>
+                  {context?.user?.role === "admin" && (
+                    <>
+                      <Link href={"/Dashboard/TeacherDashboard"}>
+                        <DropdownMenuItem>
+                          <CircuitBoard className="mr-2 h-4 w-4" />
+                          Teacher Dashboard
+                        </DropdownMenuItem>
+                      </Link>
+                      <Link href={"/Dashboard/StudentDashboard"}>
+                        <DropdownMenuItem>
+                          <User className="mr-2 h-4 w-4" />
+                          Student Dashboard
+                        </DropdownMenuItem>
+                      </Link>
+                    </>
+                  )}
                   <Link href={"/Dashboard/ProfilePage"}>
                     <DropdownMenuItem>
                       <CircuitBoard className="mr-2 h-4 w-4" />
                       My Profile
                     </DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem onClick={context.toggleTheme}>
-                    <Sun className="mr-2 h-4 w-4" />
-                    {context.darkMode ? "Light Mode" : " Dark Mode"}
-                  </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Shield className="mr-2 h-4 w-4" />
                     Security Center
@@ -560,11 +567,12 @@ export default function AdminDashboard() {
                         </div>
                         <Progress
                           value={
-                            (context.allUsers.filter((c) => c.role === role)
-                              .length || 0) * 100
+                            ((context.allUsers.filter((c) => c.role === role)
+                              .length || 0) /
+                              (context.allUsers.length || 1)) *
+                            100
                           }
-                          className="h-2 [&>div]:transition-colors
-                              dark:[&>div]:bg-yellow-700"
+                          className="h-2 [&>div]:transition-colors dark:[&>div]:bg-yellow-700"
                         />
                       </div>
                     ))}

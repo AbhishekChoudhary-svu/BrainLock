@@ -2,16 +2,18 @@ import { cookies } from "next/headers";
 
 export async function POST() {
   try {
-    // Clear the cookies by setting them to empty and expired
-   await cookies().set("accessToken", "", {
+    const cookieStore = await cookies(); 
+
+    
+    cookieStore.set("accessToken", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      expires: new Date(0), // Immediately expire
+      expires: new Date(0), 
       path: "/",
     });
 
-  await  cookies().set("refreshToken", "", {
+    cookieStore.set("refreshToken", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
