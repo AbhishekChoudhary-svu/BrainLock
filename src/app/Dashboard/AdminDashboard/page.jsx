@@ -87,6 +87,7 @@ import {
   MapPin,
   Info,
   Sun,
+  Home,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -268,13 +269,13 @@ export default function AdminDashboard() {
   const getRoleColor = (role) => {
     switch (role) {
       case "admin":
-        return "bg-red-100 text-red-800";
+        return "bg-red-800 text-red-100";
       case "teacher":
-        return "bg-green-100 text-green-800";
+        return "bg-green-800 text-green-100";
       case "student":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-800 text-blue-100";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-800 text-gray-100";
     }
   };
 
@@ -321,6 +322,7 @@ export default function AdminDashboard() {
                 size="sm"
                 variant="outline"
                 onClick={() => setIsSystemSettingsOpen(true)}
+                className="hidden lg:flex"
               >
                 <Settings className="h-4 w-4 mr-2" />
                 System
@@ -334,11 +336,9 @@ export default function AdminDashboard() {
                 </span>
               </Button>
               <ThemeToggleButton
-                
                 variant="gif"
                 url="https://media.giphy.com/media/5PncuvcXbBuIZcSiQo/giphy.gif?cid=ecf05e47j7vdjtytp3fu84rslaivdun4zvfhej6wlvl6qqsz&ep=v1_stickers_search&rid=giphy.gif&ct=s"
               />
-              
 
               {/* User Menu */}
               <DropdownMenu>
@@ -393,9 +393,12 @@ export default function AdminDashboard() {
                       My Profile
                     </DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem>
-                    <Shield className="mr-2 h-4 w-4" />
-                    Security Center
+                  <DropdownMenuItem
+                    onClick={() => setIsSystemSettingsOpen(true)}
+                    className="lg:hidden"
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    System Updates
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <MessageCircle className="mr-2 h-4 w-4" />
@@ -417,7 +420,7 @@ export default function AdminDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-15 lg:pb-0">
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold dark:text-gray-100 text-gray-900 mb-2">
@@ -499,12 +502,55 @@ export default function AdminDashboard() {
 
         {/* Main Dashboard Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          {/* Desktop Tabs (shown on md and up) */}
+          <TabsList className="hidden lg:grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
             <TabsTrigger value="courses">Course Oversight</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
+
+          {/* Mobile Bottom Nav (shown on small screens) */}
+          <TabsList
+            className="lg:hidden fixed -bottom-5 inset-x-0 z-50 flex justify-around
+             border-t border-border bg-white dark:bg-slate-950 w-full py-8"
+          >
+            <TabsTrigger
+              value="overview"
+              className="flex flex-col items-center text-xs py-7"
+            >
+              <Home className="h-5 w-5" />
+              Home
+            </TabsTrigger>
+            <TabsTrigger
+              value="users"
+              className="flex flex-col items-center text-xs py-7"
+            >
+              <User className="h-5 w-5" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger
+              value="courses"
+              className="flex flex-col items-center text-xs py-7"
+            >
+              <BookOpen className="h-5 w-5" />
+              Courses
+            </TabsTrigger>
+            <TabsTrigger
+              value="activity"
+              className="flex flex-col items-center text-xs py-7"
+            >
+              <Activity className="h-5 w-5" />
+              Activity
+            </TabsTrigger>
+            <TabsTrigger
+              value="settings"
+              className="flex flex-col items-center text-xs py-7"
+            >
+              <Settings className="h-5 w-5" />
+              Settings
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -595,12 +641,15 @@ export default function AdminDashboard() {
                           .map((activity) => (
                             <div
                               key={activity._id}
-                              className="flex items-start space-x-3"
+                              className="flex flex-col sm:flex-row sm:items-start sm:space-x-3 gap-2"
                             >
-                              <div className="flex-shrink-0 mt-1">
+                              {/* Icon */}
+                              <div className="flex-shrink-0 sm:mt-1">
                                 {getActivityIcon(activity.action)}
                               </div>
-                              <div className="flex-1 min-w-0">
+
+                              {/* Content */}
+                              <div className="flex-1 min-w-0 break-words">
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   {activity.action}
                                   {activity.courseId
@@ -619,6 +668,7 @@ export default function AdminDashboard() {
                                     {activity.userId?.lastName}
                                   </span>
                                 </p>
+
                                 {activity.details && (
                                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                     {activity.details.score !== undefined
@@ -628,6 +678,7 @@ export default function AdminDashboard() {
                                       : JSON.stringify(activity.details)}
                                   </p>
                                 )}
+
                                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                   {new Date(
                                     activity.createdAt
@@ -766,14 +817,20 @@ export default function AdminDashboard() {
 
           {/* User Management Tab */}
           <TabsContent value="users" className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
               <h3 className="text-lg font-semibold">User Management</h3>
-              <div className="flex space-x-2">
-                <div className="relative">
+
+              {/* Search + Filter */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input placeholder="Search users..." className="pl-10 w-64" />
+                  <Input
+                    placeholder="Search users..."
+                    className="pl-10 w-full"
+                  />
                 </div>
-                <Button variant="outline">
+
+                <Button variant="outline" className="w-full sm:w-auto">
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
@@ -1064,26 +1121,30 @@ export default function AdminDashboard() {
           {/* Activity Tab */}
 
           <TabsContent value="activity" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                All Activites
+              </h3>
+              <div className="flex space-x-2"></div>
+            </div>
             <div>
               <Card className="bg-white dark:bg-slate-900">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
-                    <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                    <span>Recent Activities</span>
-                  </CardTitle>
-                </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {context.activities.length > 0 ? (
                       context.activities.map((activity) => (
                         <div
                           key={activity._id}
-                          className="flex items-start space-x-3"
+                          className="flex flex-col sm:flex-row sm:items-start sm:space-x-3 gap-2"
                         >
-                          <div className="flex-shrink-0 mt-1">
+                          {/* Icon */}
+                          <div className="flex-shrink-0 sm:mt-1">
                             {getActivityIcon(activity.action)}
                           </div>
-                          <div className="flex-1 min-w-0">
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0 break-words">
                             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                               {activity.action}
                               {activity.courseId
@@ -1138,7 +1199,7 @@ export default function AdminDashboard() {
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2">
               <Card>
                 <CardHeader>
                   <CardTitle>System Configuration</CardTitle>
@@ -1283,72 +1344,72 @@ export default function AdminDashboard() {
       </Dialog>
 
       <Dialog open={open1} onOpenChange={setOpen1}>
-        <DialogContent className="sm:max-w-[550px] rounded-2xl shadow-lg">
+        <DialogContent className="sm:max-w-[550px] rounded-2xl shadow-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold capitalize flex items-center gap-2">
-              <User className="h-5 w-5 text-blue-600 " />
+              <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               {selectedUser?.role} Profile
             </DialogTitle>
           </DialogHeader>
 
-          <Card className="rounded-2xl border shadow-md">
+          <Card className="rounded-2xl border shadow-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardContent className="p-6 space-y-6">
               {/* Name & Status */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {selectedUser?.firstName || "John"}{" "}
                     {selectedUser?.lastName || "Doe"}
                   </h2>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Enrollment No: {selectedUser?.enrollmentNumber || "N/A"}
                   </p>
                 </div>
                 <Badge
                   variant="outline"
-                  className="capitalize px-3 py-1 text-sm font-medium"
+                  className="capitalize px-3 py-1 text-sm font-medium border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
                 >
                   {selectedUser?.status || "Active"}
                 </Badge>
               </div>
 
               {/* Contact Info */}
-              <div className="grid gap-3 text-gray-700">
+              <div className="grid gap-3 text-gray-700 dark:text-gray-300">
                 <div className="flex items-center gap-2">
-                  <Mail className="h-5 w-5 text-indigo-600" />
+                  <Mail className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                   <span>{selectedUser?.email || "student@email.com"}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="h-5 w-5 text-green-600" />
+                  <Phone className="h-5 w-5 text-green-600 dark:text-green-400" />
                   <span>{selectedUser?.phone || "+91 98765 43210"}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-pink-600" />
+                  <Calendar className="h-5 w-5 text-pink-600 dark:text-pink-400" />
                   <span>
-                    {selectedUser?.dateOfBirth.split("T")[0] || "01 Jan 2000"}
+                    {selectedUser?.dateOfBirth?.split("T")[0] || "01 Jan 2000"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-purple-600" />
+                  <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   <span>{selectedUser?.department || "Computer Science"}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5 text-yellow-600" />
+                  <GraduationCap className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                   <span>{selectedUser?.qualification || "B.Tech"}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-red-600" />
+                  <MapPin className="h-5 w-5 text-red-600 dark:text-red-400" />
                   <span>{selectedUser?.address || "New Delhi, India"}</span>
                 </div>
               </div>
 
               {/* Bio */}
-              <div className="pt-4 border-t text-gray-700">
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
                 <h3 className="text-sm font-semibold flex items-center gap-1 mb-1">
-                  <Info className="h-4 w-4 text-blue-500" />
+                  <Info className="h-4 w-4 text-blue-500 dark:text-blue-400" />
                   Bio
                 </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   {selectedUser?.bio ||
                     "Enthusiastic learner, passionate about technology and innovation."}
                 </p>

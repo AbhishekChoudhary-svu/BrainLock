@@ -127,7 +127,7 @@ export default function LandingPage() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    context.fetchProfile();
+    //context.fetchProfile();
   }, []);
   return (
     <div className="min-h-screen dark:bg-slate-950   bg-gradient-to-br from-blue-50 via-white to-purple-50">
