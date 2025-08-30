@@ -169,7 +169,7 @@ export default function ChallengeDetailPage() {
                 </p>
               </div>
             </Link>
-            <Badge variant="secondary" className="text-sm">
+            <Badge variant="secondary" className="text-sm hidden md:flex">
               {challenge?.title}
             </Badge>
           </div>
@@ -204,9 +204,9 @@ export default function ChallengeDetailPage() {
           {context.loading ? (
             <QuizSkeleton />
           ) : (
-            <CardContent className="pt-4">
+            <CardContent className="lg:pt-4 ">
               {showResults ? (
-                <div className="text-center space-y-6 py-8">
+                <div className="text-center space-y-6 lg:py-8">
                   <Award className="h-20 w-20 text-yellow-500 mx-auto" />
                   <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
                     Challenge Completed!

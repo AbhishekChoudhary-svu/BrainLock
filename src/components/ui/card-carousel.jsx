@@ -49,10 +49,10 @@ export const CardCarousel = ({
       <style>{css}</style>
       <div className="mx-auto w-full max-w-5xl ">
         <div className="relative mx-auto flex w-full flex-col  bg-gray-100 dark:bg-gray-900 p-2">
-          <div className="flex flex-col justify-center  pb-20 pl-4 pt-18 md:items-center">
+          <div className="flex flex-col justify-center pl-4 lg:py-18 py-14 md:items-center">
             <div className="flex gap-2">
               <div>
-                <h3 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                <h3 className="lg:text-4xl text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                   Smart Tools for Better Learning & Teaching
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300">

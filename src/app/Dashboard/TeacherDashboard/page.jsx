@@ -314,16 +314,16 @@ export default function TeacherDashboard() {
     }
   };
 
-  const getRoleColor = (role) => {
+   const getRoleColor = (role) => {
     switch (role) {
       case "admin":
-        return "bg-red-100 text-red-800";
+        return "bg-red-800 text-red-100";
       case "teacher":
-        return "bg-green-100 text-green-800";
+        return "bg-green-800 text-green-100";
       case "student":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-800 text-blue-100";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-800 text-gray-100";
     }
   };
 

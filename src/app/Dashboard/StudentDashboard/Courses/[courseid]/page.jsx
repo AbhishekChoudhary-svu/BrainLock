@@ -118,35 +118,40 @@ export default function SubjectCoursePage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 lg:py-8 py-4">
         <div className="mb-8">
           <h2 className="text-3xl font-bold dark:text-gray-100 text-gray-900 mb-2">
             {course?.title}
           </h2>
-          <p className="text-lg dark:text-gray-400 text-gray-600">
+          <p className="lg:text-lg text-md dark:text-gray-400 text-gray-600">
             {course?.description}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Course Overview Card */}
-          <Card className="lg:col-span-2">
+          <Card className="w-full  lg:col-span-2">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2 text-base sm:text-lg lg:text-xl">
                 <BookOpen className="h-5 w-5 text-blue-600" />
                 <span>Course Overview</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Progress Bar */}
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs sm:text-sm">
                   <span>Progress</span>
                   <span>{userCourse?.progress.toFixed(2)}%</span>
                 </div>
-                <Progress value={userCourse?.progress} className="h-2 [&>div]:transition-colors
-                              dark:[&>div]:bg-yellow-700" />
+                <Progress
+                  value={userCourse?.progress}
+                  className="h-2 [&>div]:transition-colors dark:[&>div]:bg-yellow-700"
+                />
               </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+
+              {/* Course Info Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
                 <div>
                   <p className="text-gray-600 dark:text-gray-400">Status</p>
                   <Badge
@@ -185,11 +190,13 @@ export default function SubjectCoursePage() {
                   </p>
                 </div>
               </div>
+
+              {/* Button */}
               <div className="flex justify-end">
                 <Link
                   href={`/Dashboard/StudentDashboard/Challenges/${course?._id}`}
                 >
-                  <Button>
+                  <Button size="sm" className="text-xs sm:text-sm">
                     View All Challenges
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -236,7 +243,7 @@ export default function SubjectCoursePage() {
           </div>
         </div>
 
-         {/*  Course */}
+        {/*  Course */}
         <section className="mb-8">
           <h3 className="text-2xl font-bold dark:text-gray-100 text-gray-900 mb-4">
             Theory in {course?.title}
@@ -252,7 +259,7 @@ export default function SubjectCoursePage() {
                     className="hover:shadow-lg transition-shadow flex flex-col"
                   >
                     <CardHeader>
-                      <div className="flex justify-between items-start">
+                      <div className="flex justify-between items-start gap-4">
                         <CardTitle className="text-lg">
                           {subtopic.title}
                         </CardTitle>
@@ -328,8 +335,6 @@ export default function SubjectCoursePage() {
             </div>
           )}
         </section>
-
-       
       </main>
     </div>
   );

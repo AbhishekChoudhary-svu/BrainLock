@@ -32,7 +32,7 @@ import Link from "next/link";
 import ImageCursorTrail from "@/components/ui/image-cursortrail";
 import { CardCarousel } from "@/components/ui/card-carousel";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 
 const steps = [
   {
@@ -59,7 +59,7 @@ const steps = [
     icon: <TrendingUp className="h-8 w-8 text-yellow-600" />,
     bg: "bg-yellow-100",
   },
-]
+];
 
 const stepVariants = {
   hidden: { opacity: 0, y: 40 },
@@ -68,7 +68,7 @@ const stepVariants = {
     y: 0,
     transition: { delay: i * 0.2, duration: 0.6, ease: "easeOut" },
   }),
-}
+};
 
 const images = [
   "https://i.pinimg.com/736x/ff/53/b9/ff53b9536227d518d5165a5fb44b9a37.jpg",
@@ -131,11 +131,9 @@ export default function LandingPage() {
   }, []);
   return (
     <div className="min-h-screen dark:bg-slate-950   bg-gradient-to-br from-blue-50 via-white to-purple-50">
-
       {/* Navigation */}
-     <nav className="border-b bg-white/80 dark:bg-slate-950 backdrop-blur-sm sticky top-0 z-50">
-
-       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="border-b bg-white/80 dark:bg-slate-950 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-2">
@@ -240,14 +238,14 @@ export default function LandingPage() {
           maxNumberOfImages={3}
           distance={10}
           imgClass="sm:w-44 w-28 sm:h-56 h-36 rounded-xl shadow-md animate-float"
-          className="absolute inset-0 w-full h-full z-30"
+          className="absolute inset-0 w-full h-full z-20"
         />
 
         {/* Overlay */}
         <div className="absolute inset-0 dark:bg-transparent z-10" />
 
         {/* Hero Content */}
-        <div className="relative z-40 text-center max-w-5xl px-6">
+        <div className="relative z-30 text-center max-w-5xl px-6">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -283,8 +281,8 @@ export default function LandingPage() {
             transition={{ duration: 1, delay: 0.5 }}
             className="text-lg sm:text-xl text-black dark:text-gray-300 mb-8 max-w-2xl mx-auto"
           >
-            Track your progress, challenge your focus, and compete with peers
-            in an intelligent learning environment designed for success.
+            Track your progress, challenge your focus, and compete with peers in
+            an intelligent learning environment designed for success.
           </motion.p>
 
           {/* Button */}
@@ -293,6 +291,7 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.7 }}
             whileHover={{ scale: 1.05 }}
+            
           >
             <Link href={"/Dashboard/StudentDashboard"}>
               <Button size="lg" className="text-lg px-8 py-3 shadow-md">
@@ -312,47 +311,53 @@ export default function LandingPage() {
       />
 
       {/* How It Works Section */}
-       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-300 dark:bg-slate-950">
-      <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl sm:text-4xl font-bold dark:text-gray-100 text-gray-900 mb-4">
-          How Brain Lock Works
-        </h2>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-16">
-          Get started in four simple steps and transform your learning experience
-        </p>
+      <section className="lg:py-20 py-15 px-4 sm:px-6 lg:px-8 bg-gray-300 dark:bg-slate-950">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold dark:text-gray-100 text-gray-900 mb-4">
+            How Brain Lock Works
+          </h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-16">
+            Get started in four simple steps and transform your learning
+            experience
+          </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((step, i) => (
-            <motion.div
-              key={i}
-              custom={i}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              variants={stepVariants}
-              whileHover={{ scale: 1.05, y: -5 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className="text-center cursor-pointer"
-            >
-              <div className={`${step.bg} rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4`}>
-                {step.icon}
-              </div>
-              <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">{step.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300">{step.desc}</p>
-            </motion.div>
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {steps.map((step, i) => (
+              <motion.div
+                key={i}
+                custom={i}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                variants={stepVariants}
+                whileHover={{ scale: 1.05, y: -5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className="text-center cursor-pointer"
+              >
+                <div
+                  className={`${step.bg} rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4`}
+                >
+                  {step.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2 dark:text-gray-100">
+                  {step.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
       {/* Testimonial / Stats Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900">
+      <section className="lg:py-20 py-15 px-4 sm:px-6 lg:px-8 bg-gray-900">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Join Thousands of Successful Learners
           </h2>
-          <p className="text-xl text-blue-100 mb-12 max-w-2xl mx-auto">
-            Experience the power of AI-driven education and unlock your full potential
+          <p className="text-lg text-blue-100 mb-12 max-w-2xl mx-auto">
+            Experience the power of AI-driven education and unlock your full
+            potential
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -466,7 +471,7 @@ export default function LandingPage() {
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center">
             <p className="text-gray-400">
-              © 2024 Brain Lock. All rights reserved. Built with ❤️ for learners
+              © 2025 Brain Lock. All rights reserved. Built with ❤️ for learners
               everywhere.
             </p>
           </div>

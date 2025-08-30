@@ -26,7 +26,7 @@ import { CourseContent, TheoryPageLoading } from "@/components/Loader/loading";
 export default function SubjectTheoryPage() {
   const context = useContext(MyContext);
   const params = useParams();
-  const { courseid,subtopicid } = params;
+  const { courseid, subtopicid } = params;
 
   useEffect(() => {
     context.fetchCourses();
@@ -37,8 +37,6 @@ export default function SubjectTheoryPage() {
 
   // 2. Get its contents array safely
   const contents = Array.isArray(subtopic?.contents) ? subtopic?.contents : [];
-
-
 
   if (!contents) {
     return (
@@ -60,101 +58,94 @@ export default function SubjectTheoryPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col">
       {/* Header */}
-<header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
-  <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="flex justify-between items-center h-16">
-      <Link
-        href={`/Dashboard/StudentDashboard/Courses/${courseid}`}
-        className="flex items-center space-x-3 text-gray-900 dark:text-gray-100 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-      >
-        <ArrowLeft className="h-5 w-5" />
-        <Brain className="h-8 w-8 text-purple-600" />
-        <div>
-          <h1 className="text-xl font-bold">Brain Lock</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Student Dashboard
-          </p>
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link
+              href={`/Dashboard/StudentDashboard/Courses/${courseid}`}
+              className="flex items-center space-x-3 text-gray-900 dark:text-gray-100 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <Brain className="h-8 w-8 text-purple-600" />
+              <div>
+                <h1 className="text-xl font-bold">Brain Lock</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Student Dashboard
+                </p>
+              </div>
+            </Link>
+            <Badge
+              variant="secondary"
+              className="text-sm hidden lg:flex bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border dark:border-gray-700"
+            >
+              {subtopic?.title} Theory
+            </Badge>
+          </div>
         </div>
-      </Link>
-      <Badge
-        variant="secondary"
-        className="text-sm bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border dark:border-gray-700"
-      >
-        {subtopic?.title} Theory
-      </Badge>
-    </div>
-  </div>
-</header>
-
+      </header>
 
       {/* Main Content Area */}
-     
+
       <main className="flex-1 flex flex-col lg:flex-row max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-6">
-  {/* Left Column: Theory Content */}
-  <div className="flex-1 min-w-0">
-    <Card className="h-full flex flex-col shadow-lg border border-gray-200 dark:border-gray-700">
-      <CardHeader className="border-b border-gray-200 dark:border-gray-700">
-        <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          {subtopic?.title}
-        </CardTitle>
-      </CardHeader>
-       {
-        !subtopic ? <TheoryPageLoading/> :
-         <CardContent className="flex-1 overflow-hidden">
-        <ScrollArea className="h-[62vh] pr-4">
-          {contents?.map((c) => (
-            <div key={c?._id} className="mb-8">
-              {c?.videoUrl && (
-                <iframe
-                  className="w-full h-64 mb-4 rounded-lg shadow"
-                  src={c?.videoUrl}
-                  title={c?.title}
-                  frameBorder="0"
-                  allowFullScreen
-                />
-              )}
+        {/* Left Column: Theory Content */}
+        <div className="flex-1 min-w-0">
+          <Card className="h-full flex flex-col shadow-lg border border-gray-200 dark:border-gray-700">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-700">
+              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {subtopic?.title}
+              </CardTitle>
+            </CardHeader>
+            {!subtopic ? (
+              <TheoryPageLoading />
+            ) : (
+              <CardContent className="flex-1 overflow-hidden">
+                <ScrollArea className="h-[62vh] pr-4">
+                  {contents?.map((c) => (
+                    <div key={c?._id} className="mb-8">
+                      {c?.videoUrl && (
+                        <iframe
+                          className="w-full h-64 mb-4 rounded-lg shadow"
+                          src={c?.videoUrl}
+                          title={c?.title}
+                          frameBorder="0"
+                          allowFullScreen
+                        />
+                      )}
 
-              <div
-                className="ql-snow ql-editor border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-4"
-                dangerouslySetInnerHTML={{ __html: c?.description }}
-              />
+                      <div
+                        className="ql-snow ql-editor border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-4"
+                        dangerouslySetInnerHTML={{ __html: c?.description }}
+                      />
 
-              {c?.fileUrl && (
-                <a
-                  href={c?.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400 hover:underline mt-3 inline-block"
-                >
-                  📄 Download / View File
-                </a>
-              )}
-            </div>
-          ))}
-        </ScrollArea>
-      </CardContent>
-      }
-     
-    </Card>
-  </div>
+                      {c?.fileUrl && (
+                        <a
+                          href={c?.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 dark:text-blue-400 hover:underline mt-3 inline-block"
+                        >
+                          📄 Download / View File
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </ScrollArea>
+              </CardContent>
+            )}
+          </Card>
+        </div>
 
-  {/* Right Column: AI Assistant */}
-  <div className="w-full lg:w-96 flex-shrink-0">
-    
-      
-        <iframe
-          src={`https://www.chatbase.co/chatbot-iframe/${process.env.NEXT_PUBLIC_CHATBASE_ID}`}
-          width="100%"
-          height="615"
-          className="rounded-lg bg-gray-900"
-          frameBorder="0"
-        />
-      
-    
-  </div>
-</main>
-
-
+        {/* Right Column: AI Assistant */}
+        <div className="w-full lg:w-96 flex-shrink-0">
+          <iframe
+            src={`https://www.chatbase.co/chatbot-iframe/${process.env.NEXT_PUBLIC_CHATBASE_ID}`}
+            width="100%"
+            height="615"
+            className="rounded-lg bg-gray-900"
+            frameBorder="0"
+          />
+        </div>
+      </main>
     </div>
   );
 }

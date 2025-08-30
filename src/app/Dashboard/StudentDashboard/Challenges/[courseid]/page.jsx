@@ -226,12 +226,12 @@ export default function SubjectChallengesPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 lg:py-8 py-4">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold dark:text-gray-100 text-gray-900 mb-2">
+          <h2 className="lg:text-3xl text-xl font-bold dark:text-gray-100 text-gray-900 mb-2">
             Challenges for {course?.title}
           </h2>
-          <p className="text-lg dark:text-gray-400 text-gray-600">
+          <p className="lg:text-lg text-md dark:text-gray-400 text-gray-600">
             Explore and conquer challenges in your chosen subject.
           </p>
         </div>
