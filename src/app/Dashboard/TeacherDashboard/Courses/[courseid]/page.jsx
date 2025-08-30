@@ -36,12 +36,12 @@ import {
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import {SubtopicLoading} from "@/components/Loader/loading";
+import { SubtopicLoading } from "@/components/Loader/loading";
 
 export default function CourseSubtopicManagePage() {
   const params = useParams();
   const router = useRouter();
-  const courseId = params.courseid; // Make sure your folder is named [id]
+  const courseId = params.courseid;
 
   const [course, setCourse] = useState([]);
   const [subtopic, setSubtopic] = useState([]);
@@ -200,12 +200,12 @@ export default function CourseSubtopicManagePage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 lg:py-8 py-4">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold dark:text-gray-100 text-gray-900 mb-2">
+          <h2 className="lg:text-3xl text-2xl font-bold dark:text-gray-100 text-gray-900 mb-2">
             Manage Subtopics for {course.title}
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="lg:text-lg text-md text-gray-600">
             Add, edit, or remove subtopics and their content.
           </p>
         </div>
@@ -295,35 +295,43 @@ export default function CourseSubtopicManagePage() {
             </Dialog>
           </CardHeader>
           <CardContent className="space-y-4">
-           { loading ? <SubtopicLoading/> :  !subtopic || subtopic.length === 0 ? (
+            {loading ? (
+              <SubtopicLoading />
+            ) : !subtopic || subtopic.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
                 No subtopics added yet. Click "Create New Subtopic" to get
                 started!
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {subtopic.map((subtopic) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {subtopic.map((sub) => (
                   <Card
-                    key={subtopic._id}
-                    className="lg:flex-row flex items-center justify-between p-4"
+                    key={sub._id}
+                    className="flex flex-col lg:flex-row items-start lg:items-center justify-between p-4"
                   >
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg">
-                        {subtopic.title}
-                      </h3>
-                      <p className="text-sm dark:text-gray-400 text-gray-600">
-                        Description : {subtopic.description}
+                    {/* Left: Title & Description */}
+                    <div className="flex-1 mb-3 lg:mb-0">
+                      <h3 className="font-semibold text-lg">{sub.title}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Description: {sub.description}
                       </p>
                     </div>
-                    <div className="flex items-center space-x-2">
+
+                    {/* Right: Actions */}
+                    <div className="flex flex-wrap items-center gap-2">
                       <Link
-                        href={`/Dashboard/TeacherDashboard/Courses/${courseId}/Subtopics/${subtopic._id}`}
+                        href={`/Dashboard/TeacherDashboard/Courses/${courseId}/Subtopics/${sub._id}`}
                       >
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full sm:w-auto"
+                        >
                           Manage Content
                           <ChevronRight className="ml-1 h-4 w-4" />
                         </Button>
                       </Link>
+
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm">
@@ -332,7 +340,7 @@ export default function CourseSubtopicManagePage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => handleEditSubtopic(subtopic)}
+                            onClick={() => handleEditSubtopic(sub)}
                           >
                             <Edit className="mr-2 h-4 w-4" />
                             Rename Subtopic
@@ -340,7 +348,7 @@ export default function CourseSubtopicManagePage() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-red-600"
-                            onClick={() => handleDeleteSubtopic(subtopic._id)}
+                            onClick={() => handleDeleteSubtopic(sub._id)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete Subtopic

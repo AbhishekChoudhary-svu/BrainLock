@@ -86,6 +86,9 @@ import {
   Calendar,
   GraduationCap,
   Bot,
+  ChartBar,
+  Home,
+  BookAlert,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -474,7 +477,7 @@ export default function TeacherDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-15 lg:pb-0">
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold dark:text-gray-100 text-gray-900 mb-2">
@@ -562,12 +565,55 @@ export default function TeacherDashboard() {
           onValueChange={setTabValue}
           className="space-y-6"
         >
-          <TabsList className="grid w-full grid-cols-5">
+          {/* Desktop Tabs (shown on md and up) */}
+          <TabsList className="hidden lg:grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="courses">My Courses</TabsTrigger>
             <TabsTrigger value="challenges">Challenges</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
+          </TabsList>
+
+          {/* Mobile Bottom Nav (shown on small screens) */}
+          <TabsList
+            className="lg:hidden fixed -bottom-5 inset-x-0 z-50 flex justify-around
+                       border-t border-border bg-white dark:bg-slate-950 w-full py-8"
+          >
+            <TabsTrigger
+              value="overview"
+              className="flex flex-col items-center text-xs py-7"
+            >
+              <Home className="h-5 w-5" />
+              Home
+            </TabsTrigger>
+            <TabsTrigger
+              value="courses"
+              className="flex flex-col items-center text-xs py-7"
+            >
+              <BookOpen className="h-5 w-5" />
+              Courses
+            </TabsTrigger>
+            <TabsTrigger
+              value="challenges"
+              className="flex flex-col items-center text-xs py-7"
+            >
+              <BookAlert className="h-5 w-5" />
+              Challenges
+            </TabsTrigger>
+            <TabsTrigger
+              value="students"
+              className="flex flex-col items-center text-xs py-7"
+            >
+              <User className="h-5 w-5" />
+              Students
+            </TabsTrigger>
+            <TabsTrigger
+              value="assistant"
+              className="flex flex-col items-center text-xs py-7"
+            >
+              <MessageCircle className="h-5 w-5" />
+              AI Assistant
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -614,7 +660,7 @@ export default function TeacherDashboard() {
 
                         return (
                           <div key={course._id} className="space-y-2">
-                            <div className="flex justify-between items-center">
+                            <div className="sm:flex-row sm:flex flex-col space-y-2 justify-between items-center">
                               <h4 className="font-medium">{course.title}</h4>
                               <div className="flex items-center space-x-2">
                                 <Badge variant="secondary">
@@ -1003,7 +1049,7 @@ export default function TeacherDashboard() {
 
           {/* Challenges Tab */}
           <TabsContent value="challenges" className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center gap-3">
               <h3 className="text-lg font-semibold">Challenge Management</h3>
               <Button onClick={() => openCreateChallengeDialog()}>
                 <Plus className="h-4 w-4 mr-2" />
@@ -1103,21 +1149,28 @@ export default function TeacherDashboard() {
 
           {/* Students Tab */}
           <TabsContent value="students" className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+              {/* Title */}
               <h3 className="text-lg font-semibold">Student Management</h3>
-              <div className="flex space-x-2">
-                <div className="relative">
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                {/* Search */}
+                <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     placeholder="Search students..."
-                    className="pl-10 w-64"
+                    className="pl-10 w-full"
                   />
                 </div>
-                <Button variant="outline">
+
+                {/* Buttons */}
+                <Button variant="outline" className="w-full sm:w-auto">
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
-                <Button>
+
+                <Button className="w-full sm:w-auto">
                   <Upload className="h-4 w-4 mr-2" />
                   Import
                 </Button>
@@ -1222,8 +1275,8 @@ export default function TeacherDashboard() {
           </TabsContent>
 
           {/* Assistant Tab */}
-          <TabsContent value="assistant" className="space-y-6">
-            <Card className="flex-1 flex flex-col h-[calc(100vh-450px)] lg:h-[50vh] bg-gray-50 dark:bg-slate-900">
+          <TabsContent value="assistant" className="space-y-6 pb-5 lg:pb-3">
+            <Card className="flex-1 flex flex-col h-[70vh] lg:h-[50vh] bg-gray-50 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <MessageCircle className="h-5 w-5 text-purple-600" />

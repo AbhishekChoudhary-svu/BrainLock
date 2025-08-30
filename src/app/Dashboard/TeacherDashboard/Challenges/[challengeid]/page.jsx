@@ -25,7 +25,6 @@ export default function ManageChallengePage() {
   // Fetch challenge by ID
   const fetchChallenge = async () => {
     try {
-      
       const res = await fetch(`/api/teacher/challenges/${challengeid}`);
       const data = await res.json();
       if (res.ok) {
@@ -175,19 +174,24 @@ export default function ManageChallengePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 p-8">
-      <div className="max-w-8xl mx-auto bg-white dark:bg-slate-900 p-6 rounded-lg shadow-md">
-        <div className="flex items-center justify-between mb-6">
-          <Link href="/Dashboard/TeacherDashboard">
-            <Button variant="ghost">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 lg:p-8 p-0">
+      <div className="max-w-8xl mx-auto bg-white dark:bg-slate-900 p-6 lg:rounded-lg shadow-md">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          {/* Back button */}
+          <Link href="/Dashboard/TeacherDashboard" className="w-full md:w-auto">
+            <Button variant="ghost" className="w-full md:w-auto">
               <ChevronLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold dark:text-gray-100 text-gray-900">
+
+          {/* Title */}
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 text-center md:text-left">
             Manage Challenge: {challenge.title}
           </h1>
-          <div></div> {/* Placeholder */}
+
+          {/* Placeholder for spacing (keeps center alignment balanced on desktop) */}
+          <div className="hidden md:block w-[120px]" />
         </div>
 
         {/* Add / Edit Question Form */}
@@ -260,71 +264,77 @@ export default function ManageChallengePage() {
         </Card>
 
         {/* Existing Questions */}
-        
-        {loading  ? <QuestionLoading/> : <>
-        <h2 className="text-xl font-bold dark:text-gray-100 text-gray-900 mb-4">
-          Existing Questions ({questions.length})
-        </h2>
-        <div className="space-y-4">
-          {questions.length === 0 ? (
-            <p className="text-gray-600">
-              No questions added yet. Start by adding one above!
-            </p>
-          ) : (
-            questions.map((q, index) => (
-              <Card key={q._id || index}>
-                <CardContent className="p-4 flex justify-between items-start">
-                  <div className="flex-1 pr-4">
-                    <p className="text-sm font-medium dark:text-gray-300 text-gray-700 mb-1">
-                      Question {index + 1}
-                    </p>
-                    <p className="text-lg font-semibold mb-2">{q.question}</p>
 
-                    {Array.isArray(q.options) && q.options.length > 0 && (
-                      <div className="space-y-1 text-sm">
-                        {q.options.map((option, optIndex) => (
-                          <p
-                            key={option._id || optIndex}
-                            className={
-                              option.isCorrect
-                                ? "font-medium text-green-600"
-                                : "text-gray-600 dark:text-gray-200"
-                            }
-                          >
-                            {String.fromCharCode(65 + optIndex)}. {option.text}
-                            {option.isCorrect && " (Correct)"}
-                          </p>
-                        ))}
+        {loading ? (
+          <QuestionLoading />
+        ) : (
+          <>
+            <h2 className="text-xl font-bold dark:text-gray-100 text-gray-900 mb-4">
+              Existing Questions ({questions.length})
+            </h2>
+            <div className="space-y-4">
+              {questions.length === 0 ? (
+                <p className="text-gray-600">
+                  No questions added yet. Start by adding one above!
+                </p>
+              ) : (
+                questions.map((q, index) => (
+                  <Card key={q._id || index}>
+                    <CardContent className="p-4 flex justify-between items-start">
+                      <div className="flex-1 pr-4">
+                        <p className="text-sm font-medium dark:text-gray-300 text-gray-700 mb-1">
+                          Question {index + 1}
+                        </p>
+                        <p className="text-lg font-semibold mb-2">
+                          {q.question}
+                        </p>
+
+                        {Array.isArray(q.options) && q.options.length > 0 && (
+                          <div className="space-y-1 text-sm">
+                            {q.options.map((option, optIndex) => (
+                              <p
+                                key={option._id || optIndex}
+                                className={
+                                  option.isCorrect
+                                    ? "font-medium text-green-600"
+                                    : "text-gray-600 dark:text-gray-200"
+                                }
+                              >
+                                {String.fromCharCode(65 + optIndex)}.{" "}
+                                {option.text}
+                                {option.isCorrect && " (Correct)"}
+                              </p>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  {/* Actions */}
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handleEditQuestion(q)}
-                    >
-                      <Edit className="h-4 w-4" />
-                      <span className="sr-only">Edit Question</span>
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => handleDeleteQuestion(q._id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete Question</span>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-        </>}
-        
+                      {/* Actions */}
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleEditQuestion(q)}
+                        >
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit Question</span>
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => handleDeleteQuestion(q._id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete Question</span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

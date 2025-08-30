@@ -159,7 +159,6 @@ export default function SubtopicContentManagePage() {
       console.error(err.message);
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col">
@@ -186,7 +185,7 @@ export default function SubtopicContentManagePage() {
       </header>
 
       {/* Main */}
-      <main className="flex-1 max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 lg:py-8 py-4 space-y-8">
         {/* Form */}
         <Card className="shadow-lg">
           <CardHeader>
@@ -199,59 +198,61 @@ export default function SubtopicContentManagePage() {
             </CardDescription>
           </CardHeader>
 
-         {loading ? <ContentLoading/> : 
-          <CardContent className="space-y-6">
-            {/* Title */}
-            <div className="space-y-2">
-              <Label htmlFor="subtopic-title">Subtopic Title</Label>
-              <Input
-                id="subtopic-title"
-                value={subtopic?.title}
-                disabled
-                placeholder="Enter subtopic title"
-              />
-            </div>
+          {loading ? (
+            <ContentLoading />
+          ) : (
+            <CardContent className="space-y-6">
+              {/* Title */}
+              <div className="space-y-2">
+                <Label htmlFor="subtopic-title">Subtopic Title</Label>
+                <Input
+                  id="subtopic-title"
+                  value={subtopic?.title}
+                  disabled
+                  placeholder="Enter subtopic title"
+                />
+              </div>
 
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="subtopic-description">Theory / Article</Label>
-              <TextEditor
-                value={subtopicDescription}
-                onChange={setSubtopicDescription}
-              />
-              {/* <Textarea
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="subtopic-description">Theory / Article</Label>
+                <TextEditor
+                  value={subtopicDescription}
+                  onChange={setSubtopicDescription}
+                />
+                {/* <Textarea
                 id="subtopic-description"
                 value={subtopicDescription}
                 onChange={(e) => setSubtopicDescription(e.target.value)}
                 placeholder="Write theory or article content here..."
                 rows={8}
               /> */}
-            </div>
+              </div>
 
-            {/* Video URL */}
-            <div className="space-y-2">
-              <Label htmlFor="video-url">Video (YouTube / Embed URL)</Label>
-              <Input
-                id="video-url"
-                type="url"
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
-                placeholder="https://www.youtube.com/embed/..."
-              />
-            </div>
+              {/* Video URL */}
+              <div className="space-y-2">
+                <Label htmlFor="video-url">Video (YouTube / Embed URL)</Label>
+                <Input
+                  id="video-url"
+                  type="url"
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/embed/..."
+                />
+              </div>
 
-            {/* File Upload */}
-            <div className="space-y-2">
-              <Label htmlFor="file-upload">Attach PDF / File</Label>
-              <Input
-                id="file-upload"
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileUpload}
-              />
-            </div>
+              {/* File Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="file-upload">Attach PDF / File</Label>
+                <Input
+                  id="file-upload"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileUpload}
+                />
+              </div>
 
-            {/* Image Upload
+              {/* Image Upload
             <div className="space-y-2">
               <Label htmlFor="subtopic-image">Subtopic Image</Label>
               <Input
@@ -262,34 +263,34 @@ export default function SubtopicContentManagePage() {
               />
             </div> */}
 
-            {/* Save Button */}
-            <div className="flex items-center justify-end gap-4">
-              {saveStatus === "success" && (
-                <div className="flex items-center text-green-600 text-sm">
-                  <CheckCircle className="h-4 w-4 mr-2" /> Subtopic saved
-                  successfully!
-                </div>
-              )}
-              {saveStatus === "error" && (
-                <div className="flex items-center text-red-600 text-sm">
-                  <AlertCircle className="h-4 w-4 mr-2" /> Failed to save
-                  subtopic.
-                </div>
-              )}
-              <Button onClick={handleSaveContent} disabled={isSaving}>
-                {isSaving ? (
-                  <>
-                    <Save className="mr-2 h-4 w-4 animate-pulse" /> Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" /> Save Changes
-                  </>
+              {/* Save Button */}
+              <div className="flex items-center justify-end gap-4">
+                {saveStatus === "success" && (
+                  <div className="flex items-center text-green-600 text-sm">
+                    <CheckCircle className="h-4 w-4 mr-2" /> Subtopic saved
+                    successfully!
+                  </div>
                 )}
-              </Button>
-            </div>
-          </CardContent>
-         }
+                {saveStatus === "error" && (
+                  <div className="flex items-center text-red-600 text-sm">
+                    <AlertCircle className="h-4 w-4 mr-2" /> Failed to save
+                    subtopic.
+                  </div>
+                )}
+                <Button onClick={handleSaveContent} disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Save className="mr-2 h-4 w-4 animate-pulse" /> Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" /> Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          )}
         </Card>
 
         {/* --- FETCHED CONTENT LIST --- */}
@@ -298,6 +299,7 @@ export default function SubtopicContentManagePage() {
             <CardTitle className="text-blue-700">Saved Contents</CardTitle>
             <CardDescription>All contents for this subtopic</CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-4">
             {contents.length === 0 ? (
               <p className="text-gray-500">No contents added yet.</p>
@@ -305,36 +307,42 @@ export default function SubtopicContentManagePage() {
               contents.map((c) => (
                 <div
                   key={c._id}
-                  className="border rounded-md p-4 flex justify-between items-start"
+                  className="border rounded-md p-4 flex flex-col md:flex-row justify-between items-start md:items-start gap-4"
                 >
-                  <div>
+                  {/* Left: Content details */}
+                  <div className="flex-1 w-full">
                     <h3 className="font-bold pb-4">{c.title}</h3>
+
                     <div
-                      className="ql-snow ql-editor border mr-4 rounded-lg "
+                      className="ql-snow ql-editor border rounded-lg mr-0 md:mr-4"
                       dangerouslySetInnerHTML={{ __html: c.description }}
                     />
 
                     {c.videoUrl && (
                       <iframe
                         src={c.videoUrl}
-                        className="w-full h-[70vh] rounded-md mt-10"
+                        className="w-full h-64 md:h-[70vh] rounded-md mt-6"
                         allowFullScreen
                       />
                     )}
+
                     {c.fileUrl && (
                       <a
                         href={c.fileUrl}
                         target="_blank"
-                        className="text-blue-600 underline flex items-center mt-5"
+                        className="text-blue-600 underline flex items-center mt-5 break-words"
                       >
                         <FileText className="h-4 w-4 mr-2 mt-1" /> {c.title}
                       </a>
                     )}
                   </div>
-                  <div className="flex flex-col gap-4">
+
+                  {/* Right: Actions */}
+                  <div className="flex md:flex-col flex-row gap-2 w-full md:w-auto">
                     <Button
                       size="sm"
                       variant="outline"
+                      className="flex-1 md:flex-none"
                       onClick={() => handleEdit(c)}
                     >
                       <Pencil className="h-4 w-4 mr-1" /> Edit
@@ -342,6 +350,7 @@ export default function SubtopicContentManagePage() {
                     <Button
                       size="sm"
                       variant="destructive"
+                      className="flex-1 md:flex-none"
                       onClick={() => handleDelete(c._id)}
                     >
                       <Trash2 className="h-4 w-4 mr-1" /> Delete

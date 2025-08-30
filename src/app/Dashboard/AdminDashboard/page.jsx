@@ -291,7 +291,7 @@ export default function AdminDashboard() {
         return <Clock className="h-5 w-5 text-gray-400" />;
     }
   }
-
+ 
   const openProfileDialog = (student) => {
     setSelectedUser(student);
     setOpen1(true);
