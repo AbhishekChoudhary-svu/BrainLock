@@ -157,7 +157,7 @@ export default function StudentDashboard() {
 
       return data;
     } catch (err) {
-      console.error("❌ Continue course error:", err);
+      console.error(" Continue course error:", err);
       toast.error(err.message || "Something went wrong");
     }
   };

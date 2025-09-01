@@ -19,7 +19,7 @@ export async function POST() {
       );
     }
 
-    // 1. Verify refresh token
+   
     let decoded;
     try {
       decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
@@ -30,7 +30,7 @@ export async function POST() {
       );
     }
 
-    // 2. Find user and validate refresh token
+    
     const user = await User.findById(decoded.id);
     if (!user || user.refresh_Token !== refreshToken) {
       return new Response(
@@ -39,10 +39,10 @@ export async function POST() {
       );
     }
 
-    // 3. Generate new access token
+   
     const newAccessToken = generateAccessToken(user._id);
 
-    // 4. Update cookie with new access token
+    
     cookieStore.set("accessToken", newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -51,7 +51,7 @@ export async function POST() {
       maxAge: 60 *  60 * 7, // 7 hours
     });
 
-    // 5. Return response
+    
     return new Response(
       JSON.stringify({ success: true, accessToken: newAccessToken }),
       { status: 200 }

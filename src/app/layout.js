@@ -20,6 +20,7 @@ export const metadata = {
   description: "Helps Students to Focus on Study",
 };
 
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>

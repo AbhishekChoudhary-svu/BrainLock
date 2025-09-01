@@ -88,7 +88,7 @@ export async function PUT(req, { params }) {
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("❌ API error:", error);
+    console.error(" API error:", error);
     return new Response(
       JSON.stringify({ success: false, message: error.message }),
       { status: 500, headers: { "Content-Type": "application/json" } }

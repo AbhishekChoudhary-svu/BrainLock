@@ -2,7 +2,7 @@ import dbConnect from "@/lib/dbConnect";
 import Activity from "@/models/activity.model";
 import { withAuth } from "@/middlewares/auth";
 
-// GET activities for the logged-in user
+
 async function getMyActivities(req, userId) {
   await dbConnect();
 
@@ -28,5 +28,5 @@ async function getMyActivities(req, userId) {
   }
 }
 
-// 🔒 Protected route
+
 export const GET = withAuth(getMyActivities);

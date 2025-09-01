@@ -19,7 +19,7 @@ export async function POST(req) {
       );
     }
 
-    // Find user by email AND role to enforce role-based login
+    
     const user = await User.findOne({ email, role });
 
     if (!user) {
@@ -47,15 +47,15 @@ export async function POST(req) {
     const streak = await updateDailyStreak(user._id);
 
 
-    // Generate tokens
+    
     const accessToken = generateAccessToken(user._id,role);
     const refreshToken = await generateRefreshToken(user._id);
 
-    // Save refresh token in DB
+   
     user.refresh_Token = refreshToken;
     await user.save();
 
-    // ✅ Use async cookies
+    
     const cookieStore = await cookies();
 
     cookieStore.set("accessToken", accessToken, {

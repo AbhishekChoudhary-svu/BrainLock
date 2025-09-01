@@ -6,7 +6,7 @@ export async function logActivity(userId, role, action, courseId, challengeId, d
     role,
     action,
     courseId,
-    challengeId,  // ✅ used here instead of subtopic
+    challengeId,  
     details,
   });
 }

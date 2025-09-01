@@ -25,5 +25,5 @@ async function getAllActivities(req, userId) {
   }
 }
 
-// Protected route
+
 export const GET = withAuth(getAllActivities);

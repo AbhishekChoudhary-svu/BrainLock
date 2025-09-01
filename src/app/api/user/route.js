@@ -76,7 +76,7 @@ async function handler1(req, userId) {
       { status: 405, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("❌ API error:", error);
+    console.error(" API error:", error);
     return new Response(
       JSON.stringify({ success: false, message: "Server error" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
@@ -84,7 +84,7 @@ async function handler1(req, userId) {
   }
 }
 
-// 🔒 Protect the route
+
 export const PUT = withAuth(handler1);
 
 
