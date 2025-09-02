@@ -97,6 +97,7 @@ import { formatDistanceToNow } from "date-fns";
 import MyContext from "@/context/ThemeProvider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
+import ReactMarkdown from "react-markdown";
 
 export default function TeacherDashboard() {
   const context = useContext(MyContext);
@@ -128,35 +129,51 @@ export default function TeacherDashboard() {
     if (!input.trim()) return;
 
     const userMessage = { role: "user", content: input };
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: [...messages, userMessage] }),
       });
 
-      if (!response.ok) {
+      if (!response.ok || !response.body) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { role: "assistant", content: data.text },
-      ]);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantMessage = { role: "assistant", content: "" };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+
+        assistantMessage = {
+          ...assistantMessage,
+          content: assistantMessage.content + chunk,
+        };
+
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = assistantMessage; // replace last msg
+          return updated;
+        });
+      }
     } catch (error) {
-      console.error("Error sending message:", error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
+      console.error("Streaming error:", error);
+      setMessages((prev) => [
+        ...prev,
         {
           role: "assistant",
-          content: "Sorry, I couldn't process that. Please try again.",
+          content: "⚠️ Sorry, something went wrong while streaming.",
         },
       ]);
     } finally {
@@ -314,7 +331,7 @@ export default function TeacherDashboard() {
     }
   };
 
-   const getRoleColor = (role) => {
+  const getRoleColor = (role) => {
     switch (role) {
       case "admin":
         return "bg-red-800 text-red-100";
@@ -1276,46 +1293,87 @@ export default function TeacherDashboard() {
 
           {/* Assistant Tab */}
           <TabsContent value="assistant" className="space-y-6 pb-5 lg:pb-3">
-            <Card className="flex-1 flex flex-col h-[70vh] lg:h-[50vh] bg-gray-50 dark:bg-slate-900">
+            <Card className="flex-1 flex flex-col h-[70vh] lg:h-[85vh] bg-gray-50 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <MessageCircle className="h-5 w-5 text-purple-600" />
                   <span>AI Assistant</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="flex-1 flex flex-col p-4 pt-0 overflow-hidden">
-                <ScrollArea className="flex-1 pr-4 overflow-x-hidden">
-                  <div className="space-y-4">
+
+              <CardContent className="flex-1 flex flex-col p-2 pt-0 overflow-hidden">
+                <ScrollArea className="flex-1 pr-4 overflow-x-scroll ">
+                  <div className="space-y-4 w-full">
                     {messages.length === 0 && (
                       <div className="text-center dark:text-gray-400 text-gray-500 text-sm py-4">
                         Ask me anything about you Like!
                       </div>
                     )}
+
                     {messages.map((msg, index) => (
                       <div
                         key={index}
-                        className={`flex items-start gap-3 ${
+                        className={`flex items-end gap-2 ${
                           msg.role === "user" ? "justify-end" : "justify-start"
                         }`}
                       >
+                        {/* Assistant Avatar (left side) */}
                         {msg.role === "assistant" && (
-                          <Avatar className="h-8 w-8">
+                          <Avatar className="h-8 w-8 shrink-0">
                             <AvatarFallback>
                               <Bot className="h-5 w-5" />
                             </AvatarFallback>
                           </Avatar>
                         )}
+
+                        {/* Message Bubble */}
                         <div
-                          className={`max-w-[80%] p-3 rounded-lg overflow-hidden break-words ${
-                            msg.role === "admin"
+                          className={`p-3 rounded-lg break-words overflow-x-auto
+                          max-w-[85%] sm:max-w-[75%] md:max-w-[65%] lg:max-w-[75%]
+                          ${
+                            msg.role === "user"
                               ? "bg-blue-600 text-white rounded-br-none"
-                              : "bg-gray-200 text-gray-900 dark:bg-slate-800 dark:text-gray-100 rounded-bl-none"
+                              : "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-none"
                           }`}
                         >
-                          <p className="text-sm break-words">{msg.content}</p>
+                          <div
+                            className="text-sm prose dark:prose-invert break-words leading-relaxed
+                            [&_h1]:mt-5 [&_h2]:mt-4 [&_h3]:mt-3 [&_h4]:mt-3
+                            [&_p]:mt-2 [&_p]:mb-3
+                            [&_pre]:my-4 [&_code]:text-[0.9em]
+                            [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:my-3
+                            [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:my-3
+                            [&_li]:mt-1 [&_li]:leading-relaxed
+                            [&_blockquote]:border-l-4 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-gray-600
+                            dark:[&_blockquote]:text-gray-300"
+                          >
+                            <ReactMarkdown
+                              components={{
+                                pre: ({ node, ...props }) => (
+                                  <pre
+                                    {...props}
+                                    className="overflow-x-auto p-3 rounded-md bg-gray-100 dark:bg-gray-900 text-sm"
+                                  />
+                                ),
+                                code: ({ node, inline, ...props }) =>
+                                  inline ? (
+                                    <code
+                                      {...props}
+                                      className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-sm"
+                                    />
+                                  ) : (
+                                    <code {...props} />
+                                  ),
+                              }}
+                            >
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
                         </div>
+
+                        {/* User Avatar (right side) */}
                         {msg.role === "user" && (
-                          <Avatar className="h-8 w-8">
+                          <Avatar className="h-8 w-8 shrink-0">
                             <AvatarFallback>
                               <User className="h-5 w-5" />
                             </AvatarFallback>
@@ -1323,6 +1381,8 @@ export default function TeacherDashboard() {
                         )}
                       </div>
                     ))}
+
+                    {/* Loading State */}
                     {isLoading && (
                       <div className="flex items-start gap-3 justify-start">
                         <Avatar className="h-8 w-8">
@@ -1335,9 +1395,12 @@ export default function TeacherDashboard() {
                         </div>
                       </div>
                     )}
+
                     <div ref={messagesEndRef} />
                   </div>
                 </ScrollArea>
+
+                {/* Input box */}
                 <form onSubmit={handleSendMessage} className="mt-4 flex gap-2">
                   <Input
                     placeholder="Type your question..."

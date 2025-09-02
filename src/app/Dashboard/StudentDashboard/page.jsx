@@ -70,6 +70,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
+import ReactMarkdown from "react-markdown";
 
 export default function StudentDashboard() {
   const context = useContext(MyContext);
@@ -98,45 +99,62 @@ export default function StudentDashboard() {
   }, [messages]);
 
   const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  e.preventDefault();
+  if (!input.trim()) return;
 
-    const userMessage = { role: "user", content: input };
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
-    setInput("");
-    setIsLoading(true);
+  const userMessage = { role: "user", content: input };
+  setMessages((prev) => [...prev, userMessage]);
+  setInput("");
+  setIsLoading(true);
 
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
-      });
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: [...messages, userMessage] }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { role: "assistant", content: data.text },
-      ]);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          role: "assistant",
-          content: "Sorry, I couldn't process that. Please try again.",
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
+    if (!response.ok || !response.body) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let assistantMessage = { role: "assistant", content: "" };
+
+    setMessages((prev) => [...prev, assistantMessage]);
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+
+      assistantMessage = {
+        ...assistantMessage,
+        content: assistantMessage.content + chunk,
+      };
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = assistantMessage; // replace last msg
+        return updated;
+      });
+    }
+  } catch (error) {
+    console.error("Streaming error:", error);
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: "⚠️ Sorry, something went wrong while streaming.",
+      },
+    ]);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const continueCourse = async (course) => {
     try {
@@ -196,7 +214,7 @@ export default function StudentDashboard() {
     }
   };
 
-   const getRoleColor = (role) => {
+  const getRoleColor = (role) => {
     switch (role) {
       case "admin":
         return "bg-red-800 text-red-100";
@@ -1029,7 +1047,7 @@ export default function StudentDashboard() {
 
           {/* Ai Assistant Tab */}
           <TabsContent value="assistant" className="space-y-6">
-            <Card className="flex-1 flex flex-col h-[70vh] lg:h-[50vh] bg-gray-50 dark:bg-gray-900">
+            <Card className="flex-1 flex flex-col h-[70vh] lg:h-[85vh] bg-gray-50 dark:bg-gray-900">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                   <MessageCircle className="h-5 w-5 text-purple-600" />
@@ -1065,8 +1083,12 @@ export default function StudentDashboard() {
                               : "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-none"
                           }`}
                         >
-                          <p className="text-sm break-words">{msg.content}</p>
+                          
+                          <div className="text-sm prose dark:prose-invert max-w-none">
+                            <ReactMarkdown>{msg.content}</ReactMarkdown>
+                          </div>
                         </div>
+
                         {msg.role === "user" && (
                           <Avatar className="h-8 w-8">
                             <AvatarFallback>

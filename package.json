@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^2.0.16",
     "@ai-sdk/openai": "^2.0.7",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.14",
@@ -45,6 +46,7 @@
     "nodemailer": "^7.0.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-markdown": "^10.1.0",
     "react-quill-new": "^3.6.0",
     "sonner": "^2.0.7",
     "swiper": "^11.2.10"
