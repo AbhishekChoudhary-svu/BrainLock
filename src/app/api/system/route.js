@@ -1,6 +1,7 @@
 import os from "os";
 import mongoose from "mongoose";
-import SystemStat from "@/models/system.model"; // adjust path if needed
+import dbConnect from "@/lib/dbConnect";          
+import SystemStat from "@/models/system.model";   
 
 function formatUptime(seconds) {
   const days = Math.floor(seconds / (24 * 3600));
@@ -15,6 +16,9 @@ function formatUptime(seconds) {
 
 export async function GET() {
   try {
+   
+    await dbConnect();
+
     const dbOnline = mongoose.connection.readyState === 1;
     const dbHealth = dbOnline ? "Healthy" : "Down";
 
@@ -25,9 +29,8 @@ export async function GET() {
 
     const uptime = formatUptime(os.uptime());
 
-    
     const stat = await SystemStat.findOneAndUpdate(
-      {}, 
+      {},
       {
         dbOnline,
         dbHealth,
@@ -35,7 +38,7 @@ export async function GET() {
         uptime,
         updatedAt: new Date(),
       },
-      { new: true, upsert: true } 
+      { new: true, upsert: true }
     );
 
     return new Response(JSON.stringify(stat), {
