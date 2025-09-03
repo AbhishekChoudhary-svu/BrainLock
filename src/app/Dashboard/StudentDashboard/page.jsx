@@ -532,7 +532,7 @@ export default function StudentDashboard() {
 
           {/* Mobile Bottom Nav (shown on small screens) */}
           <TabsList
-            className="lg:hidden fixed -bottom-5 inset-x-0 z-50 flex justify-around
+            className="lg:hidden fixed -bottom-6 inset-x-0 z-50 flex justify-around
                        border-t border-border bg-white dark:bg-slate-950 w-full py-8"
           >
             <TabsTrigger

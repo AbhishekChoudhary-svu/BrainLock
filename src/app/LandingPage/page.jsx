@@ -232,7 +232,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative w-full h-[90vh] flex items-center justify-center overflow-hidden border bg-gray-50 border-black/5 dark:bg-slate-950">
+      <section className="relative w-full lg:h-[90vh] h-[80vh] flex items-center justify-center overflow-hidden border bg-gray-50 border-black/5 dark:bg-slate-950">
         {/* Animated Cursor Trail */}
         <ImageCursorTrail
           items={images}
