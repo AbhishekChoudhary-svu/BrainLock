@@ -10,10 +10,10 @@ import { Brain, Mail, ArrowLeft, CheckCircle, AlertCircle, RefreshCw, Clock } fr
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner";
-export default function VerifyEmailPage() {
+export default function VerifyEmailPage({ searchParams }) {
   const router = useRouter();
-  const searchParams = useSearchParams()
-  const role = searchParams.get("role") || "student"
+  const role = searchParams?.role || "student"
+
   
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
   const [isLoading, setIsLoading] = useState(false)
