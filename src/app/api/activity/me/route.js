@@ -1,5 +1,8 @@
 import dbConnect from "@/lib/dbConnect";
 import Activity from "@/models/activity.model";
+import User from "@/models/user.model"
+import Course from "@/models/course.model"
+import SubjectChallenge from "@/models/subjectChallenge.model"
 import { withAuth } from "@/middlewares/auth";
 
 
