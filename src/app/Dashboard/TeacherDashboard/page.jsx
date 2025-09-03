@@ -129,7 +129,8 @@ export default function TeacherDashboard() {
     if (!input.trim()) return;
 
     const userMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInput("");
     setIsLoading(true);
 
@@ -137,7 +138,7 @@ export default function TeacherDashboard() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ messages: updatedMessages }),
       });
 
       if (!response.ok || !response.body) {
@@ -146,9 +147,9 @@ export default function TeacherDashboard() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let assistantMessage = { role: "assistant", content: "" };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      // add empty assistant msg first
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -156,14 +157,13 @@ export default function TeacherDashboard() {
 
         const chunk = decoder.decode(value, { stream: true });
 
-        assistantMessage = {
-          ...assistantMessage,
-          content: assistantMessage.content + chunk,
-        };
-
+        // append chunk to last assistant message
         setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1] = assistantMessage; // replace last msg
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            content: updated[updated.length - 1].content + chunk,
+          };
           return updated;
         });
       }
@@ -1293,58 +1293,61 @@ export default function TeacherDashboard() {
 
           {/* Assistant Tab */}
           <TabsContent value="assistant" className="space-y-6 pb-5 lg:pb-3">
-           <Card className="flex-1 flex flex-col h-[80vh] md:h-[85vh] bg-gray-50 dark:bg-slate-900">
-  <CardHeader>
-    <CardTitle className="flex items-center gap-2">
-      <MessageCircle className="h-5 w-5 text-blue-600 dark:text-purple-600" aria-hidden="true" />
-      <span className="text-pretty">{"AI Assistant"}</span>
-    </CardTitle>
-  </CardHeader>
+            <Card className="flex-1 flex flex-col h-[80vh] md:h-[85vh] bg-gray-50 dark:bg-slate-900">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageCircle
+                    className="h-5 w-5 text-blue-600 dark:text-purple-600"
+                    aria-hidden="true"
+                  />
+                  <span className="text-pretty">{"AI Assistant"}</span>
+                </CardTitle>
+              </CardHeader>
 
-  <CardContent className="flex-1 flex flex-col p-2 pt-0 overflow-hidden">
-    <div
-  className="flex-1 pr-4 overflow-y-auto overflow-x-hidden custom-scrollbar"
-  aria-live="polite"
-  aria-relevant="additions"
->
-  <div className="space-y-4">
-    {/* Empty state */}
-    {messages.length === 0 && (
-      <div className="text-center dark:text-gray-400 text-gray-500 text-sm py-4">
-        {"Ask me anything about you Like!"}
-      </div>
-    )}
+              <CardContent className="flex-1 flex flex-col p-2 pt-0 overflow-hidden">
+                <div
+                  className="flex-1 pr-4 overflow-y-auto overflow-x-hidden custom-scrollbar"
+                  aria-live="polite"
+                  aria-relevant="additions"
+                >
+                  <div className="space-y-4">
+                    {/* Empty state */}
+                    {messages.length === 0 && (
+                      <div className="text-center dark:text-gray-400 text-gray-500 text-sm py-4">
+                        {"Ask me anything about you Like!"}
+                      </div>
+                    )}
 
-    {messages.map((msg, idx) => {
-      const isUser = msg.role === "user"
-      return (
-        <div
-          key={idx}
-          className={`flex w-full items-end gap-2 ${
-            isUser ? "justify-end" : "justify-start"
-          }`}
-        >
-          {/* Assistant avatar */}
-          {!isUser && (
-            <Avatar className="lg:h-8 lg:w-8 h-4 w-4 shrink-0">
-              <AvatarFallback aria-label="Assistant">
-                <Bot className="lg:h-5 lg:w-5 h-2 w-2" />
-              </AvatarFallback>
-            </Avatar>
-          )}
+                    {messages.map((msg, idx) => {
+                      const isUser = msg.role === "user";
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex w-full items-end gap-2 ${
+                            isUser ? "justify-end" : "justify-start"
+                          }`}
+                        >
+                          {/* Assistant avatar */}
+                          {!isUser && (
+                            <Avatar className="lg:h-8 lg:w-8 h-4 w-4 shrink-0">
+                              <AvatarFallback aria-label="Assistant">
+                                <Bot className="lg:h-5 lg:w-5 h-2 w-2" />
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
 
-          {/* Message bubble */}
-          <div
-            className={[
-              "lg:p-3 px-4 rounded-lg break-words overflow-x-auto",
-              "sm:max-w-[75%] lg:max-w-[65%] ",
-              isUser
-                ? "bg-blue-600 text-white rounded-br-none"
-                : "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-none",
-            ].join(" ")}
-          >
-            <div
-              className="text-sm prose dark:prose-invert break-words leading-relaxed
+                          {/* Message bubble */}
+                          <div
+                            className={[
+                              "lg:p-3 px-4 rounded-lg break-words overflow-x-auto",
+                              "sm:max-w-[75%] lg:max-w-[65%] ",
+                              isUser
+                                ? "bg-blue-600 text-white rounded-br-none"
+                                : "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-none",
+                            ].join(" ")}
+                          >
+                            <div
+                              className="text-sm prose dark:prose-invert break-words leading-relaxed
                 [&_h1]:mt-5 [&_h2]:mt-4 [&_h3]:mt-3 [&_h4]:mt-3
                 [&_p]:mt-2 [&_p]:mb-3
                 [&_pre]:my-4 [&_code]:text-[0.9em]
@@ -1353,83 +1356,93 @@ export default function TeacherDashboard() {
                 [&_li]:mt-1 [&_li]:leading-relaxed
                 [&_blockquote]:border-l-4 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-gray-600
                 dark:[&_blockquote]:text-gray-300"
-            >
-              <ReactMarkdown
-                components={{
-                  pre: ({ node, ...props }) => (
-                    <pre
-                      {...props}
-                      className="overflow-x-auto p-3 rounded-md bg-gray-100 dark:bg-gray-900 text-sm"
-                    />
-                  ),
-                  code: ({ node, inline, ...props }) =>
-                    inline ? (
-                      <code
-                        {...props}
-                        className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-sm"
-                      />
+                            >
+                              <ReactMarkdown
+                                components={{
+                                  pre: ({ node, ...props }) => (
+                                    <pre
+                                      {...props}
+                                      className="overflow-x-auto p-3 rounded-md bg-gray-100 dark:bg-gray-900 text-sm"
+                                    />
+                                  ),
+                                  code: ({ node, inline, ...props }) =>
+                                    inline ? (
+                                      <code
+                                        {...props}
+                                        className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-sm"
+                                      />
+                                    ) : (
+                                      <code {...props} />
+                                    ),
+                                }}
+                              >
+                                {msg.content}
+                              </ReactMarkdown>
+                            </div>
+                          </div>
+
+                          {/* User avatar */}
+                          {isUser && (
+                            <Avatar className="lg:h-8 lg:w-8 h-4 w-4 shrink-0">
+                              <AvatarFallback aria-label="You">
+                                <User className="lg:h-5 lg:w-5 h-2 w-2" />
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {/* Loading State */}
+                    {isLoading && (
+                      <div className="flex items-start gap-3 justify-start">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback aria-label="Assistant typing">
+                            <Bot className="h-5 w-5" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 text-gray-900 dark:bg-slate-800 dark:text-gray-100 rounded-bl-none">
+                          <Loader2
+                            className="h-4 w-4 animate-spin"
+                            aria-label="Loading"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div ref={messagesEndRef} />
+                  </div>
+                </div>
+
+                {/* Input box */}
+                <form onSubmit={handleSendMessage} className="mt-4 flex gap-2">
+                  <label htmlFor="assistant-input" className="sr-only">
+                    Message input
+                  </label>
+                  <Input
+                    id="assistant-input"
+                    placeholder={"Type your question..."}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    disabled={isLoading}
+                    className="flex-1"
+                    aria-disabled={isLoading}
+                  />
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={isLoading}
+                    aria-label="Send message"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <code {...props} />
-                    ),
-                }}
-              >
-                {msg.content}
-              </ReactMarkdown>
-            </div>
-          </div>
-
-          {/* User avatar */}
-          {isUser && (
-            <Avatar className="lg:h-8 lg:w-8 h-4 w-4 shrink-0">
-              <AvatarFallback aria-label="You">
-                <User className="lg:h-5 lg:w-5 h-2 w-2" />
-              </AvatarFallback>
-            </Avatar>
-          )}
-        </div>
-      )
-    })}
-
-    {/* Loading State */}
-    {isLoading && (
-      <div className="flex items-start gap-3 justify-start">
-        <Avatar className="h-8 w-8">
-          <AvatarFallback aria-label="Assistant typing">
-            <Bot className="h-5 w-5" />
-          </AvatarFallback>
-        </Avatar>
-        <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 text-gray-900 dark:bg-slate-800 dark:text-gray-100 rounded-bl-none">
-          <Loader2 className="h-4 w-4 animate-spin" aria-label="Loading" />
-        </div>
-      </div>
-    )}
-
-    <div ref={messagesEndRef} />
-  </div>
-</div>
-
-
-    {/* Input box */}
-    <form onSubmit={ handleSendMessage} className="mt-4 flex gap-2">
-      <label htmlFor="assistant-input" className="sr-only">
-        Message input
-      </label>
-      <Input
-        id="assistant-input"
-        placeholder={ "Type your question..."}
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        disabled={isLoading}
-        className="flex-1"
-        aria-disabled={isLoading}
-      />
-      <Button type="submit" size="icon" disabled={isLoading} aria-label="Send message">
-        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-      </Button>
-    </form>
-  </CardContent>
-</Card>
-
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

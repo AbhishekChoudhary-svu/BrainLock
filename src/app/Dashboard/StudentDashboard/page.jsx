@@ -103,7 +103,8 @@ export default function StudentDashboard() {
     if (!input.trim()) return;
 
     const userMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInput("");
     setIsLoading(true);
 
@@ -111,7 +112,7 @@ export default function StudentDashboard() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ messages: updatedMessages }),
       });
 
       if (!response.ok || !response.body) {
@@ -120,9 +121,9 @@ export default function StudentDashboard() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let assistantMessage = { role: "assistant", content: "" };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      // add empty assistant msg first
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
       while (true) {
         const { done, value } = await reader.read();
@@ -130,14 +131,13 @@ export default function StudentDashboard() {
 
         const chunk = decoder.decode(value, { stream: true });
 
-        assistantMessage = {
-          ...assistantMessage,
-          content: assistantMessage.content + chunk,
-        };
-
+        // append chunk to last assistant message
         setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1] = assistantMessage; // replace last msg
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            content: updated[updated.length - 1].content + chunk,
+          };
           return updated;
         });
       }
