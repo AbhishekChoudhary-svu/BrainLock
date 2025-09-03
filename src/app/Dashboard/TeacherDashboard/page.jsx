@@ -1248,8 +1248,8 @@ export default function TeacherDashboard() {
                             {student.avgScore.toFixed(2) || 50}%
                           </Badge>
                         </TableCell>
-                        <TableCell>{student.streaks || 7} days</TableCell>
-                        <TableCell>{student.points || 5}</TableCell>
+                        <TableCell>{student.streaks || 1} days</TableCell>
+                        <TableCell>{student.points || 0}</TableCell>
                         <TableCell>
                           <Badge
                             variant={

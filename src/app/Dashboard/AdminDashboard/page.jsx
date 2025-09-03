@@ -901,8 +901,8 @@ export default function AdminDashboard() {
                           </span>
                         ) : user.role === "student" ? (
                           <span className="text-sm dark:text-gray-400 text-gray-600">
-                            {user.courses.length || 4} courses,{" "}
-                            {user.avgScore || 50}% avg
+                            {user.courses.length || 0} courses,{" "}
+                            {user.avgScore || 0}% avg
                           </span>
                         ) : (
                           <span className="text-sm dark:text-gray-400 text-gray-600">
