@@ -7,7 +7,7 @@ import { generateEnrollmentNumber } from "@/utils/generateEnrollmentNumber";
 export async function PUT(req, { params }) {
   await dbConnect();
 
-  const { userid, courseid } = await params; 
+  const { userid, courseid } = params; 
 
   try {
     const user = await User.findById(userid);
@@ -18,35 +18,37 @@ export async function PUT(req, { params }) {
       );
     }
 
-    // 🔹 Assign enrollment number once globally
+    
     if (!user.enrollmentNumber) {
-      user.enrollmentNumber = await generateEnrollmentNumber();
+      user.enrollmentNumber = generateEnrollmentNumber();
     }
 
-    // 🔹 Check if already enrolled
+    
     const courseIndex = user.courses.findIndex(
       (c) => c.courseId.toString() === courseid
     );
 
     if (courseIndex !== -1) {
-      // Update progress
+      // Update progress & re-enroll date
       user.courses[courseIndex].progress = Math.min(
-        (user.courses[courseIndex].progress || 0) + 0,
+        user.courses[courseIndex].progress || 0,
         100
       );
       user.courses[courseIndex].enrolledAt = new Date();
     } else {
       // First time enrollment
       user.courses.push({
-        courseId: courseid, 
+        courseId: courseid,
         progress: 0,
         status: "active",
         enrolledAt: new Date(),
       });
     }
-    await logActivity(user._id,user.role, "ENROLL_COURSE", courseid);
 
+    
+    await logActivity(user._id, user.role, "ENROLL_COURSE", courseid);
 
+    
     await user.save();
 
     return new Response(
@@ -58,7 +60,7 @@ export async function PUT(req, { params }) {
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error(" API error:", error);
+    console.error("API error:", error);
     return new Response(
       JSON.stringify({ success: false, message: "Server error" }),
       { status: 500, headers: { "Content-Type": "application/json" } }

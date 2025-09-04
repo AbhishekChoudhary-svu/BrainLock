@@ -1,8 +1,10 @@
-import User from "@/models/user.model";
+
+import { v4 as uuidv4 } from "uuid";
 
 export async function generateEnrollmentNumber() {
-  const count = await User.countDocuments({ role: "student", enrollmentNumber: { $ne: null } });
   const year = new Date().getFullYear();
-  const nextNum = String(count + 1).padStart(4, "0"); // 0001, 0002, etc.
-  return `STU-${year}-${nextNum}`;
+  // Take first 6 chars of UUID to keep it short and readable
+  const uniquePart = uuidv4().split("-")[0].toUpperCase();  
+  return `STU-${year}-${uniquePart}`;
 }
+
