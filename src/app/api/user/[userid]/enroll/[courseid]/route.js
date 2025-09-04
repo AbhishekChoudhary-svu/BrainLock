@@ -20,7 +20,7 @@ export async function PUT(req, { params }) {
 
     
     if (!user.enrollmentNumber) {
-      user.enrollmentNumber = generateEnrollmentNumber();
+      user.enrollmentNumber = await generateEnrollmentNumber();
     }
 
     
