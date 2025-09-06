@@ -21,6 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import MyContext from "@/context/ThemeProvider";
+
 import { CourseContent, TheoryPageLoading } from "@/components/Loader/loading";
 
 export default function SubjectTheoryPage() {
@@ -111,6 +112,7 @@ export default function SubjectTheoryPage() {
                           allowFullScreen
                         />
                       )}
+                      
 
                       <div
                         className="ql-snow ql-editor border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-4"

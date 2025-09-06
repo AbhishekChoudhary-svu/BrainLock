@@ -160,6 +160,48 @@ export default function SubtopicContentManagePage() {
     }
   };
 
+  const handleGenerateTheory = async () => {
+    setIsSaving(true); // you can reuse loading state or create new one
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "user",
+              content: `Generate a concise, point-wise theory for the : "${subtopic?.title}"`,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let generatedText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        generatedText += decoder.decode(value, { stream: true });
+        setSubtopicDescription(
+          (prev) => prev + decoder.decode(value, { stream: true })
+        );
+      }
+
+      toast.success("Theory generated successfully!");
+    } catch (err) {
+      console.error("Error generating theory:", err);
+      toast.error("Failed to generate theory");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col">
       {/* Header */}
@@ -188,14 +230,19 @@ export default function SubtopicContentManagePage() {
       <main className="flex-1 max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 lg:py-8 py-4 space-y-8">
         {/* Form */}
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <ImageIcon className="h-5 w-5 text-blue-600" />
-              <span>Subtopic Details & Content</span>
-            </CardTitle>
-            <CardDescription>
-              Manage subtopic title, theory content, videos, PDFs, and images.
-            </CardDescription>
+          <CardHeader className="flex-col flex lg:flex-row justify-between items-center">
+            <div>
+              <CardTitle className="flex items-center space-x-2">
+                <ImageIcon className="h-5 w-5 text-blue-600" />
+                <span>Subtopic Details & Content</span>
+              </CardTitle>
+              <CardDescription>
+                Manage subtopic title, theory content, videos, PDFs, and images.
+              </CardDescription>
+            </div>
+            <Button onClick={handleGenerateTheory} disabled={true}>
+              {isSaving ? "Generating..." : "Generate Theory"}
+            </Button>
           </CardHeader>
 
           {loading ? (
