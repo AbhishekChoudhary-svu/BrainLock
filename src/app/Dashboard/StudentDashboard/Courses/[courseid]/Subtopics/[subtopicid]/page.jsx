@@ -21,6 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import MyContext from "@/context/ThemeProvider";
+import ReactMarkdown from "react-markdown";
 
 import { CourseContent, TheoryPageLoading } from "@/components/Loader/loading";
 
@@ -112,12 +113,42 @@ export default function SubjectTheoryPage() {
                           allowFullScreen
                         />
                       )}
+                        <div
+                                            className="text-sm prose dark:prose-invert break-words leading-relaxed
+                                                                   [&_h1]:mt-5 [&_h2]:mt-4 [&_h3]:mt-3 [&_h4]:mt-3
+                                                                   [&_p]:mt-2 [&_p]:mb-3
+                                                                   [&_pre]:my-4 [&_code]:text-[0.9em]
+                                                                   [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:my-3
+                                                                   [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:my-3
+                                                                   [&_li]:mt-1 [&_li]:leading-relaxed
+                                                                   [&_blockquote]:border-l-4 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-gray-600
+                                                                   dark:[&_blockquote]:text-gray-300"
+                                          >
+                                            <ReactMarkdown
+                                              components={{
+                                                pre: ({ node, ...props }) => (
+                                                  <pre
+                                                    {...props}
+                                                    className="overflow-x-auto p-3 rounded-md bg-gray-100 dark:bg-gray-900 text-sm"
+                                                  />
+                                                ),
+                                                code: ({ node, inline, ...props }) =>
+                                                  inline ? (
+                                                    <code
+                                                      {...props}
+                                                      className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-sm"
+                                                    />
+                                                  ) : (
+                                                    <code {...props} />
+                                                  ),
+                                              }}
+                                            >
+                                              {c?.description}
+                                            </ReactMarkdown>
+                                          </div>
                       
 
-                      <div
-                        className="ql-snow ql-editor border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-4"
-                        dangerouslySetInnerHTML={{ __html: c?.description }}
-                      />
+                     
 
                       {c?.fileUrl && (
                         <a

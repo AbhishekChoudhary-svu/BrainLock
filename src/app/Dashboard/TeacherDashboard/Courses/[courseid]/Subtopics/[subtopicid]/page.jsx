@@ -30,6 +30,7 @@ import {
 import { toast } from "sonner";
 import TextEditor from "@/components/TextEditor/page";
 import { ContentLoading, Loading1 } from "@/components/Loader/loading";
+import ReactMarkdown from "react-markdown";
 
 export default function SubtopicContentManagePage() {
   const params = useParams();
@@ -41,6 +42,7 @@ export default function SubtopicContentManagePage() {
   const [fileUrl, setFileUrl] = useState("");
   const [subtopicImage, setSubtopicImage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerate, setIsGenerate] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -161,7 +163,7 @@ export default function SubtopicContentManagePage() {
   };
 
   const handleGenerateTheory = async () => {
-    setIsSaving(true); // you can reuse loading state or create new one
+    setIsGenerate(true); // you can reuse loading state or create new one
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -198,7 +200,7 @@ export default function SubtopicContentManagePage() {
       console.error("Error generating theory:", err);
       toast.error("Failed to generate theory");
     } finally {
-      setIsSaving(false);
+      setIsGenerate(false);
     }
   };
 
@@ -240,8 +242,8 @@ export default function SubtopicContentManagePage() {
                 Manage subtopic title, theory content, videos, PDFs, and images.
               </CardDescription>
             </div>
-            <Button onClick={handleGenerateTheory} disabled={true}>
-              {isSaving ? "Generating..." : "Generate Theory"}
+            <Button onClick={handleGenerateTheory} disabled={isGenerate}>
+              {isGenerate ? "Generating..." : "Generate Theory"}
             </Button>
           </CardHeader>
 
@@ -263,17 +265,54 @@ export default function SubtopicContentManagePage() {
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="subtopic-description">Theory / Article</Label>
-                <TextEditor
+                {/* <TextEditor
                   value={subtopicDescription}
                   onChange={setSubtopicDescription}
-                />
-                {/* <Textarea
-                id="subtopic-description"
-                value={subtopicDescription}
-                onChange={(e) => setSubtopicDescription(e.target.value)}
-                placeholder="Write theory or article content here..."
-                rows={8}
-              /> */}
+                /> */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Left side: textarea editor */}
+                  <textarea
+                    value={subtopicDescription}
+                    onChange={(e) => setSubtopicDescription(e.target.value)}
+                    className="w-full custom-scrollbar min-h-[200px] p-3 border rounded-md bg-white dark:bg-slate-800 text-sm font-mono "
+                    placeholder="Generate or Write here..."
+                  />
+
+                  {/* Right side: preview */}
+                  <div
+                    className="text-sm prose dark:prose-invert break-words leading-relaxed
+                   [&_h1]:mt-5 [&_h2]:mt-4 [&_h3]:mt-3 [&_h4]:mt-3
+                   [&_p]:mt-2 [&_p]:mb-3
+                   [&_pre]:my-4 [&_code]:text-[0.9em]
+                   [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:my-3
+                   [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:my-3
+                   [&_li]:mt-1 [&_li]:leading-relaxed
+                   [&_blockquote]:border-l-4 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-gray-600
+                   dark:[&_blockquote]:text-gray-300"
+                  >
+                    <ReactMarkdown
+                      components={{
+                        pre: ({ node, ...props }) => (
+                          <pre
+                            {...props}
+                            className="overflow-x-auto p-3 rounded-md bg-gray-100 dark:bg-gray-900 text-sm"
+                          />
+                        ),
+                        code: ({ node, inline, ...props }) =>
+                          inline ? (
+                            <code
+                              {...props}
+                              className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-sm"
+                            />
+                          ) : (
+                            <code {...props} />
+                          ),
+                      }}
+                    >
+                      {subtopicDescription}
+                    </ReactMarkdown>
+                  </div>
+                </div>
               </div>
 
               {/* Video URL */}
@@ -361,9 +400,38 @@ export default function SubtopicContentManagePage() {
                     <h3 className="font-bold pb-4">{c.title}</h3>
 
                     <div
-                      className="ql-snow ql-editor border rounded-lg mr-0 md:mr-4"
-                      dangerouslySetInnerHTML={{ __html: c.description }}
-                    />
+                      className="text-sm prose dark:prose-invert break-words leading-relaxed
+                                             [&_h1]:mt-5 [&_h2]:mt-4 [&_h3]:mt-3 [&_h4]:mt-3
+                                             [&_p]:mt-2 [&_p]:mb-3
+                                             [&_pre]:my-4 [&_code]:text-[0.9em]
+                                             [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:my-3
+                                             [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:my-3
+                                             [&_li]:mt-1 [&_li]:leading-relaxed
+                                             [&_blockquote]:border-l-4 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-gray-600
+                                             dark:[&_blockquote]:text-gray-300"
+                    >
+                      <ReactMarkdown
+                        components={{
+                          pre: ({ node, ...props }) => (
+                            <pre
+                              {...props}
+                              className="overflow-x-auto p-3 rounded-md bg-gray-100 dark:bg-gray-900 text-sm"
+                            />
+                          ),
+                          code: ({ node, inline, ...props }) =>
+                            inline ? (
+                              <code
+                                {...props}
+                                className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-sm"
+                              />
+                            ) : (
+                              <code {...props} />
+                            ),
+                        }}
+                      >
+                        {c.description}
+                      </ReactMarkdown>
+                    </div>
 
                     {c.videoUrl && (
                       <iframe
