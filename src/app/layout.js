@@ -17,13 +17,14 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Brain Lock",
-  description: "Helps Students to Focus on Study",
+  description: "Brain Lock - AI Powered Learning Tools Helps Students to Focus on Study",
 };
 
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <meta name="google-site-verification" content="T8IhaxzjzvzCTRsStkOfdbg2XyQv4U-Go0GMBU9wTkE" />
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
           {children}
