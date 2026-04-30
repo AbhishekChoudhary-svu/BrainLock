@@ -9,6 +9,6 @@ export function generateAccessToken(userId,role) {
   return jwt.sign(
     { id: userId,role },
     process.env.SECRET_KEY_ACCESS_TOKEN, // should be set in .env.local
-    { expiresIn: "7h" }
+    { expiresIn: "7d" }
   );
 }

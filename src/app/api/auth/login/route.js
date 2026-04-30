@@ -63,7 +63,7 @@ export async function POST(req) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 7, // 7 hours
+      maxAge: 60 * 60 * 24 * 7, // 7 Days
     });
 
     cookieStore.set("refreshToken", refreshToken, {
