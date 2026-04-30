@@ -56,6 +56,7 @@ import {
   Sun,
   Home,
   BookAlert,
+  Search,
 } from "lucide-react";
 import Link from "next/link"; // Import Link
 import { toast } from "sonner";
@@ -162,7 +163,7 @@ export default function StudentDashboard() {
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
 
       const data = await res.json();
@@ -288,7 +289,7 @@ export default function StudentDashboard() {
       ?.filter((c) => c.status === "active")
       ?.map((c) => {
         const courseDetails = context?.courses?.find(
-          (course) => String(course._id) === String(c.courseId) // force both to string
+          (course) => String(course._id) === String(c.courseId), // force both to string
         );
         return {
           ...c,
@@ -309,7 +310,7 @@ export default function StudentDashboard() {
 
   const successRateChallenges =
     context.user?.challenges?.filter(
-      (c) => c.status === "active" || c.status === "completed"
+      (c) => c.status === "active" || c.status === "completed",
     ) || [];
 
   const averageProgress =
@@ -322,6 +323,23 @@ export default function StudentDashboard() {
     successRateChallenges.length > 0
       ? Math.max(...successRateChallenges.map((c) => c.score))
       : 0;
+
+  const [courseSearch, setCourseSearch] = useState("");
+  const [challengeSearch, setChallengeSearch] = useState("");
+
+  const filteredCourses = context.courses.filter(
+    (c) =>
+      c.title.toLowerCase().includes(courseSearch.toLowerCase()) ||
+      c.category?.toLowerCase().includes(courseSearch.toLowerCase()),
+  );
+
+  const filteredChallenges = context.courses.filter(
+    (c) =>
+      c.title.toLowerCase().includes(challengeSearch.toLowerCase()) ||
+      c.challenges?.some((ch) =>
+        ch.title?.toLowerCase().includes(challengeSearch.toLowerCase()),
+      ),
+  );
 
   return (
     <div className="min-h-screen dark:bg-slate-950 bg-gray-50">
@@ -673,8 +691,8 @@ export default function StudentDashboard() {
                                   {activity.details.score !== undefined
                                     ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
                                     : typeof activity.details === "string"
-                                    ? activity.details
-                                    : JSON.stringify(activity.details)}
+                                      ? activity.details
+                                      : JSON.stringify(activity.details)}
                                 </p>
                               )}
 
@@ -807,11 +825,23 @@ export default function StudentDashboard() {
 
           {/* Courses Tab */}
           <TabsContent value="courses" className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+              <h3 className="text-lg font-semibold">My Courses</h3>
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search courses..."
+                  value={courseSearch}
+                  onChange={(e) => setCourseSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {context.courses.map((course) => {
+              {filteredCourses.map((course) => {
                 // Check enrollment in user.courses
                 const userCourse = context?.user?.courses?.find(
-                  (uc) => String(uc.courseId) === String(course._id)
+                  (uc) => String(uc.courseId) === String(course._id),
                 );
 
                 const isEnrolled = !!userCourse;
@@ -841,8 +871,8 @@ export default function StudentDashboard() {
                           {status === "completed"
                             ? "Completed"
                             : isEnrolled
-                            ? "Enrolled"
-                            : "Not Enrolled"}
+                              ? "Enrolled"
+                              : "Not Enrolled"}
                         </Badge>
                       </div>
                     </CardHeader>
@@ -919,6 +949,11 @@ export default function StudentDashboard() {
                 );
               })}
             </div>
+            {filteredCourses.length === 0 && (
+              <p className="text-center text-gray-400 py-10">
+                No courses match "{courseSearch}"
+              </p>
+            )}
           </TabsContent>
 
           {/* Challenges Tab */}
@@ -992,17 +1027,26 @@ export default function StudentDashboard() {
 
               {/* Upcoming Challenges */}
               <Card>
-                <CardHeader>
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <CardTitle className="flex items-center space-x-2">
                     <Target className="h-5 w-5 text-blue-600" />
                     <span>Upcoming Challenges</span>
                   </CardTitle>
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search Challenges..."
+                      value={courseSearch}
+                      onChange={(e) => setCourseSearch(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
                   {/* Responsive Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {context.courses.map((course) => (
+                    {filteredCourses.map((course) => (
                       <div
                         key={course._id}
                         className="border rounded-lg p-4 space-y-6"
@@ -1040,7 +1084,13 @@ export default function StudentDashboard() {
                     ))}
                   </div>
                 </CardContent>
+                {filteredCourses.length === 0 && (
+                <p className="text-center text-gray-400 py-10">
+                  No courses match "{courseSearch}"
+                </p>
+              )}
               </Card>
+              
             </div>
           </TabsContent>
 
@@ -1360,7 +1410,7 @@ export default function StudentDashboard() {
                   {context.user?.courses?.length > 0 ? (
                     context.user.courses.map((c, idx) => {
                       const matchedCourse = context.courses?.find(
-                        (course) => course._id === c.courseId
+                        (course) => course._id === c.courseId,
                       );
                       return (
                         <div
@@ -1396,7 +1446,7 @@ export default function StudentDashboard() {
                   {context.user?.challenges?.length > 0 ? (
                     context.user.challenges.map((uc, idx) => {
                       const fullChallenge = context.challenges?.find(
-                        (c) => c._id === uc.challengeId
+                        (c) => c._id === uc.challengeId,
                       );
                       return (
                         <div

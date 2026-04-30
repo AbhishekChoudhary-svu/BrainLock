@@ -195,7 +195,7 @@ export default function TeacherDashboard() {
           method: isEditMode ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(courseData),
-        }
+        },
       );
       const data = await res.json();
 
@@ -203,7 +203,7 @@ export default function TeacherDashboard() {
         toast.success(
           isEditMode
             ? "Course updated successfully!"
-            : "Course created successfully!"
+            : "Course created successfully!",
         );
         setIsDialogOpen(false);
         context.fetchCourses();
@@ -227,7 +227,7 @@ export default function TeacherDashboard() {
           method: isEditModeChallenge ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(challengeData),
-        }
+        },
       );
       const data = await res.json();
 
@@ -235,7 +235,7 @@ export default function TeacherDashboard() {
         toast.success(
           isEditModeChallenge
             ? "Challenge updated successfully!"
-            : "Challenge created successfully!"
+            : "Challenge created successfully!",
         );
         setIsCreateChallengeOpen(false);
         context.fetchChallenges();
@@ -370,6 +370,22 @@ export default function TeacherDashboard() {
       ? context.allUsers.reduce((sum, e) => sum + e.avgScore, 0) /
         context.allUsers.length
       : 0;
+
+  const [courseSearch, setCourseSearch] = useState("");
+  const [challengeSearch, setChallengeSearch] = useState("");
+
+  const filteredCourses = context.courses.filter(
+    (c) =>
+      c.title.toLowerCase().includes(courseSearch.toLowerCase()) ||
+      c.category?.toLowerCase().includes(courseSearch.toLowerCase()),
+  );
+
+  const filteredChallenges = context.challenges.filter(
+    (c) =>
+      c.title.toLowerCase().includes(challengeSearch.toLowerCase()) ||
+      c.difficulty?.toLowerCase().includes(challengeSearch.toLowerCase()) ||
+      c.course?.title?.toLowerCase().includes(challengeSearch.toLowerCase()),
+  );
 
   return (
     <div className="min-h-screen dark:bg-slate-950 bg-gray-50">
@@ -655,8 +671,8 @@ export default function TeacherDashboard() {
                         const enrolledUsers = context?.allUsers?.filter(
                           (user) =>
                             user.courses.some(
-                              (uc) => uc.courseId === course._id
-                            )
+                              (uc) => uc.courseId === course._id,
+                            ),
                         );
 
                         // Count students
@@ -668,7 +684,7 @@ export default function TeacherDashboard() {
                             ? (
                                 enrolledUsers.reduce((sum, user) => {
                                   const uCourse = user.courses.find(
-                                    (uc) => uc.courseId === course._id
+                                    (uc) => uc.courseId === course._id,
                                   );
                                   return sum + (uCourse?.progress || 0);
                                 }, 0) / studentsCount
@@ -703,7 +719,7 @@ export default function TeacherDashboard() {
                                   new Date(course.updatedAt),
                                   {
                                     addSuffix: true,
-                                  }
+                                  },
                                 )}
                               </span>
                             </div>
@@ -726,7 +742,7 @@ export default function TeacherDashboard() {
                       {context.activities.length > 0 ? (
                         context.activities
                           .filter(
-                            (c) => c.role === "teacher" || c.role === "student"
+                            (c) => c.role === "teacher" || c.role === "student",
                           )
                           .map((activity) => (
                             <div
@@ -760,13 +776,13 @@ export default function TeacherDashboard() {
                                     {activity.details.score !== undefined
                                       ? `Score: ${activity.details.score}, Progress: ${activity.details.progress}%`
                                       : typeof activity.details === "string"
-                                      ? activity.details
-                                      : JSON.stringify(activity.details)}
+                                        ? activity.details
+                                        : JSON.stringify(activity.details)}
                                   </p>
                                 )}
                                 <p className="text-xs dark:text-gray-500 text-gray-400 mt-1">
                                   {new Date(
-                                    activity.createdAt
+                                    activity.createdAt,
                                   ).toLocaleString()}
                                 </p>
                               </div>
@@ -905,19 +921,30 @@ export default function TeacherDashboard() {
 
           {/* Courses Tab */}
           <TabsContent value="courses" className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
               <h3 className="text-lg font-semibold">My Courses</h3>
-              <Button onClick={() => openCreateDialog(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Course
-              </Button>
+              <div className="flex items-center gap-2">
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search courses..."
+                    value={courseSearch}
+                    onChange={(e) => setCourseSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Button onClick={() => openCreateDialog(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Course
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {context.courses.map((course) => {
+              {filteredCourses.map((course) => {
                 // Find enrolled users dynamically
                 const enrolledUsers = context?.allUsers?.filter((user) =>
-                  user.courses.some((uc) => uc.courseId === course._id)
+                  user.courses.some((uc) => uc.courseId === course._id),
                 );
 
                 const studentsCount = enrolledUsers.length || 0;
@@ -928,7 +955,7 @@ export default function TeacherDashboard() {
                     ? (
                         enrolledUsers.reduce((sum, user) => {
                           const uCourse = user.courses.find(
-                            (uc) => uc.courseId === course._id
+                            (uc) => uc.courseId === course._id,
                           );
                           return sum + (uCourse?.progress || 0);
                         }, 0) / studentsCount
@@ -1062,21 +1089,37 @@ export default function TeacherDashboard() {
                 );
               })}
             </div>
+            {filteredCourses.length === 0 && (
+              <p className="text-center text-gray-400 py-10">
+                No courses match "{courseSearch}"
+              </p>
+            )}
           </TabsContent>
 
           {/* Challenges Tab */}
           <TabsContent value="challenges" className="space-y-6">
-            <div className="flex justify-between items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
               <h3 className="text-lg font-semibold">Challenge Management</h3>
-              <Button onClick={() => openCreateChallengeDialog()}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Challenge
-              </Button>
+              <div className="flex items-center gap-2">
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search challenges..."
+                    value={challengeSearch}
+                    onChange={(e) => setChallengeSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Button onClick={() => openCreateChallengeDialog()}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Challenge
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Sample challenges would be mapped here */}
-              {context.challenges.map((challenge) => (
+              {filteredChallenges.map((challenge) => (
                 <Card key={challenge._id}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -1162,6 +1205,11 @@ export default function TeacherDashboard() {
                 </Card>
               ))}
             </div>
+            {filteredChallenges.length === 0 && (
+              <p className="text-center text-gray-400 py-10">
+                No challenges match "{challengeSearch}"
+              </p>
+            )}
           </TabsContent>
 
           {/* Students Tab */}
@@ -1210,7 +1258,7 @@ export default function TeacherDashboard() {
                 <TableBody>
                   {context.allUsers
                     .filter(
-                      (user) => user.role === "student" || "admin" || "teacher"
+                      (user) => user.role === "student" || "admin" || "teacher",
                     )
                     .map((student) => (
                       <TableRow key={student._id}>
@@ -1241,8 +1289,8 @@ export default function TeacherDashboard() {
                               student.avgScore >= 90
                                 ? "default"
                                 : student.avgScore >= 80
-                                ? "secondary"
-                                : "destructive"
+                                  ? "secondary"
+                                  : "destructive"
                             }
                           >
                             {student.avgScore.toFixed(2) || 50}%
@@ -1740,7 +1788,7 @@ export default function TeacherDashboard() {
                   {selectedUser?.courses?.length > 0 ? (
                     selectedUser.courses.map((c, idx) => {
                       const matchedCourse = context.courses?.find(
-                        (course) => course._id === c.courseId
+                        (course) => course._id === c.courseId,
                       );
 
                       return (
@@ -1789,7 +1837,7 @@ export default function TeacherDashboard() {
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   Completed:{" "}
                   {selectedUser?.courses?.filter(
-                    (c) => c.status === "completed"
+                    (c) => c.status === "completed",
                   ).length || 0}
                 </div>
                 <div className="flex items-center gap-1">
