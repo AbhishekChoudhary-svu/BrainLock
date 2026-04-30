@@ -24,6 +24,7 @@ import {
   ArrowLeft,
   Mail,
   Lock,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -49,6 +50,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e, role) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const res = await fetch("/api/auth/login", {
@@ -70,17 +72,14 @@ export default function LoginPage() {
 
       toast.success(data.message || "Login successful");
 
-      // Redirect based on role
-      if (role === "student") {
-        router.push("/Dashboard/StudentDashboard");
-      } else if (role === "teacher") {
-        router.push("/Dashboard/TeacherDashboard");
-      } else if (role === "admin") {
-        router.push("/Dashboard/AdminDashboard");
-      }
+      if (role === "student") router.push("/Dashboard/StudentDashboard");
+      else if (role === "teacher") router.push("/Dashboard/TeacherDashboard");
+      else if (role === "admin") router.push("/Dashboard/AdminDashboard");
     } catch (error) {
       toast.error("Something went wrong, please try again");
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -166,6 +165,7 @@ export default function LoginPage() {
         };
     }
   }
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <div className="min-h-screen dark:from-slate-900 dark:via-slate-950 dark:to-purple-950 bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
@@ -334,11 +334,21 @@ export default function LoginPage() {
 
                         <Button
                           type="submit"
-                          className="w-full  "
+                          className="w-full"
                           size="lg"
+                          disabled={isLoading}
                         >
-                          Sign in as{" "}
-                          {role.charAt(0).toUpperCase() + role.slice(1)}
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Signing in...
+                            </>
+                          ) : (
+                            <>
+                              Sign in as{" "}
+                              {role.charAt(0).toUpperCase() + role.slice(1)}
+                            </>
+                          )}
                         </Button>
                       </form>
                     </TabsContent>

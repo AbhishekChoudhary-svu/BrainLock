@@ -27,6 +27,7 @@ import {
   User,
   Phone,
   Building,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -55,18 +56,19 @@ export default function SignupPage() {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate password confirmation
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords don't match!");
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      // Prepare request body
       const payload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -79,9 +81,7 @@ export default function SignupPage() {
 
       const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -93,11 +93,10 @@ export default function SignupPage() {
       }
 
       toast.success(
-        data.message || "Registration successful! Please check your email."
+        data.message || "Registration successful! Please check your email.",
       );
       localStorage.setItem("userEmail", formData.email);
 
-      // Reset form fields
       setFormData({
         firstName: "",
         lastName: "",
@@ -108,10 +107,13 @@ export default function SignupPage() {
         adminCode: "",
         teacherCode: "",
       });
+
       router.push("/VerifyEmailPage");
       setActiveTab("student");
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -481,9 +483,24 @@ export default function SignupPage() {
                           </div>
                         </div> */}
 
-                        <Button type="submit" className="w-full" size="lg">
-                          Create {role.charAt(0).toUpperCase() + role.slice(1)}{" "}
-                          Account
+                        <Button
+                          type="submit"
+                          className="w-full"
+                          size="lg"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Creating Account...
+                            </>
+                          ) : (
+                            <>
+                              Create{" "}
+                              {role.charAt(0).toUpperCase() + role.slice(1)}{" "}
+                              Account
+                            </>
+                          )}
                         </Button>
                       </form>
                     </TabsContent>
