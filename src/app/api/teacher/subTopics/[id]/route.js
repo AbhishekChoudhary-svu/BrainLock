@@ -7,7 +7,9 @@ import Content from "@/models/content.model";
 export async function GET(req, { params }) {
   try {
     await dbConnect();
-    const subtopic = await Subtopic.findById(params.id)
+    const { id } = await params; //  awaited
+
+    const subtopic = await Subtopic.findById(id)
       .populate("course")
       .populate("contents");
 
@@ -34,10 +36,11 @@ export async function GET(req, { params }) {
 export async function PUT(req, { params }) {
   try {
     await dbConnect();
+    const { id } = await params; //  awaited
     const body = await req.json();
 
     const updatedSubtopic = await Subtopic.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       { new: true, runValidators: true }
     );
@@ -65,9 +68,9 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     await dbConnect();
+    const { id } = await params; //  awaited
 
-    // Find subtopic first (so we can access its course & contents)
-    const deletedSubtopic = await Subtopic.findById(params.id);
+    const deletedSubtopic = await Subtopic.findById(id);
     if (!deletedSubtopic) {
       return new Response(
         JSON.stringify({ success: false, message: "Subtopic not found" }),
@@ -88,7 +91,7 @@ export async function DELETE(req, { params }) {
     }
 
     // Finally delete the subtopic itself
-    await Subtopic.findByIdAndDelete(params.id);
+    await Subtopic.findByIdAndDelete(id);
 
     return new Response(
       JSON.stringify({
