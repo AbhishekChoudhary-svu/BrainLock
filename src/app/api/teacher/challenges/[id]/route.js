@@ -69,7 +69,7 @@ export async function DELETE(req, context) {
     await dbConnect();
 
     // Await params first
-    const { params } = context; // Next.js requires you to destructure params
+    const { params } = await context; // Next.js requires you to destructure params
     const challengeId = params.id;
 
     // Find the challenge

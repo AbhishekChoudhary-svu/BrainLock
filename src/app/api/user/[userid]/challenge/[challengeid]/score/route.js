@@ -6,10 +6,8 @@ import { logActivity } from "@/lib/logActivity";
 
 export async function PUT(req, { params }) {
   await dbConnect();
-  const { userid, challengeid } = params;
+  const { userid, challengeid } = await params;
   const { score } = await req.json();
-
-  console.log(userid)
 
   try {
     const user = await User.findById(userid);

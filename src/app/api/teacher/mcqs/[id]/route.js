@@ -6,8 +6,9 @@ import SubjectChallenge from "@/models/subjectChallenge.model";
 export async function GET(req, { params }) {
   try {
     await dbConnect();
-    
-    const mcq = await MCQ.findById(params.id).populate("subjectChallenge", "title");
+    const { id } = await params; // awaited
+
+    const mcq = await MCQ.findById(id).populate("subjectChallenge", "title");
 
     if (!mcq) {
       return new Response(
@@ -32,17 +33,16 @@ export async function GET(req, { params }) {
 export async function PUT(req, { params }) {
   try {
     await dbConnect();
+    const { id } = await params; // awaited
     const body = await req.json();
 
-    // Ensure id is passed
-    if (!params?.id) {
+    if (!id) {
       return new Response(
         JSON.stringify({ success: false, error: "MCQ ID is required" }),
         { status: 400 }
       );
     }
 
-    // Validate options if provided
     if (body.options && Array.isArray(body.options)) {
       body.options = body.options.map((opt) =>
         typeof opt === "string"
@@ -51,7 +51,7 @@ export async function PUT(req, { params }) {
       );
     }
 
-    const mcq = await MCQ.findByIdAndUpdate(params.id, body, {
+    const mcq = await MCQ.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
@@ -80,9 +80,9 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     await dbConnect();
+    const { id } = await params; // awaited
 
-    // Find and delete the MCQ
-    const mcq = await MCQ.findByIdAndDelete(params.id);
+    const mcq = await MCQ.findByIdAndDelete(id);
 
     if (!mcq) {
       return new Response(
@@ -91,7 +91,6 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    // Remove MCQ reference from SubjectChallenge
     await SubjectChallenge.findByIdAndUpdate(
       mcq.subjectChallenge,
       { $pull: { mcqs: mcq._id } },

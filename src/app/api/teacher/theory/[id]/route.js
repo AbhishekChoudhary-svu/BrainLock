@@ -6,7 +6,9 @@ import Subtopic from "@/models/subtopic.model";
 export async function GET(req, { params }) {
   try {
     await dbConnect();
-    const content = await Content.findById(params.id).populate("subtopic");
+    const { id } = await params; //  awaited
+
+    const content = await Content.findById(id).populate("subtopic");
 
     if (!content) {
       return new Response(
@@ -31,9 +33,10 @@ export async function GET(req, { params }) {
 export async function PUT(req, { params }) {
   try {
     await dbConnect();
+    const { id } = await params; //  awaited
     const body = await req.json();
 
-    const updated = await Content.findByIdAndUpdate(params.id, body, {
+    const updated = await Content.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
@@ -61,9 +64,9 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     await dbConnect();
+    const { id } = await params; //  awaited
 
-    // 1. Delete the content
-    const deleted = await Content.findByIdAndDelete(params.id);
+    const deleted = await Content.findByIdAndDelete(id);
 
     if (!deleted) {
       return new Response(
@@ -72,7 +75,6 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    // 2. Remove reference from Subtopic.contents
     if (deleted.subtopic) {
       await Subtopic.findByIdAndUpdate(deleted.subtopic, {
         $pull: { contents: deleted._id },
